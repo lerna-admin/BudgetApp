@@ -1,0 +1,363 @@
+openapi: 3.0.3
+info:
+  title: BudgetApp API
+  description: >
+    Contratos iniciales para el MVP de BudgetApp (onboarding, presupuestos,
+    transacciones, alertas e integraciones bancarias). Esta especificación sirve
+    como base para generar SDKs/mocks y evolucionará conforme avancemos en la
+    fase de Elaboración.
+  version: 0.1.0
+  contact:
+    name: BudgetApp Team
+servers:
+  - url: https://api.budgetapp.local
+    description: Sandbox local
+  - url: https://api.staging.budgetapp.com
+    description: Staging
+tags:
+  - name: Onboarding
+  - name: Budgets
+  - name: Transactions
+  - name: Alerts
+  - name: Bank Integrations
+paths:
+  /api/onboarding:
+    post:
+      tags: [Onboarding]
+      summary: Captura datos iniciales y genera diagnóstico de salud financiera.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnboardingRequest'
+      responses:
+        '201':
+          description: Diagnóstico generado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/budgets:
+    get:
+      tags: [Budgets]
+      summary: Obtiene presupuesto por periodo y household.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: period
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          required: true
+          description: Periodo en formato YYYY-MM.
+        - in: query
+          name: householdId
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Presupuesto encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+    post:
+      tags: [Budgets]
+      summary: Crea/actualiza presupuesto.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetInput'
+      responses:
+        '201':
+          description: Presupuesto creado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '409':
+          description: Ya existe un presupuesto para ese periodo.
+  /api/transactions:
+    post:
+      tags: [Transactions]
+      summary: Registra transacción manual.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionInput'
+      responses:
+        '201':
+          description: Transacción creada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+    get:
+      tags: [Transactions]
+      summary: Lista transacciones filtradas por estado/origen.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: source
+          schema:
+            type: string
+            enum: [manual, bank]
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, posted]
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Lista paginada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  nextCursor:
+                    type: string
+  /api/alerts:
+    post:
+      tags: [Alerts]
+      summary: Crea regla de alerta.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertInput'
+      responses:
+        '201':
+          description: Alerta configurada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+  /api/integrations/banks/link-token:
+    post:
+      tags: [Bank Integrations]
+      summary: Genera token efímero para iniciar flujo con el proveedor bancario.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                institutionId:
+                  type: string
+                country:
+                  type: string
+                  example: CO
+              required: [institutionId, country]
+      responses:
+        '200':
+          description: Token generado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  linkToken:
+                    type: string
+                  expiresIn:
+                    type: integer
+                    description: Segundos de validez.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: Error de validación.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
+    OnboardingRequest:
+      type: object
+      properties:
+        ingresosMensuales:
+          type: number
+        gastosFijos:
+          type: number
+        deudas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Debt'
+        metas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Goal'
+      required: [ingresosMensuales, gastosFijos]
+    OnboardingResponse:
+      type: object
+      properties:
+        scoreSalud:
+          type: integer
+          minimum: 0
+          maximum: 100
+        recomendaciones:
+          type: array
+          items:
+            type: string
+    BudgetInput:
+      type: object
+      properties:
+        period:
+          type: string
+        currency:
+          type: string
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetCategory'
+      required: [period, currency, categories]
+    Budget:
+      allOf:
+        - $ref: '#/components/schemas/BudgetInput'
+        - type: object
+          properties:
+            id:
+              type: string
+            householdId:
+              type: string
+            totals:
+              type: object
+              properties:
+                asignado:
+                  type: number
+                gastado:
+                  type: number
+    BudgetCategory:
+      type: object
+      properties:
+        categoryId:
+          type: string
+        asignado:
+          type: number
+        gastado:
+          type: number
+          readOnly: true
+      required: [categoryId, asignado]
+    TransactionInput:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        amount:
+          type: number
+        categoryId:
+          type: string
+        method:
+          type: string
+          enum: [cash, debit_card, credit_card, transfer]
+        notes:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uri
+      required: [date, amount, categoryId]
+    Transaction:
+      allOf:
+        - $ref: '#/components/schemas/TransactionInput'
+        - type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+              enum: [pending, posted]
+            source:
+              type: string
+              enum: [manual, bank]
+    AlertInput:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [budget_over, transaction_large, goal_at_risk]
+        threshold:
+          type: number
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [push, email, whatsapp]
+      required: [type, channels]
+    Alert:
+      allOf:
+        - $ref: '#/components/schemas/AlertInput'
+        - type: object
+          properties:
+            id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+    Debt:
+      type: object
+      properties:
+        name:
+          type: string
+        balance:
+          type: number
+        interestRate:
+          type: number
+    Goal:
+      type: object
+      properties:
+        name:
+          type: string
+        targetAmount:
+          type: number
+        targetDate:
+          type: string
+          format: date

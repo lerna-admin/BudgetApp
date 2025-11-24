@@ -15,6 +15,7 @@ Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, ale
 | [Arquitectura](documentation/documents/arquitectura.md) | Vista técnica de referencia, componentes, integraciones bancarias y decisiones clave para un despliegue multi-país. |
 | [Requisitos](documentation/documents/requisitos.md) | Detalle de requerimientos funcionales/no funcionales (en construcción). |
 | [Casos de uso](documentation/documents/casos_de_uso.md) | Actores y flujos principales que cubren la experiencia de BudgetApp. |
+| [OpenAPI](documentation/api/openapi.yaml) | Especificación 0.1.0 de los endpoints prioritarios (onboarding, presupuestos, transacciones, alertas, integraciones). |
 
 > Cada iteración que avancemos agregará nuevos artefactos en este directorio (arquitectura, plan de pruebas, etc.) siguiendo la estructura RUP.
 
