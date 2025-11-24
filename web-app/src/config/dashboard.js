@@ -139,6 +139,7 @@ export const dashboardConfig = {
 				},
 				{ key: "calendar", title: "Calendar", href: paths.dashboard.calendar, icon: "calendar-check" },
 				{ key: "tasks", title: "Tasks", href: paths.dashboard.tasks, icon: "kanban" },
+				{ key: "budgets", title: "Budgets", href: paths.dashboard.budgets, icon: "coins" },
 			],
 		},
 		{
