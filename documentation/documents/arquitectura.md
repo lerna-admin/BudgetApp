@@ -71,9 +71,110 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
 | Escalamiento de notificaciones en tiempo real | Medio | Arquitectura event-driven, uso de servicios manejados (FCM, SNS) y particionamiento por canal. |
 | Dependencia de un único proveedor bancario | Alto | Contrato con al menos un proveedor alterno, diseño de adaptadores e indicadores que disparen la incorporación de otro servicio. |
 
-## 11. Próximos pasos
-1. Elaborar diagramas UML (componentes, despliegue y secuencia para casos clave).
-2. Prototipar el BFF/API Gateway y validar integración con proveedor bancario (sandbox) durante la fase E1/E2.
-3. Definir contrato de APIs (OpenAPI/GraphQL schema) para onboarding, presupuestos y transacciones.
-4. Establecer infraestructura base (repos monorepo, pipelines CI/CD, configuración de Supabase/Postgres).
-5. Documentar políticas de seguridad, backups y plan de respuesta a incidentes antes del piloto.
+## 11. Diagramas de referencia
+
+### 11.1 Componentes (vista lógica)
+```mermaid
+graph TD
+    subgraph Clientes
+        U1[Usuario Web] -->|HTTPS| WApp[Web App Next.js]
+        U2[Usuario Móvil] -->|HTTPS| MApp[Mobile App RN]
+    end
+    WApp -->|GraphQL/REST| BFF
+    MApp -->|GraphQL/REST| BFF
+    subgraph Backend
+        BFF[API Gateway / BFF]
+        OB[Servicio Onboarding]
+        BG[Servicio Presupuestos]
+        TX[Servicio Transacciones]
+        FA[Servicio Familia]
+        NT[Servicio Notificaciones]
+        IN[Servicio Integraciones Bancarias]
+    end
+    BFF --> OB
+    BFF --> BG
+    BFF --> TX
+    BFF --> FA
+    BFF --> NT
+    TX --> IN
+    IN -->|Webhooks/Queues| PB[(Proveedor Bancario)]
+    TX -->|SQL| DB[(PostgreSQL)]
+    BG -->|SQL| DB
+    OB -->|SQL| DB
+    FA -->|SQL| DB
+    NT -->|Redis| Cache[(Redis)]
+    NT -->|APIs| MSG[(FCM/Twilio)]
+```
+
+### 11.2 Despliegue
+```mermaid
+graph LR
+    subgraph Cliente
+        Browser --> CDN
+        Mobile --> AppStore/OTA
+    end
+    CDN --> WebApp[Vercel / Static Next.js]
+    Mobile --> RNApp[Expo OTA Updates]
+    WebApp --> ALB
+    RNApp --> ALB
+    subgraph Infraestructura
+        ALB[Application Load Balancer]
+        APICluster[(API Containers)]
+        WorkerCluster[(Workers/Queues)]
+        DB[(Managed Postgres/Supabase)]
+        Cache[(Redis/Memcached)]
+        Queue[(SQS/Rabbit)]
+    end
+    ALB --> APICluster
+    APICluster --> DB
+    APICluster --> Cache
+    APICluster --> Queue
+    Queue --> WorkerCluster
+    WorkerCluster --> DB
+    WorkerCluster --> Integraciones[(Belvo/Minka, Stripe, Twilio, FCM)]
+```
+
+### 11.3 Secuencia – Importación de transacción bancaria
+```mermaid
+sequenceDiagram
+    participant Bank as Banco
+    participant Provider as Proveedor Bancario
+    participant Integrations as Servicio Integraciones
+    participant Queue as Cola/Event Bus
+    participant Transactions as Servicio Transacciones
+    participant API as API/BFF
+    participant Client as Web/Móvil
+
+    Client->>API: Solicita conectar cuenta
+    API->>Provider: Inicia Link/OAuth
+    Provider-->>Client: Modal de autorización
+    Client->>Bank: Credenciales (canal seguro del proveedor)
+    Bank-->>Provider: Token de acceso
+    Provider-->>Integrations: Webhook movimiento nuevo
+    Integrations->>Queue: Encola evento de transacción
+    Queue->>Transactions: Consume evento
+    Transactions->>DB: Guarda transacción y aplica reglas de categoría
+    Transactions->>API: Emite evento SSE/WebSocket
+    API-->>Client: Notifica nueva transacción
+    Transactions->>Notifications: Solicita alerta si aplica
+```
+
+## 12. Contratos de API iniciales
+| Recurso | Método/Endpoint | Request (resumen) | Response | Notas |
+|---------|-----------------|-------------------|----------|-------|
+| Onboarding | `POST /api/onboarding` | `{ ingresos, gastosMensuales, deudas[], metas[] }` | `201 Created` + `{ scoreSalud, recomendaciones[] }` | Restringir a usuarios autenticados; guarda snapshot inicial. |
+| Presupuestos | `GET /api/budgets?period=2025-12` | Headers `Authorization` | `{ period, currency, categories: [{id, asignado, gastado}] }` | Soporta filtros por periodo y household. |
+| Presupuestos | `POST /api/budgets` | `{ period, currency, categories[] }` | `201 Created` + presupuesto completo | Valida límites según plan (individual/familiar). |
+| Transacciones | `POST /api/transactions` | `{ date, amount, categoryId, method, notes, attachments[] }` | `201` + `{ id, status }` | Método manual; attachments almacenados en storage seguro. |
+| Transacciones (importadas) | `GET /api/transactions?source=bank&status=pending` | — | Lista de movimientos pendientes de confirmar | Permite reconciliar manualmente. |
+| Integraciones bancarias | `POST /api/integrations/banks/link-token` | `{ institutionId, country }` | `{ linkToken }` | Token efímero para iniciar flujo con proveedor. |
+| Alertas | `POST /api/alerts` | `{ type, threshold, channels[] }` | `201` | Reglas guardadas y asociadas al usuario/household. |
+
+> Todas las APIs devolverán errores estructurados (`code`, `message`, `details`) y se documentarán en OpenAPI v3 para facilitar SDKs.
+
+## 13. Próximos pasos
+1. Validar los diagramas anteriores con el stakeholder y convertirlos a versiones finales (UML) para los entregables oficiales de Elaboración.
+2. Publicar el contrato OpenAPI/GraphQL completo (incluyendo esquemas de error y webhooks) y generar SDKs automáticos.
+3. Prototipar el BFF/API Gateway y probar la integración bancaria en sandbox (Belvo/Minka) para ajustar latencias y colas.
+4. Establecer infraestructura base (monorepo, pipelines CI/CD, Supabase/Postgres administrado) y definir políticas de backup/DR.
+5. Completar el plan de seguridad y respuesta a incidentes antes de permitir el piloto con datos reales.
