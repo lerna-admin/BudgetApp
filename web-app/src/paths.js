@@ -118,6 +118,9 @@ export const paths = {
 			feed: "/dashboard/social/feed",
 		},
 		tasks: "/dashboard/tasks",
+		transactions: {
+			create: "/dashboard/transactions/create",
+		},
 		budgets: "/dashboard/budgets",
 	},
 	pdf: { invoice: (invoiceId) => `/pdf/invoices/${invoiceId}` },
