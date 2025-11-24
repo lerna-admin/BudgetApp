@@ -19,6 +19,11 @@ Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, ale
 
 > Cada iteración que avancemos agregará nuevos artefactos en este directorio (arquitectura, plan de pruebas, etc.) siguiendo la estructura RUP.
 
+## Mock API
+- El repositorio incluye un mock server basado en Prism para probar los contratos REST sin backend real.
+- Ejecutar con `./scripts/mock-api.sh` (requiere `node` y descargará Prism vía `npx`); variables `PORT` y `HOST` son opcionales (`4010` y `0.0.0.0` por defecto).
+- Los endpoints expuestos responden conforme a `documentation/api/openapi.yaml`, ideal para validar el flujo descrito en el documento de arquitectura.
+
 ## Cómo colaborar
 1. Revisar los documentos anteriores antes de proponer cambios.
 2. Registrar toda conversación relevante en `historic/<fecha>.log` según el proceso acordado con el stakeholder.
