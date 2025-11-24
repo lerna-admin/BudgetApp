@@ -19,10 +19,53 @@ Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, ale
 
 > Cada iteración que avancemos agregará nuevos artefactos en este directorio (arquitectura, plan de pruebas, etc.) siguiendo la estructura RUP.
 
-## Mock API
+## Mock API y pruebas manuales
 - El repositorio incluye un mock server basado en Prism para probar los contratos REST sin backend real.
-- Ejecutar con `./scripts/mock-api.sh` (requiere `node` y descargará Prism vía `npx`); variables `PORT` y `HOST` son opcionales (`4010` y `0.0.0.0` por defecto).
+- Ejecutar con `./scripts/mock-api.sh` (requiere `node` y descargará Prism vía `npx`); variables `PORT` y `HOST` son opcionales (`4010` y `0.0.0.0` por defecto). Ejemplo: `PORT=5000 ./scripts/mock-api.sh`.
 - Los endpoints expuestos responden conforme a `documentation/api/openapi.yaml`, ideal para validar el flujo descrito en el documento de arquitectura.
+- Para tests de UI, apuntar los servicios HTTP de `web-app/` al host/puerto del mock. Se recomienda crear scripts `npm run dev:mock` en `web-app` conforme integremos el frontend.
+
+## Flujo de usuarios (onboarding → registros)
+```mermaid
+flowchart TD
+    A[Landing / Registro] --> B[Crear cuenta / Login]
+    B --> C[Onboarding financiero]
+    C -->|Cuestionario completado| D[Diagnóstico salud financiera]
+    D --> E[Configurar presupuesto inicial]
+    E --> F[Conectar cuentas bancarias]
+    F -->|Éxito| G[Sincronización automática]
+    F -->|Opcional / error| H[Registrar cuentas/tarjetas manuales]
+    E --> I[Definir categorías y metas]
+    I --> J[Configurar alertas y notificaciones]
+    J --> K[Dashboard principal]
+    G --> K
+    H --> K
+    K --> L[Registrar gasto/ingreso manual]
+    K --> M[Revisar transacciones importadas]
+    L --> N[Confirmar y categorizar]
+    M --> N
+    N --> O[Dashboards y alertas actualizados]
+```
+- Este flujo debe guiar los prototipos de `web-app/` y los criterios de aceptación. Cada etapa corresponde a servicios disponibles en la especificación OpenAPI (onboarding, budgets, integrations, transactions).
+
+## Flujos del sistema y notificaciones en tiempo real
+- **Integraciones bancarias**: se consumen vía el servicio especializado descrito en `documentación/arquitectura`. Webhooks del proveedor (Belvo/Minka inicialmente) ingresan encolados (SQS/Rabbit) y disparan:
+  1. Persistencia de transacción → actualización de dashboards.
+  2. Emisión de eventos WebSocket/SSE para clientes activos.
+  3. Evaluación de reglas de alertas (presupuesto excedido, cargos altos, metas en riesgo).
+- **Canales en tiempo real**:
+  - Web/Móvil usan WebSockets (o SSE) expuestos por el BFF para reflejar nuevas transacciones sin recargar.
+  - Notificaciones push/email/WhatsApp se orquestan desde el servicio de notificaciones usando proveedores FCM/Twilio.
+- **Triggers internos**: además de eventos bancarios, se planifican cron jobs (p. ej. cada hora) para recalcular proyecciones y detectar riesgos antes de que sucedan (alertas predictivas).
+
+## Configuración por país (multi-mercado)
+- El sistema mantiene un catálogo `countries` que define moneda por defecto, zona horaria, regulaciones aplicables, límites de bancos soportados, textos legales y proveedores preferidos.
+- **Colombia (fase inicial)**:
+  - Moneda: COP.
+  - Proveedor bancario: Belvo/Minka (sandbox → producción).
+  - Normativa: Habeas Data, Ley 1581/2012, lineamientos de la Superintendencia Financiera. Requiere consentimiento explícito para uso de datos financieros.
+  - Reglas predeterminadas: categorías y metas alineadas con la plantilla Excel original; alertas activas por defecto para sobregiros y pagos de tarjetas.
+- Al sumar otro país se agrega una entrada nueva con sus requisitos (PSD2 en la UE, LGPD en Brasil, etc.). Las pantallas deberán ofrecer selección de país durante el onboarding, y los servicios deben validar que la configuración corresponda a la región del usuario.
 
 ## Cómo colaborar
 1. Revisar los documentos anteriores antes de proponer cambios.
