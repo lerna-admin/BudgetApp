@@ -3,7 +3,7 @@
 Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, alertas inteligentes e integración bancaria extensible; la primera fase de integraciones se enfocará en bancos colombianos, pero el producto no se limita a ese mercado. El proyecto se documenta bajo la metodología RUP para garantizar trazabilidad de decisiones y entregables por fase.
 
 ## Estado del repositorio
-- **Código fuente**: carpeta `app/` con la plantilla principal a adaptar y `legacy-code/` con artefactos anteriores (referencias, experimentos).
+- **Código fuente**: carpeta `web-app/` con la plantilla principal a adaptar y `legacy-code/` con artefactos anteriores (referencias, experimentos).
 - **Documentación**: carpeta `documentation/documents/` con los artefactos RUP que guían cada fase.
 - **Histórico**: carpeta `historic/` en la raíz del workspace (fuera de este repo) donde se registran todas las conversaciones y decisiones.
 
