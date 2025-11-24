@@ -15,7 +15,7 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 | RF-01 | Alta | Onboarding con cuestionario que calcule la salud financiera inicial (ingresos, gastos, deudas, metas) y entregue un diagnóstico. |
 | RF-02 | Alta | Gestión de presupuestos mensuales/anuales replicando la lógica de la plantilla Excel (categorías, subcategorías, metas y saldos). |
 | RF-03 | Alta | Registro manual de transacciones (fecha, monto, categoría, subcategoría, método de pago, notas, adjuntos). |
-| RF-04 | Alta | Integración con bancos colombianos para importar movimientos automáticamente y reconciliarlos con categorías. |
+| RF-04 | Alta | Integración bancaria (primera ola enfocada en entidades colombianas) para importar movimientos automáticamente y reconciliarlos con categorías, preservando una arquitectura lista para sumar nuevos países. |
 | RF-05 | Alta | Motor de categorización asistida con reglas editables por el usuario y aprendizaje según correcciones. |
 | RF-06 | Alta | Alertas en tiempo real (push, correo, WhatsApp opcional) cuando se excede un presupuesto o ocurre un cargo relevante. |
 | RF-07 | Media | Simulador “¿puedo permitírmelo?” que evalúe un gasto futuro contra disponibilidad en el mes y metas. |
@@ -27,7 +27,7 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 
 ## 4. Requisitos no funcionales
 - **Disponibilidad**: 99 % mensual para servicios web/móvil.
-- **Seguridad**: autenticación multifactor, cifrado de datos sensibles (en reposo y tránsito), cumplimiento de normas locales para manejo de datos financieros (Habeas Data, Ley 1581/2012).
+- **Seguridad**: autenticación multifactor, cifrado de datos sensibles (en reposo y tránsito), cumplimiento normativo por país (Habeas Data/Ley 1581 en Colombia, equivalentes LATAM y lineamientos internacionales).
 - **Escalabilidad**: soportar al menos 50k usuarios activos con crecimiento horizontal de servicios.
 - **Usabilidad**: onboarding guiado <10 minutos, accesibilidad AA (WCAG 2.1), experiencia consistente web/móvil.
 - **Rendimiento**: respuesta <2s en vistas críticas (dashboard, registro de transacciones); sincronización bancaria en <5 minutos tras recibir webhooks.
@@ -35,9 +35,9 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 - **Mantenibilidad**: arquitectura modular basada en microservicios/APIs y desacople entre captura, analítica y notificaciones.
 
 ## 5. Supuestos
-- Existen APIs de bancos/locales (Plaid/Belvo u otras) disponibles para cuentas colombianas.
+- Existen APIs de bancos/locales (Plaid/Belvo u otras) disponibles para cuentas colombianas en la fase inicial y con roadmap para nuevos territorios.
 - Los usuarios están dispuestos a conectar cuentas siempre que se comunique claramente la seguridad.
-- El MVP operará inicialmente en Colombia pero con vistas a expandirse a LATAM.
+- El MVP operará inicialmente en Colombia pero debe diseñarse para escalar a otros países sin reprocesos significativos.
 
 ## 6. Dependencias
 - Proveedor de integración bancaria (evaluar Plaid, Belvo, Minka u otro).
@@ -45,7 +45,7 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 - Infraestructura de autenticación y pagos (Supabase Auth / Clerk + Stripe para suscripciones).
 
 ## 7. Requisitos abiertos / por definir
-1. Detalle de regulaciones y licencias necesarias para conectarse a bancos colombianos.
+1. Detalle de regulaciones y licencias necesarias para conectarse a bancos colombianos (y cómo varían al expandirnos).
 2. Alcance exacto de la capa familiar (cantidad de miembros, límites de cuentas).
 3. Estrategia de planes y precios (tiers, límites del plan gratuito).
 4. Localización e idiomas iniciales (español obligatorio, inglés opcional).

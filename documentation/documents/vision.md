@@ -9,7 +9,7 @@ Este documento describe la visión del producto BudgetApp dentro del marco RUP p
 
 ## 3. Objetivos de negocio
 1. **Adopción sostenida**: crecimiento mensual de usuarios activos (meta preliminar: +15 % trimestral).
-2. **Integración bancaria temprana**: conexión a bancos colombianos desde las primeras versiones para diferenciarnos.
+2. **Integración bancaria progresiva**: iniciar con bancos colombianos en la primera ola de despliegue y luego extender integraciones hacia otros países sin rediseñar la arquitectura.
 3. **Monetización escalable**: establecer un modelo freemium con planes de pago (individual, familiar) que habilite ingresos recurrentes.
 
 ## 4. Métricas de éxito
@@ -40,13 +40,13 @@ Las personas, especialmente jóvenes profesionales, carecen de visibilidad sobre
 - Motor de simulación previo a compras y alertas predictivas basadas en metas.
 
 ## 9. Restricciones y supuestos
-- **Regulatorio**: integrarse a bancos colombianos puede requerir certificaciones o registro como fintech.
+- **Regulatorio**: la fase inicial depende de permisos para conectarnos a bancos colombianos, pero la arquitectura debe contemplar normativas internacionales (open banking, PSD2, etc.) para escalar.
 - **Técnico**: se usará el stack existente (Next.js, React, etc.) y se garantizará paridad funcional con la plantilla Excel.
 - **Temporal**: MVP debe incluir onboarding, presupuestos base, captura de gastos y alertas mínimas.
 - **Monetización**: iniciar con plan gratuito y evolucionar hacia suscripciones; la capa familiar es premium.
 
 ## 10. Riesgos iniciales
-1. Obtención de permisos/regulaciones para conexiones bancarias en Colombia (posible necesidad de licencias fintech).
+1. Obtención de permisos/regulaciones para conexiones bancarias en Colombia (posible necesidad de licencias fintech) y ajustes adicionales al expandir a otros países.
 2. Complejidad de mantener sincronización en tiempo real con múltiples bancos.
 3. Resistencia de usuarios a vincular cuentas bancarias (necesaria estrategia de confianza y seguridad).
 
@@ -60,4 +60,3 @@ Las personas, especialmente jóvenes profesionales, carecen de visibilidad sobre
 1. Detallar requisitos funcionales/no funcionales.
 2. Modelar actores y casos de uso.
 3. Validar opciones regulatorias para integraciones bancarias.
-

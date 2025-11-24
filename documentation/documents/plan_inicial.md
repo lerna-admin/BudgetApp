@@ -5,12 +5,12 @@ Establecer el plan inicial del proyecto BudgetApp bajo metodología RUP, definie
 
 ## 2. Contexto de negocio y métricas
 - **Adopción**: necesitamos un crecimiento sostenido de usuarios (meta inicial: >15 % trimestral) impulsado por experiencia web + móvil desde el día uno.
-- **Integración bancaria**: la conexión temprana a bancos colombianos y registro de tarjetas de crédito es el diferenciador principal; sin esto la propuesta pierde valor.
+- **Integración bancaria**: la primera ola conectará bancos colombianos y permitirá registrar tarjetas locales, pero la arquitectura debe soportar rápidamente nuevas regiones.
 - **Monetización**: partimos con plan gratuito individual y evolucionamos a planes de pago (familia/premium) una vez exista confianza y funcionalidades avanzadas (alertas, recomendaciones).
 - **Dolor que resolvemos**: salud financiera deficiente por falta de visibilidad; el onboarding debe diagnosticar la situación del usuario y mostrarle el costo de no presupuestar.
 - **Casos de uso críticos**: simulador “¿puedo permitírmelo?” previo a gastos discrecionales, alertas en tiempo real al superar límites, análisis por tarjeta con información de intereses.
 - **Segmentos**: jóvenes profesionales (primer target), familias/parejas con presupuestos combinados y freelancers con múltiples fuentes de ingreso.
-- **Riesgos pre-identificados**: posible obligación de constituirnos como fintech para integrarnos al sistema bancario colombiano, restricciones regulatorias de datos personales y resistencia a compartir credenciales.
+- **Riesgos pre-identificados**: posible obligación de constituirnos como fintech para operar en Colombia (y requisitos extra por país al expandir), además de restricciones regulatorias de datos personales y resistencia a compartir credenciales.
 
 ## 3. Resumen de Fases y Duración Tentativa
 | Fase RUP | Duración estimada | Hitos clave | Entregables principales |
@@ -101,4 +101,4 @@ Establecer el plan inicial del proyecto BudgetApp bajo metodología RUP, definie
 ## 12. Referentes de mercado y oportunidades de diferenciación
 - **YNAB (You Need a Budget)** – [Referencia](https://en.wikipedia.org/wiki/YNAB): plataforma web/móvil basada en método de sobres y asignación cero que refuerza reglas claras (da a cada peso una función, ahorra para emergencias, ajusta sobre la marcha). Nos inspira para construir un onboarding educativo, reglas configurables y simulaciones antes de gastar.
 - **Intuit Mint** – [Referencia](https://en.wikipedia.org/wiki/Intuit_Mint): agregador que conecta cuentas bancarias, tarjetas e inversiones para mostrar balances consolidados, presupuestos y metas. Refuerza la necesidad de integraciones financieras y dashboards unificados; además, la alerta de facturas y seguimiento de puntaje crediticio abre la puerta a notificaciones enriquecidas.
-- **Conclusiones**: los líderes combinan automatización, recomendaciones inteligentes y multicanalidad. BudgetApp debe mejorar esta ecuación con: alertas predictivas en tiempo real, simulador “¿puedo permitírmelo?” contextual, planes familiares colaborativos y foco en el mercado colombiano (regulaciones, hábitos de gasto, tasas de interés locales).
+- **Conclusiones**: los líderes combinan automatización, recomendaciones inteligentes y multicanalidad. BudgetApp debe mejorar esta ecuación con: alertas predictivas en tiempo real, simulador “¿puedo permitírmelo?” contextual, planes familiares colaborativos y una arquitectura multi-país que arranca en Colombia pero se adapta a nuevos mercados rápidamente.
