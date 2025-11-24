@@ -1,34 +1,29 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# BudgetApp Web
 
-## Getting Started
+Aplicación Next.js que implementa la experiencia web descrita en la documentación RUP (onboarding, dashboards, registro de transacciones). Durante la fase de Elaboración consume el mock API basado en la especificación OpenAPI.
 
-First, run the development server:
+## Requerimientos
+- Node.js 20+
+- pnpm o npm
+- Mock API en ejecución (ver raíz del repo: `./scripts/mock-api.sh` por defecto en `http://localhost:4010`)
 
-```bash
-npm run dev
-# or
-yarn dev
+## Variables de entorno
+Copiar `.env.example` a `.env.local` y ajustar según el entorno:
+```
+NEXT_PUBLIC_API_BASE_URL=http://localhost:4010
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
+- `pnpm install` – instala dependencias.
+- `pnpm dev` – levanta Next.js en modo desarrollo (usa `NEXT_PUBLIC_API_BASE_URL`).
+- `pnpm build && pnpm start` – build + server de producción.
+- `pnpm lint` / `pnpm test` – linting y pruebas configuradas.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Uso con mock API
+1. En la raíz del repo ejecutar `./scripts/mock-api.sh` (o `PORT=5000 ./scripts/mock-api.sh`).
+2. En `web-app`, definir `NEXT_PUBLIC_API_BASE_URL=http://localhost:4010` (o puerto que corresponda).
+3. `pnpm dev` y navegar a `http://localhost:3000` para comenzar el flujo (registro, onboarding, presupuestos, etc.).
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Configuración por país
+El frontend mostrará opciones basadas en `country_config` (descrito en `documentation/documentos/arquitectura.md`). Por ahora sólo está habilitada Colombia, con moneda COP y proveedores Belvo/Minka.

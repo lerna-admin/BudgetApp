@@ -35,6 +35,8 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
 - `accounts`: tarjetas/cuentas bancarias conectadas (proveedor, país, currency).
 - `alerts` y `notifications`: reglas configuradas y bitácora de envíos.
 - `integrations`: tokens/estados para proveedores bancarios, mensajería y pagos.
+- `countries`: catálogo con moneda, zona horaria, normativas, proveedores y límites por país (ver sección Configuración por país).
+- `country_settings`: preferencias del usuario por país (idioma, canales habilitados) enlazadas a `countries`.
 
 ## 6. Consideraciones de integración bancaria
 - **Proveedor**: Belvo/Minka ofrece API única para bancos colombianos; se encapsula en el Servicio de Integraciones para poder cambiar de proveedor o agregar otro (Plaid, Tink) al entrar a nuevos países.
@@ -70,6 +72,51 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
 | Cumplimiento multi-país | Alto | Asesoría legal temprana, configuración por país (feature flags) y cifrado adaptable. |
 | Escalamiento de notificaciones en tiempo real | Medio | Arquitectura event-driven, uso de servicios manejados (FCM, SNS) y particionamiento por canal. |
 | Dependencia de un único proveedor bancario | Alto | Contrato con al menos un proveedor alterno, diseño de adaptadores e indicadores que disparen la incorporación de otro servicio. |
+
+## 11. Configuración por país
+- Se define una estructura común `country_config` (persistida en base de datos o archivos de despliegue) con los siguientes campos:
+
+| Campo | Descripción |
+|-------|-------------|
+| `code` | Código ISO (ej. `CO`, `BR`, `US`). |
+| `name` | Nombre visible del país. |
+| `currency` | Código y número de decimales (ej. COP / 0). |
+| `timezone` | Zona horaria base (ej. `America/Bogota`). |
+| `legal.requirements` | Normativas aplicables (Habeas Data, PSD2, etc.) y enlaces a textos legales. |
+| `banking.provider` | Proveedor principal (Belvo, Plaid…) y modo (`sandbox`/`prod`). |
+| `banking.supportedBanks` | Lista de instituciones habilitadas (IDs del proveedor). |
+| `notifications.channels` | Canales permitidos (push, email, WhatsApp) según legislación local. |
+| `defaults.categories` | Categorías y metas sugeridas para el onboarding. |
+| `plans.constraints` | Límites por plan (número de cuentas conectadas, miembros familiares, etc.). |
+
+- **Colombia (configuración inicial)**:
+  ```json
+  {
+    "code": "CO",
+    "name": "Colombia",
+    "currency": { "code": "COP", "decimals": 0 },
+    "timezone": "America/Bogota",
+    "legal": {
+      "requirements": [
+        { "name": "Habeas Data", "ref": "Ley 1581/2012" },
+        { "name": "Superintendencia Financiera", "ref": "Circular Básica Jurídica" }
+      ],
+      "consentText": "Autorizo el uso de mi información financiera para la prestación de los servicios de BudgetApp."
+    },
+    "banking": {
+      "provider": "Belvo",
+      "mode": "sandbox",
+      "supportedBanks": ["bancolombia", "davivienda", "bbogota", "nequi"]
+    },
+    "notifications": { "channels": ["push", "email", "whatsapp"] },
+    "defaults": { "categories": ["Ingresos", "Gastos fijos", "Gastos variables", "Ahorros"] },
+    "plans": {
+      "free": { "maxAccounts": 2, "familyMembers": 1 },
+      "premium": { "maxAccounts": 10, "familyMembers": 5 }
+    }
+  }
+  ```
+- Cada nuevo país agregará su propia entrada con moneda, normativa y proveedor bancario (ej. Plaid en EE. UU., Open Banking UK en Reino Unido). Las UI deben solicitar el país durante el onboarding y bloquear funcionalidades no permitidas por región.
 
 ## 11. Diagramas de referencia
 

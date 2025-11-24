@@ -38,6 +38,8 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 - Existen APIs de bancos/locales (Plaid/Belvo u otras) disponibles para cuentas colombianas en la fase inicial y con roadmap para nuevos territorios.
 - Los usuarios están dispuestos a conectar cuentas siempre que se comunique claramente la seguridad.
 - El MVP operará inicialmente en Colombia pero debe diseñarse para escalar a otros países sin reprocesos significativos.
+- El catálogo de países (`country_config`) se administrará centralmente; cada registro define moneda, proveedores bancarios disponibles, canales de notificación permitidos y requisitos legales.
+  - Cada usuario referencia un país principal; para cuentas familiares o empresas se permitirá seleccionar múltiples países (ej. miembros viviendo en regiones distintas) con reglas heredadas del catálogo.
 
 ## 6. Dependencias
 - Proveedor de integración bancaria (evaluar Plaid, Belvo, Minka u otro).
@@ -48,7 +50,7 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 1. Detalle de regulaciones y licencias necesarias para conectarse a bancos colombianos (y cómo varían al expandirnos).
 2. Alcance exacto de la capa familiar (cantidad de miembros, límites de cuentas).
 3. Estrategia de planes y precios (tiers, límites del plan gratuito).
-4. Localización e idiomas iniciales (español obligatorio, inglés opcional).
+4. Localización e idiomas iniciales (español obligatorio, inglés opcional) vinculados al `country_config`.
 5. Estrategia de almacenamiento de documentos/adjuntos asociados a transacciones.
 
 ## 8. Próximos pasos
