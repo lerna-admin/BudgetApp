@@ -12,6 +12,7 @@ Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, ale
 |-----------|-------------|
 | [Visión](documentation/documents/vision.md) | Objetivos estratégicos, métricas de negocio, usuarios meta y diferenciadores competitivos. |
 | [Plan inicial](documentation/documents/plan_inicial.md) | Planeación por fases/iteraciones, matriz de riesgos, aprendizajes del Excel y benchmark de otras apps. |
+| [Arquitectura](documentation/documents/arquitectura.md) | Vista técnica de referencia, componentes, integraciones bancarias y decisiones clave para un despliegue multi-país. |
 | [Requisitos](documentation/documents/requisitos.md) | Detalle de requerimientos funcionales/no funcionales (en construcción). |
 | [Casos de uso](documentation/documents/casos_de_uso.md) | Actores y flujos principales que cubren la experiencia de BudgetApp. |
 
