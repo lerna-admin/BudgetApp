@@ -1,6 +1,6 @@
 # BudgetApp
 
-Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, alertas inteligentes e integración bancaria orientada al mercado colombiano. El proyecto se documenta bajo la metodología RUP para garantizar trazabilidad de decisiones y entregables por fase.
+Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, alertas inteligentes e integración bancaria extensible; la primera fase de integraciones se enfocará en bancos colombianos, pero el producto no se limita a ese mercado. El proyecto se documenta bajo la metodología RUP para garantizar trazabilidad de decisiones y entregables por fase.
 
 ## Estado del repositorio
 - **Código fuente**: carpeta `code/` (plantilla base Next.js) y `nextjs-template-javascript/` para iteraciones iniciales.
