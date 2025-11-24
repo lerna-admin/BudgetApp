@@ -3,7 +3,7 @@
 Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, alertas inteligentes e integración bancaria extensible; la primera fase de integraciones se enfocará en bancos colombianos, pero el producto no se limita a ese mercado. El proyecto se documenta bajo la metodología RUP para garantizar trazabilidad de decisiones y entregables por fase.
 
 ## Estado del repositorio
-- **Código fuente**: carpeta `code/` (plantilla base Next.js) y `nextjs-template-javascript/` para iteraciones iniciales.
+- **Código fuente**: carpeta `code/` (plantilla base Next.js) y `legacy-template/` que conserva la plantilla original para referencia/migraciones.
 - **Documentación**: carpeta `documentation/documents/` con los artefactos RUP que guían cada fase.
 - **Histórico**: carpeta `historic/` en la raíz del workspace (fuera de este repo) donde se registran todas las conversaciones y decisiones.
 
