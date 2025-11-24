@@ -24,6 +24,19 @@ Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, ale
 - Ejecutar con `./scripts/mock-api.sh` (requiere `node` y descargará Prism vía `npx`); variables `PORT` y `HOST` son opcionales (`4010` y `0.0.0.0` por defecto). Ejemplo: `PORT=5000 ./scripts/mock-api.sh`.
 - Los endpoints expuestos responden conforme a `documentation/api/openapi.yaml`, ideal para validar el flujo descrito en el documento de arquitectura.
 - Para tests de UI, apuntar los servicios HTTP de `web-app/` al host/puerto del mock. Se recomienda crear scripts `npm run dev:mock` en `web-app` conforme integremos el frontend.
+- **Pruebas rápidas vía cURL**:
+  ```bash
+  curl -X POST http://localhost:4010/api/onboarding \
+    -H 'Content-Type: application/json' \
+    -d '{"ingresosMensuales":5000000,"gastosFijos":2000000}'
+
+  curl http://localhost:4010/api/budgets?period=2025-12
+
+  curl -X POST http://localhost:4010/api/transactions \
+    -H 'Content-Type: application/json' \
+    -d '{"date":"2025-12-01T12:00:00Z","amount":125000,"categoryId":"gastos_fijos","method":"debit_card"}'
+  ```
+- Estos comandos permiten comprobar rápidamente que el mock responde conforme al OpenAPI antes de integrar el frontend; ajustar `localhost:4010` si se cambió el puerto.
 
 ## Flujo de usuarios (onboarding → registros)
 ```mermaid
