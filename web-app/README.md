@@ -18,7 +18,8 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 - `pnpm install` – instala dependencias.
 - `pnpm dev` – levanta Next.js en modo desarrollo (usa `NEXT_PUBLIC_API_BASE_URL` definido en tu entorno).
 - `pnpm dev:mock` – fuerza `NEXT_PUBLIC_API_BASE_URL=http://localhost:4010` para consumir el mock (útil cuando corres `./scripts/mock-api.sh`).
-- `pnpm build && pnpm start` – build + server de producción.
+- `npm run start:dev` – alias npm del modo desarrollo (`next dev`).
+- `pnpm start` / `npm start` – ejecutan `next build` (a través de `prestart`) y luego `next start`, así no necesitas compilar el build manualmente antes de servirlo.
 - `pnpm lint` / `pnpm test` – linting y pruebas configuradas.
 
 ## Uso con mock API
