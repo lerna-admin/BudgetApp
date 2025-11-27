@@ -7,6 +7,8 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 
 import { appConfig } from "@/config/app";
 
+const API_BASE_LABEL = process.env.NEXT_PUBLIC_API_BASE_URL || "el mismo host (Next.js API)";
+
 export const metadata = { title: `Blank | Dashboard | ${appConfig.name}` };
 
 export default function Page() {
@@ -22,14 +24,14 @@ export default function Page() {
 			<Stack spacing={4}>
 				<Stack direction={{ xs: "column", sm: "row" }} spacing={3} sx={{ alignItems: "flex-start" }}>
 					<Box sx={{ flex: "1 1 auto" }}>
-						<Typography variant="h4">Mock budgets</Typography>
+						<Typography variant="h4">Presupuestos (API local)</Typography>
 						<Typography color="text.secondary" variant="body2">
-							Consumiendo {process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4010"}
+							Consumiendo {API_BASE_LABEL}
 						</Typography>
 					</Box>
 					<div>
-						<Button onClick={fetchBudgets} startIcon={<PlusIcon />} variant="contained">
-							Recargar
+						<Button disabled startIcon={<PlusIcon />} variant="contained">
+							Acción pendiente
 						</Button>
 					</div>
 				</Stack>

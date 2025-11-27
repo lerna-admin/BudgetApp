@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import RouterLink from "next/link";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -85,16 +86,16 @@ export function StartBuilding() {
 					>
 						<Stack spacing={2}>
 							<Typography color="inherit" variant="h3">
-								Start building today.
+								BudgetApp listo para producción.
 							</Typography>
 							<Typography color="neutral.300">
-								Focus on building your app, not on integrating APIs. The kit provides the essential code you need to
-								launch quickly.
+								Implementa la app web y móvil con los lineamientos RUP ya cargados, scripts para mock API y la maqueta
+								de dashboards que viste en el preview oficial.
 							</Typography>
 						</Stack>
 						<div>
-							<Button endIcon={<CaretRightIcon />} href={paths.purchase} target="_blank" variant="contained">
-								Purchase now
+							<Button component={RouterLink} endIcon={<CaretRightIcon />} href={paths.register} variant="contained">
+								Crea tu cuenta gratis
 							</Button>
 						</div>
 					</Stack>

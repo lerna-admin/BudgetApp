@@ -7,6 +7,12 @@ import Typography from "@mui/material/Typography";
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 
 export function Plan({ action, currency, description, id, features, name, price }) {
+	const formatter = new Intl.NumberFormat(currency === "COP" ? "es-CO" : "en-US", {
+		style: "currency",
+		currency,
+		maximumFractionDigits: price === 0 || currency === "COP" ? 0 : 2,
+	});
+
 	return (
 		<Card sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
 			<Stack spacing={2} sx={{ p: 3 }}>
@@ -16,15 +22,9 @@ export function Plan({ action, currency, description, id, features, name, price 
 					</Box>
 				</div>
 				<Box sx={{ alignItems: "flex-end", display: "flex", gap: 1 }}>
-					<Typography variant="h4">
-						{new Intl.NumberFormat("en-US", {
-							style: "currency",
-							currency,
-							maximumFractionDigits: price === 0 ? 0 : 2,
-						}).format(price)}
-					</Typography>
+					<Typography variant="h4">{formatter.format(price)}</Typography>
 					<Typography color="text.secondary" variant="subtitle2">
-						/month
+						/mes
 					</Typography>
 				</Box>
 				<Typography variant="h6">{name}</Typography>
@@ -50,8 +50,8 @@ export function Plan({ action, currency, description, id, features, name, price 
 	);
 }
 
-function PlanIcon({ name }) {
-	switch (name) {
+	function PlanIcon({ name }) {
+		switch (name) {
 		case "startup": {
 			return (
 				<svg fill="none" height="33" viewBox="0 0 24 33" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -77,9 +77,9 @@ function PlanIcon({ name }) {
 				</svg>
 			);
 		}
-		case "business": {
-			return (
-				<svg fill="none" height="33" viewBox="0 0 43 33" width="43" xmlns="http://www.w3.org/2000/svg">
+			case "business": {
+				return (
+					<svg fill="none" height="33" viewBox="0 0 43 33" width="43" xmlns="http://www.w3.org/2000/svg">
 					<path
 						d="M23.0075 0.49292L32.2369 5.55765C32.4501 5.67462 32.6275 5.84492 32.751 6.05096C32.8745 6.25707 32.9396 6.49148 32.9396 6.73025C32.9396 6.96901 32.8745 7.20342 32.751 7.40954C32.6275 7.61558 32.4501 7.78587 32.2369 7.90284L23.0076 12.9678C22.4186 13.2911 21.7543 13.4609 21.0787 13.4609C20.403 13.4609 19.7387 13.2911 19.1498 12.9678L9.92043 7.90284C9.70728 7.78587 9.52983 7.61558 9.40633 7.40954C9.28284 7.20342 9.21773 6.96901 9.21773 6.73025C9.21773 6.49148 9.28284 6.25707 9.40633 6.05096C9.52983 5.84492 9.70728 5.67462 9.92043 5.55765L19.1498 0.49292C19.7387 0.169678 20.403 -6.67572e-05 21.0787 -6.67572e-05C21.7543 -6.67572e-05 22.4186 0.169678 23.0075 0.49292Z"
 						fill="var(--mui-palette-primary-main)"
@@ -95,10 +95,30 @@ function PlanIcon({ name }) {
 						opacity="0.4"
 					/>
 				</svg>
-			);
-		}
-		default: {
-			return null;
-		}
+				);
+			}
+			case "enterprise": {
+				return (
+					<svg fill="none" height="33" viewBox="0 0 48 33" width="48" xmlns="http://www.w3.org/2000/svg">
+						<path
+							d="M25.9445 0.49292L35.1738 5.55765C35.3871 5.67462 35.5644 5.84492 35.6879 6.05096C35.8114 6.25707 35.8764 6.49148 35.8764 6.73025C35.8764 6.96901 35.8114 7.20342 35.6879 7.40954C35.5644 7.61558 35.3871 7.78587 35.1738 7.90284L25.9446 12.9678C25.3555 13.2911 24.6913 13.4609 24.0157 13.4609C23.34 13.4609 22.6758 13.2911 22.0868 12.9678L12.8575 7.90284C12.6444 7.78587 12.467 7.61558 12.3435 7.40954C12.22 7.20342 12.1549 6.96901 12.1549 6.73025C12.1549 6.49148 12.22 6.25707 12.3435 6.05096C12.467 5.84492 12.6444 5.67462 12.8575 5.55765L22.0868 0.49292C22.6758 0.169678 23.34 -6.67572e-05 24.0157 -6.67572e-05C24.6913 -6.67572e-05 25.3555 0.169678 25.9445 0.49292Z"
+							fill="var(--mui-palette-primary-main)"
+						/>
+						<path
+							d="M25.8947 5.24774L39.1125 12.5012C39.3256 12.6182 39.5031 12.7885 39.6266 12.9945C39.7501 13.2007 39.8151 13.4351 39.8151 13.6738C39.8151 13.9126 39.7501 14.1471 39.6266 14.3531C39.5031 14.5592 39.3256 14.7295 39.1125 14.8465L25.8947 22.0999C25.3057 22.4231 24.6415 22.5929 23.9658 22.5929C23.2902 22.5929 22.626 22.4231 22.037 22.0999L8.81918 14.8465C8.60603 14.7295 8.42858 14.5592 8.30509 14.3531C8.18159 14.1471 8.11649 13.9126 8.11649 13.6738C8.11649 13.4351 8.18159 13.2007 8.30509 12.9945C8.42858 12.7885 8.60603 12.6182 8.81918 12.5012L22.037 5.24774C22.626 4.92458 23.2902 4.75483 23.9658 4.75483C24.6415 4.75483 25.3057 4.92458 25.8947 5.24774Z"
+							fill="var(--mui-palette-primary-main)"
+							opacity="0.65"
+						/>
+						<path
+							d="M26.196 10.0018L44.5687 20.0843C44.7815 20.2012 44.9588 20.3711 45.0821 20.5769C45.2054 20.7826 45.2704 21.0167 45.2704 21.2551C45.2704 21.4935 45.2054 21.7275 45.0821 21.9333C44.9588 22.139 44.7815 22.309 44.5687 22.4258L26.1959 32.5081C25.6079 32.8307 24.9448 33.0002 24.2702 33.0002C23.5956 33.0002 22.9324 32.8307 22.3445 32.5081L3.97174 22.4258C3.75894 22.309 3.58178 22.139 3.45849 21.9333C3.33519 21.7275 3.2702 21.4935 3.2702 21.2551C3.2702 21.0167 3.33519 20.7826 3.45849 20.5769C3.58178 20.3711 3.75894 20.2012 3.97174 20.0843L22.3445 10.0018C22.9324 9.67921 23.5956 9.50966 24.2702 9.50966C24.9448 9.50966 25.6079 9.67921 26.196 10.0018Z"
+							fill="var(--mui-palette-primary-main)"
+							opacity="0.35"
+						/>
+					</svg>
+				);
+			}
+			default: {
+				return null;
+			}
 	}
 }

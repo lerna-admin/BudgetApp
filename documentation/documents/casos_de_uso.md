@@ -27,7 +27,8 @@
 - **Precondiciones**: Diagnóstico completado o datos de ingresos/gastos disponibles.
 - **Flujo básico**:
   1. Usuario selecciona mes/año.
-  2. Sistema carga categorías iniciales (Start Here) y muestra montos sugeridos.
+  0.1. Si es la primera vez o no ha guardado la plantilla Start Here, el sistema muestra dicha configuración antes de continuar.
+  2. Sistema carga la plantilla Start Here (moneda, Start Balance, bandera “¿Inicias con dinero?” y las subcategorías base) y muestra montos sugeridos.
   3. Usuario ajusta valores, crea nuevas subcategorías si es necesario.
   4. Sistema valida suma total vs ingresos, muestra “Left to Budget”.
   5. Usuario guarda presupuesto.

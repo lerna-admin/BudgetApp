@@ -29,7 +29,7 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
 ## 5. Modelo de datos (alto nivel)
 - `users`: perfil, preferencias, país/región, tipo de plan.
 - `households`: agrupa usuarios para planes familiares; controla permisos.
-- `budgets`: registros mensuales/anuales con moneda, metas por categoría y estado.
+- `budgets`: registros mensuales/anuales con moneda, `start_balance`, bandera `start_with_money` y metas por categoría/subcategoría.
 - `categories` / `subcategories`: catálogo jerárquico configurable.
 - `transactions`: origen (manual/bancario), estado, etiquetas, vínculo a cuentas.
 - `accounts`: tarjetas/cuentas bancarias conectadas (proveedor, país, currency).
@@ -117,6 +117,29 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
   }
   ```
 - Cada nuevo país agregará su propia entrada con moneda, normativa y proveedor bancario (ej. Plaid en EE. UU., Open Banking UK en Reino Unido). Las UI deben solicitar el país durante el onboarding y bloquear funcionalidades no permitidas por región.
+- Se recomienda exponer este catálogo vía `GET /api/countries` (con cache busting y versión) para que el frontend se hidrate al cargar la sesión en lugar de depender de constantes internas. El mock server debe derivar sus respuestas de este catálogo para mantener coherencia en moneda, textos legales y proveedores.
+- Para entornos locales se usa `sql.js` + SQLite embebido (`var/data/budgetapp.sqlite`). Esta base de datos liviana se inicializa con `pnpm db:init` y persiste las configuraciones administradas desde `/dashboard/admin/countries`.
+
+## 12. Roles y administración
+- **Roles base**:
+  - `user`: accede a las funcionalidades estándar (onboarding, presupuestos, transacciones, integraciones).
+  - `family_admin`: gestiona miembros de un hogar y límites asociados, heredando permisos de `user`.
+  - `admin`: configura catálogos globales (`country_config`, planes, integraciones), revisa auditorías y habilita/deshabilita países.
+  - `compliance`: similar a `admin` pero enfocado en revisión/regulatorio (solo lectura + aprobación).
+- **Panel administrativo**:
+  - `/dashboard/admin/countries` (web) sirve como interfaz de referencia para roles `admin/compliance`. Utiliza el contexto compartido de país y depende de los endpoints definidos en el OpenAPI (`GET/POST/PUT/DELETE /api/countries`).
+  - Se deben registrar acciones en un log de auditoría (quién creó/actualizó un país, valores anteriores vs nuevos).
+- **Autorización**:
+  - BFF valida el rol antes de permitir operaciones sobre `/api/countries` y otros catálogos sensibles.
+  - Se recomienda implementar un `policy engine` simple basado en claims JWT (`roles: ["admin"]`) o un servicio ABAC si aumenta la complejidad.
+- **Autenticación**:
+  - MVP implementa sesiones HTTP simples (`session_token`) gestionadas desde `/api/auth/login|register|logout`, persistidas en SQLite (`users`, `sessions`).
+  - El layout del dashboard verifica la sesión en cada request y redirige a `/login` si no existe cookie válida.
+- **Front-end multi-país**:
+  - `web-app/` cuenta con un `CountryProvider` (contexto React) que persiste el país seleccionado y lo propaga a onboarding, presupuestos, integraciones, registro de transacciones y dashboard (ver `src/components/country/`).
+  - Todas las llamadas al mock/API deben incluir el parámetro o campo `country` para obtener datos consistentes (ej. `GET /api/budgets?period=2025-12&country=CO`).
+  - El backend deberá exponer el catálogo `country_config` vía REST (`GET /api/countries`) o inyectarlo en build para mantener sincronizada la configuración sin hardcode.
+  - Mocks y ambientes reales deberán respetar `currency` y `locale` definidos en el catálogo, devolviendo los montos en la moneda correspondiente.
 
 ## 11. Diagramas de referencia
 

@@ -14,6 +14,8 @@ import { paths } from "@/paths";
 export function Included() {
 	return (
 		<Box
+			component="section"
+			id="producto"
 			sx={{
 				bgcolor: "var(--mui-palette-neutral-950)",
 				color: "var(--mui-palette-common-white)",
@@ -41,10 +43,10 @@ export function Included() {
 				<Container maxWidth="md">
 					<Stack spacing={2}>
 						<Typography color="inherit" sx={{ textAlign: "center" }} variant="h3">
-							What can you expect
+							Todo lo que necesitas para pilotear tus finanzas
 						</Typography>
 						<Typography color="neutral.300" sx={{ textAlign: "center" }}>
-							All the resources you need to build a better experience
+							Unifica presupuestos, integraciones y soporte en una sola experiencia multi-dispositivo.
 						</Typography>
 					</Stack>
 				</Container>
@@ -58,18 +60,18 @@ export function Included() {
 						>
 							<Stack spacing={2}>
 								<div>
-									<Chip color="success" icon={<LightningIcon />} label="Quality widgets" variant="soft" />
+									<Chip color="success" icon={<LightningIcon />} label="Dashboard vivo" variant="soft" />
 								</div>
 								<Typography color="inherit" variant="h3">
-									Dashboards
+									Presupuestos + alertas + soporte en vivo
 								</Typography>
 								<Typography color="inherit">
-									Our interactive dashboard provides an all-encompassing view of your projects, tasks, and
-									collaborations. Monitor deadlines, track milestones, and stay updated on team activities.
+									Monitorea cuánto llevan gastando tus tarjetas, qué porcentaje aporta cada miembro del hogar y abre
+									tickets con nuestros agentes para recibir acompañamiento financiero en tiempo real.
 								</Typography>
 								<div>
-									<Button color="secondary" component={RouterLink} href={paths.dashboard.overview} variant="contained">
-										Live preview
+									<Button color="secondary" component={RouterLink} href={paths.register} variant="contained">
+										Probar BudgetApp
 									</Button>
 								</div>
 							</Stack>

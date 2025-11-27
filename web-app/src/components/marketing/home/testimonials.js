@@ -15,32 +15,33 @@ import useEmblaCarousel from "embla-carousel-react";
 const reviews = [
 	{
 		id: "REV-5",
-		author: "Laurent B.",
+		author: "Laura P. · Líder de CX en fintech",
 		comment:
-			"I keep buying new versions of the template because it is so good and the team at Devias keeps updating it following design trends and updates to NextJS and other libraries [...]",
+			"Con BudgetApp duplicamos la adopción del plan familiar. El dashboard ya trae KPIs y alertas, así que sólo enfocamos al equipo en soporte y contenidos.",
 	},
 	{
 		id: "REV-4",
-		author: "Ali Hassan E.",
+		author: "Diego R. · Consultor financiero",
 		comment:
-			"I am very happy with the Devias template that I purchased. The team at Devias was very responsive and helpful before and after I bought the template. They were always quick to respond to my questions and they provided excellent customer support.",
+			"Mis clientes aterrizan su presupuesto en minutos. Registran gastos, ven porcentajes de participación y yo recibo tickets cuando necesitan ajustes.",
 	},
 	{
 		id: "REV-3",
-		author: "Yossi T.",
+		author: "Sara M. · Emprendedora remota",
 		comment:
-			"All in all amazing product, clean, bug-free, one of the FASTEST customer support products I have encountered in my life. Very high quality template, all written in a super clean and orgenized way. Highly recommended!",
+			"La integración bancaria me recuerda en qué tarjeta estoy gastando de más y las alertas predictivas me ayudan a frenar antes de romper el presupuesto.",
 	},
 	{
 		id: "REV-2",
-		author: "Yossi T.",
+		author: "Camilo V. · Padre de familia",
 		comment:
-			"All in all amazing product, clean, bug-free, one of the FASTEST customer support products I have encountered in my life. Very high quality template, all written in a super clean and orgenized way. Highly recommended!",
+			"Pasamos de tener hojas de cálculo a usar BudgetApp para todo: asignamos porcentajes a cada quien y nos avisa cuando un rubro se sale de control.",
 	},
 	{
 		id: "REV-1",
-		author: "Chris V.",
-		comment: "Best template out there. I purchase this every year. It saves a ton of time.",
+		author: "Ana M. · CFO de startup",
+		comment:
+			"Lo usamos como plantilla de gobernanza financiera: un mismo stack para onboarding, pricing y alertas. Integrar nuevos países es tan simple como actualizar el catálogo.",
 	},
 ];
 

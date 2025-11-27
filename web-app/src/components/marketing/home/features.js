@@ -1,4 +1,5 @@
 import * as React from "react";
+import RouterLink from "next/link";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
@@ -12,23 +13,23 @@ import { paths } from "@/paths";
 
 export function Features() {
 	return (
-		<Box sx={{ pt: "120px" }}>
+		<Box component="section" id="features" sx={{ pt: "120px" }}>
 			<Stack spacing={8}>
 				<Stack maxWidth="700px" sx={{ mx: "auto", px: 3 }}>
 					<Stack spacing={2}>
 						<Box sx={{ display: "flex", justifyContent: "center" }}>
-							<Chip color="primary" icon={<StackIcon />} label="Choose your stack" variant="soft" />
+							<Chip color="primary" icon={<StackIcon />} label="Experiencias" variant="soft" />
 						</Box>
 						<Typography sx={{ textAlign: "center" }} variant="h3">
-							And so much more
+							Un solo stack para presupuestos, integraciones y soporte
 						</Typography>
 						<Typography color="text.secondary" sx={{ textAlign: "center" }}>
-							All the features you need to build a better experience, explore the possibilities, and unlock the full
-							potential of what we have to offer.
+							Configura onboarding inteligente, automatiza alertas por categoría y ofrece canales de soporte para tus
+							clientes o tu familia sin construir todo desde cero.
 						</Typography>
 						<Box sx={{ display: "flex", justifyContent: "center" }}>
-							<Button endIcon={<CaretRightIcon />} href={paths.purchase} target="_blank" variant="contained">
-								Purchase now
+							<Button component={RouterLink} endIcon={<CaretRightIcon />} href={paths.pricing} variant="contained">
+								Ver planes disponibles
 							</Button>
 						</Box>
 					</Stack>

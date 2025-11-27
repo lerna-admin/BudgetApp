@@ -46,8 +46,11 @@ export default [
 				typescript: true,
 				node: true,
 				alias: {
-					map: [["@", "./src"]],
-					extensions: [".js", ".jsx"],
+					map: [
+						["@", "./src"],
+						["@/components", "./src/components"],
+					],
+					extensions: [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"],
 				},
 			},
 		},

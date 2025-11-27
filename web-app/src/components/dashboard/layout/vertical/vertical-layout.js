@@ -10,7 +10,7 @@ import { useSettings } from "@/components/core/settings/settings-context";
 import { MainNav } from "./main-nav";
 import { SideNav } from "./side-nav";
 
-export function VerticalLayout({ children }) {
+export function VerticalLayout({ children, navItems = dashboardConfig.navItems }) {
 	const { settings } = useSettings();
 
 	const navColor = settings.dashboardNavColor ?? dashboardConfig.navColor;
@@ -38,9 +38,9 @@ export function VerticalLayout({ children }) {
 					minHeight: "100%",
 				}}
 			>
-				<SideNav color={navColor} items={dashboardConfig.navItems} />
+				<SideNav color={navColor} items={navItems} />
 				<Box sx={{ display: "flex", flex: "1 1 auto", flexDirection: "column", pl: { lg: "var(--SideNav-width)" } }}>
-					<MainNav items={dashboardConfig.navItems} />
+					<MainNav items={navItems} />
 					<Box
 						component="main"
 						sx={{

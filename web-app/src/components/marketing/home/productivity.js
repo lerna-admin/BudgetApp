@@ -23,7 +23,7 @@ export function Productivity() {
 			<Container maxWidth="md" sx={{ pt: "64px" }}>
 				<Stack spacing={3}>
 					<Typography color="text.secondary" component="p" sx={{ textAlign: "center" }} variant="overline">
-						Used by companies like:
+						Aliados fintech, comercios y asesores familiares:
 					</Typography>
 					<Stack
 						direction="row"
@@ -113,11 +113,11 @@ export function Productivity() {
 				<Stack spacing={8}>
 					<Stack maxWidth="700px" spacing={2} sx={{ mx: "auto" }}>
 						<Typography sx={{ textAlign: "center" }} variant="h3">
-							Supercharge your SaaS productivity
+							Automatiza presupuestos sin depender de hojas de cálculo.
 						</Typography>
 						<Typography color="text.secondary" sx={{ textAlign: "center" }}>
-							Our template is wonderfully simple and user-friendly. It&apos;s easy to love when you focus on essentials
-							and skip non-critical extras.
+							Conecta las cuentas bancarias de Colombia, recopila gastos en tiempo real y comparte diagnósticos de salud
+							financiera con tu familia o tu asesor financiero.
 						</Typography>
 					</Stack>
 					<Grid container spacing={3}>
@@ -137,12 +137,12 @@ export function Productivity() {
 							>
 								<Stack spacing={2} sx={{ p: 4 }}>
 									<div>
-										<Chip color="primary" icon={<CodeBlockIcon />} label="Quality first" variant="soft" />
+										<Chip color="primary" icon={<CodeBlockIcon />} label="Integraciones" variant="soft" />
 									</div>
-									<Typography variant="h5">Built by experts</Typography>
+									<Typography variant="h5">Bancos conectados desde el día uno</Typography>
 									<Typography color="text.secondary" variant="body2">
-										Each template is a well-structured Vite & Next.js project, adhering to MUI best practices. All code
-										is written by our in-house team of experts.
+										BudgetApp se integra con proveedores Open Finance (Belvo/Minka) para importar transacciones y
+										etiquetarlas automáticamente por categoría y método de pago.
 									</Typography>
 								</Stack>
 								<Box sx={{ height: "300px", position: "relative" }}>
@@ -174,11 +174,12 @@ export function Productivity() {
 							>
 								<Stack spacing={2} sx={{ p: 4 }}>
 									<div>
-										<Chip color="primary" icon={<DiamondsFourIcon />} label="Figma backed" variant="soft" />
+										<Chip color="primary" icon={<DiamondsFourIcon />} label="Modelos" variant="soft" />
 									</div>
-									<Typography variant="h5">Design files</Typography>
+									<Typography variant="h5">Plantillas adaptadas a cada plan</Typography>
 									<Typography color="text.secondary" variant="body2">
-										Figma Files Now Included with Plus & Extended Licenses: Boost Your Creativity!
+										Personaliza porcentajes y metas según el plan (Personal Free, Personal o Family) y comparte un
+										mismo presupuesto con los demás miembros del hogar sin perder tus espacios individuales.
 									</Typography>
 								</Stack>
 								<Box sx={{ height: "300px", position: "relative" }}>
@@ -210,11 +211,12 @@ export function Productivity() {
 							>
 								<Stack spacing={2} sx={{ p: 4 }}>
 									<div>
-										<Chip color="primary" icon={<PaletteIcon />} label="Themeable" variant="soft" />
+										<Chip color="primary" icon={<PaletteIcon />} label="Workspaces" variant="soft" />
 									</div>
-									<Typography variant="h5">Easy to customize</Typography>
+									<Typography variant="h5">Workspaces personales y familiares</Typography>
 									<Typography color="text.secondary" variant="body2">
-										Tweak the theme in your editor for global style changes.
+										Combina objetivos individuales y comunes, asigna porcentajes de contribución y visualiza KPIs
+										compartidos antes de tomar decisiones grandes como viajes o estudios.
 									</Typography>
 								</Stack>
 								<Box sx={{ height: "300px", position: "relative" }}>
@@ -242,12 +244,12 @@ export function Productivity() {
 							>
 								<Stack spacing={2} sx={{ p: 4 }}>
 									<div>
-										<Chip color="primary" icon={<TimerIcon />} label="Save time" variant="soft" />
+										<Chip color="primary" icon={<TimerIcon />} label="Alertas" variant="soft" />
 									</div>
-									<Typography variant="h5">Built with the latest tech</Typography>
+									<Typography variant="h5">Alertas y diagnósticos automáticos</Typography>
 									<Typography color="text.secondary" variant="body2">
-										Every template provides a thoughtfully structured project, offering a codebase that&apos;s not only
-										productive but also a joy to work with.
+										Recibe notificaciones push, email o WhatsApp cuando una tarjeta supera el monto asignado, cuando una
+										meta peligra o si detectamos cargos fuera de tu comportamiento habitual.
 									</Typography>
 								</Stack>
 								<Box sx={{ height: "300px", position: "relative" }}>

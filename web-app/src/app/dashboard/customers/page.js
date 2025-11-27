@@ -6,74 +6,36 @@ import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { redirect } from "next/navigation";
 
 import { appConfig } from "@/config/app";
-import { dayjs } from "@/lib/dayjs";
+import { planCatalog } from "@/config/plans";
 import { CustomersFilters } from "@/components/dashboard/customer/customers-filters";
 import { CustomersPagination } from "@/components/dashboard/customer/customers-pagination";
 import { CustomersSelectionProvider } from "@/components/dashboard/customer/customers-selection-context";
 import { CustomersTable } from "@/components/dashboard/customer/customers-table";
+import { getCurrentUser } from "@/lib/auth";
+import { readHouseholds, readUsers } from "@/lib/db";
 
-export const metadata = { title: `List | Customers | Dashboard | ${appConfig.name}` };
-
-const customers = [
-	{
-		id: "USR-005",
-		name: "Fran Perez",
-		avatar: "/assets/avatar-5.png",
-		email: "fran.perez@domain.com",
-		phone: "(815) 704-0045",
-		quota: 50,
-		status: "active",
-		createdAt: dayjs().subtract(1, "hour").toDate(),
-	},
-	{
-		id: "USR-004",
-		name: "Penjani Inyene",
-		avatar: "/assets/avatar-4.png",
-		email: "penjani.inyene@domain.com",
-		phone: "(803) 937-8925",
-		quota: 100,
-		status: "active",
-		createdAt: dayjs().subtract(3, "hour").toDate(),
-	},
-	{
-		id: "USR-003",
-		name: "Carson Darrin",
-		avatar: "/assets/avatar-3.png",
-		email: "carson.darrin@domain.com",
-		phone: "(715) 278-5041",
-		quota: 10,
-		status: "blocked",
-		createdAt: dayjs().subtract(1, "hour").subtract(1, "day").toDate(),
-	},
-	{
-		id: "USR-002",
-		name: "Siegbert Gottfried",
-		avatar: "/assets/avatar-2.png",
-		email: "siegbert.gottfried@domain.com",
-		phone: "(603) 766-0431",
-		quota: 0,
-		status: "pending",
-		createdAt: dayjs().subtract(7, "hour").subtract(1, "day").toDate(),
-	},
-	{
-		id: "USR-001",
-		name: "Miron Vitold",
-		avatar: "/assets/avatar-1.png",
-		email: "miron.vitold@domain.com",
-		phone: "(425) 434-5535",
-		quota: 50,
-		status: "active",
-		createdAt: dayjs().subtract(2, "hour").subtract(2, "day").toDate(),
-	},
-];
+export const metadata = { title: `Customers | Dashboard | ${appConfig.name}` };
 
 export default async function Page({ searchParams }) {
-	const { email, phone, sortDir, status } = await searchParams;
+	const user = await getCurrentUser();
 
-	const sortedCustomers = applySort(customers, sortDir);
-	const filteredCustomers = applyFilters(sortedCustomers, { email, phone, status });
+	if (!user) {
+		redirect("/login");
+	}
+
+	if (user.role !== "cs_agent" && user.role !== "admin") {
+		redirect("/dashboard");
+	}
+
+	const email = typeof searchParams?.email === "string" ? searchParams.email : "";
+	const phone = typeof searchParams?.phone === "string" ? searchParams.phone : "";
+	const plan = typeof searchParams?.plan === "string" ? searchParams.plan : "";
+	const sortDir = searchParams?.sortDir === "asc" ? "asc" : "desc";
+
+	const { customers, tabs } = buildCustomerDataset({ email, phone, plan, sortDir });
 
 	return (
 		<Box
@@ -87,23 +49,26 @@ export default async function Page({ searchParams }) {
 			<Stack spacing={4}>
 				<Stack direction={{ xs: "column", sm: "row" }} spacing={3} sx={{ alignItems: "flex-start" }}>
 					<Box sx={{ flex: "1 1 auto" }}>
-						<Typography variant="h4">Customers</Typography>
+						<Typography variant="h4">Clientes por licencia</Typography>
+						<Typography color="text.secondary" variant="body2">
+							Identifica rápidamente qué plan utilizan tus clientes y cuántos están listos para un upgrade familiar.
+						</Typography>
 					</Box>
 					<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
 						<Button startIcon={<PlusIcon />} variant="contained">
-							Add
+							Nuevo cliente
 						</Button>
 					</Box>
 				</Stack>
-				<CustomersSelectionProvider customers={filteredCustomers}>
+				<CustomersSelectionProvider customers={customers}>
 					<Card>
-						<CustomersFilters filters={{ email, phone, status }} sortDir={sortDir} />
+						<CustomersFilters filters={{ email, phone, plan }} sortDir={sortDir} tabs={tabs} />
 						<Divider />
 						<Box sx={{ overflowX: "auto" }}>
-							<CustomersTable rows={filteredCustomers} />
+							<CustomersTable rows={customers} />
 						</Box>
 						<Divider />
-						<CustomersPagination count={filteredCustomers.length + 100} page={0} />
+						<CustomersPagination count={customers.length} page={0} />
 					</Card>
 				</CustomersSelectionProvider>
 			</Stack>
@@ -111,32 +76,89 @@ export default async function Page({ searchParams }) {
 	);
 }
 
-// Sorting and filtering has to be done on the server.
+function normalizeHouseholdPlan(planType) {
+	if (planType === "family_basic" || planType === "family_plus") {
+		return "family";
+	}
+	return planType ?? "family";
+}
 
-function applySort(row, sortDir) {
-	return row.sort((a, b) => {
-		if (sortDir === "asc") {
-			return a.createdAt.getTime() - b.createdAt.getTime();
+const QUOTA_BY_PLAN = {
+	personal_free: 20,
+	personal: 35,
+	family: 90,
+};
+
+function buildCustomerDataset(filters) {
+	const users = readUsers().filter((user) => user.role === "client");
+	const households = readHouseholds();
+
+	const enriched = users.map((user) => {
+		const membership = user.householdMemberships?.[0];
+		const userPlanType = planCatalog.some((plan) => plan.id === user.planType) ? user.planType : "personal_free";
+		let planType = userPlanType;
+		let householdName = null;
+		let planLabel = planCatalog.find((plan) => plan.id === planType)?.name ?? "Personal Free";
+
+		if (membership) {
+			const household = households.find((item) => item.id === membership.householdId);
+			if (household) {
+				planType = normalizeHouseholdPlan(household.planType);
+				planLabel = planCatalog.find((plan) => plan.id === planType)?.name ?? "Family";
+				householdName = household.name;
+			}
 		}
 
-		return b.createdAt.getTime() - a.createdAt.getTime();
+		return {
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			phone: householdName ?? "—",
+			createdAt: new Date(user.createdAt ?? Date.now()),
+			status: "active",
+			planType,
+			planLabel,
+			quota: QUOTA_BY_PLAN[planType] ?? 35,
+		};
+	});
+
+	const tabs = buildPlanTabs(enriched);
+	const filtered = applyCustomerFilters(enriched, filters);
+	const sorted = applyCustomerSort(filtered, filters.sortDir);
+
+	return { customers: sorted, tabs };
+}
+
+function applyCustomerFilters(rows, { email, phone, plan }) {
+	return rows.filter((row) => {
+		if (plan && row.planType !== plan) {
+			return false;
+		}
+		if (email && !row.email.toLowerCase().includes(email.toLowerCase())) {
+		 return false;
+		}
+		if (phone && !(row.phone ?? "").toLowerCase().includes(phone.toLowerCase())) {
+			return false;
+		}
+		return true;
 	});
 }
 
-function applyFilters(row, { email, phone, status }) {
-	return row.filter((item) => {
-		if (email && !item.email?.toLowerCase().includes(email.toLowerCase())) {
-			return false;
-		}
+function applyCustomerSort(rows, sortDir) {
+	return [...rows].sort((a, b) =>
+		sortDir === "asc"
+			? a.createdAt.getTime() - b.createdAt.getTime()
+			: b.createdAt.getTime() - a.createdAt.getTime(),
+	);
+}
 
-		if (phone && !item.phone?.toLowerCase().includes(phone.toLowerCase())) {
-			return false;
-		}
+function buildPlanTabs(rows) {
+	const total = rows.length;
+	const counts = planCatalog.map((plan) => ({
+		label: plan.name,
+		value: plan.id,
+		count: rows.filter((row) => row.planType === plan.id).length,
+	}));
 
-		if (status && item.status !== status) {
-			return false;
-		}
-
-		return true;
-	});
+	return [{ label: "Todos", value: "", count: total }, ...counts];
 }

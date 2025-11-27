@@ -19,16 +19,15 @@ import { Option } from "@/components/core/option";
 
 import { useCustomersSelection } from "./customers-selection-context";
 
-// The tabs should be generated using API data.
-const tabs = [
-	{ label: "All", value: "", count: 5 },
-	{ label: "Active", value: "active", count: 3 },
-	{ label: "Pending", value: "pending", count: 1 },
-	{ label: "Blocked", value: "blocked", count: 1 },
+const defaultTabs = [
+	{ label: "Todos", value: "", count: 0 },
+	{ label: "Personal Free", value: "personal_free", count: 0 },
+	{ label: "Personal", value: "personal", count: 0 },
+	{ label: "Family", value: "family", count: 0 },
 ];
 
-export function CustomersFilters({ filters = {}, sortDir = "desc" }) {
-	const { email, phone, status } = filters;
+export function CustomersFilters({ filters = {}, sortDir = "desc", tabs = defaultTabs }) {
+	const { email, phone, plan } = filters;
 
 	const router = useRouter();
 
@@ -42,8 +41,8 @@ export function CustomersFilters({ filters = {}, sortDir = "desc" }) {
 				searchParams.set("sortDir", newSortDir);
 			}
 
-			if (newFilters.status) {
-				searchParams.set("status", newFilters.status);
+			if (newFilters.plan) {
+				searchParams.set("plan", newFilters.plan);
 			}
 
 			if (newFilters.email) {
@@ -63,9 +62,9 @@ export function CustomersFilters({ filters = {}, sortDir = "desc" }) {
 		updateSearchParams({}, sortDir);
 	}, [updateSearchParams, sortDir]);
 
-	const handleStatusChange = React.useCallback(
+	const handlePlanChange = React.useCallback(
 		(_, value) => {
-			updateSearchParams({ ...filters, status: value }, sortDir);
+			updateSearchParams({ ...filters, plan: value }, sortDir);
 		},
 		[updateSearchParams, filters, sortDir]
 	);
@@ -91,12 +90,13 @@ export function CustomersFilters({ filters = {}, sortDir = "desc" }) {
 		[updateSearchParams, filters]
 	);
 
-	const hasFilters = status || email || phone;
+	const hasFilters = plan || email || phone;
+	const tabOptions = tabs.length > 0 ? tabs : defaultTabs;
 
 	return (
 		<div>
-			<Tabs onChange={handleStatusChange} sx={{ px: 3 }} value={status ?? ""} variant="scrollable">
-				{tabs.map((tab) => (
+			<Tabs onChange={handlePlanChange} sx={{ px: 3 }} value={plan ?? ""} variant="scrollable">
+				{tabOptions.map((tab) => (
 					<Tab
 						icon={<Chip label={tab.count} size="small" variant="soft" />}
 						iconPosition="end"

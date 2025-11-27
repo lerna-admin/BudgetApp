@@ -10,8 +10,14 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
-import { appConfig } from "@/config/app";
 import { apiEndpoints, apiFetch } from "@/lib/api-client";
+import { useCountry } from "@/components/country/country-context";
+import { CountryBadge } from "@/components/country/country-badge";
+import { useUser } from "@/components/auth/user-context";
+import { useWorkspace } from "@/components/workspace/workspace-context";
+import { useRoleGuard } from "@/hooks/use-role-guard";
+
+const API_BASE_LABEL = process.env.NEXT_PUBLIC_API_BASE_URL || "el mismo host (Next.js API)";
 
 const methods = [
 	{ label: "Efectivo", value: "cash" },
@@ -20,9 +26,20 @@ const methods = [
 	{ label: "Transferencia", value: "transfer" },
 ];
 
-export const metadata = { title: `Registrar transacción | Dashboard | ${appConfig.name}` };
-
 export default function Page() {
+	const canView = useRoleGuard(["client", "cs_agent"]);
+	if (!canView) {
+		return null;
+	}
+	return <TransactionsContent />;
+}
+
+function TransactionsContent() {
+	const user = useUser();
+	const { country } = useCountry();
+	const { scope: workspaceScope, setScope: setWorkspaceScope, hasHousehold } = useWorkspace();
+	const householdMembership = user?.householdMemberships?.[0];
+	const householdId = householdMembership?.householdId ?? null;
 	const [form, setForm] = React.useState({
 		date: new Date().toISOString().slice(0, 16), // yyyy-MM-ddTHH:mm
 		amount: "",
@@ -30,8 +47,13 @@ export default function Page() {
 		method: "debit_card",
 		notes: "",
 	});
+	const [scope, setScope] = React.useState(workspaceScope);
 	const [status, setStatus] = React.useState("idle");
 	const [message, setMessage] = React.useState(null);
+
+	React.useEffect(() => {
+		setScope(workspaceScope);
+	}, [workspaceScope]);
 
 	function handleChange(event) {
 		const { name, value } = event.target;
@@ -49,21 +71,24 @@ export default function Page() {
 				categoryId: form.categoryId,
 				method: form.method,
 				notes: form.notes,
+				country: country.code,
+				scope,
+				householdId: scope === "household" && householdId ? householdId : null,
 			};
 			await apiFetch(apiEndpoints.transactions, {
 				method: "POST",
 				body: JSON.stringify(payload),
 			});
 			setStatus("success");
-			setMessage("Transacción registrada con éxito (mock).");
+			setMessage("Transacción registrada con éxito.");
 			setForm((prev) => ({
 				...prev,
 				amount: "",
 				notes: "",
 			}));
-		} catch (err) {
+		} catch (error_) {
 			setStatus("error");
-			setMessage(err.message);
+			setMessage(error_.message);
 		}
 	}
 
@@ -78,11 +103,14 @@ export default function Page() {
 		>
 			<Stack spacing={4}>
 				<Box>
-					<Typography variant="h4">Registrar transacción (mock)</Typography>
+					<Typography variant="h4">Registrar transacción (API local)</Typography>
 					<Typography color="text.secondary" variant="body2">
-						Envía datos a {process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4010"} /
-						{apiEndpoints.transactions}
+						País activo: {country.name} · Moneda: {country.currency} · Endpoint:{" "}
+						{`${API_BASE_LABEL}${apiEndpoints.transactions}`}
 					</Typography>
+					<Box sx={{ mt: 1 }}>
+						<CountryBadge size="small" />
+					</Box>
 				</Box>
 				<Card>
 					<CardContent>
@@ -102,8 +130,31 @@ export default function Page() {
 									type="number"
 									value={form.amount}
 									onChange={handleChange}
+									helperText={`Moneda: ${country.currency}`}
 									required
 								/>
+								<TextField
+									label="Ámbito"
+									select
+									value={scope}
+									onChange={(event) => {
+										const nextScope = event.target.value;
+										setScope(nextScope);
+										if (nextScope !== workspaceScope) {
+											setWorkspaceScope(nextScope);
+										}
+									}}
+									helperText={
+										scope === "household" && !householdId
+											? "No tienes hogar asignado, usa el presupuesto personal."
+											: "Define si afecta al presupuesto personal o familiar."
+									}
+								>
+									<MenuItem value="personal">Personal</MenuItem>
+									<MenuItem value="household" disabled={!hasHousehold && !householdId}>
+										Familiar
+									</MenuItem>
+								</TextField>
 								<TextField
 									label="Categoría"
 									name="categoryId"

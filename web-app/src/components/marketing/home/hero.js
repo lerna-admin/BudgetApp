@@ -24,6 +24,8 @@ export function Hero() {
 
 	return (
 		<Box
+			component="section"
+			id="hero"
 			sx={{
 				bgcolor: "var(--mui-palette-neutral-950)",
 				color: "var(--mui-palette-common-white)",
@@ -65,30 +67,30 @@ export function Hero() {
 				<Stack spacing={4}>
 					<Stack spacing={2}>
 						<Typography sx={{ fontSize: "3.5rem", fontWeight: 600, lineHeight: 1.2, textAlign: "center" }}>
-							Focus on development, leave{" "}
+							Organiza tu{" "}
 							<Typography color="primary.main" component="span" variant="inherit">
-								User Experience
+								presupuesto
 							</Typography>{" "}
-							to us.
+							y las finanzas de tu familia en tiempo real.
 						</Typography>
 						<Typography color="neutral.300" sx={{ fontWeight: 400, textAlign: "center" }} variant="h5">
-							Premium template designed to accelerate app development with a stunning design and powerful pre-built
-							Material UI components.
+							BudgetApp centraliza tus cuentas bancarias en Colombia, calcula la salud financiera de cada integrante y
+							envía alertas cuando tus planes personales o familiares se desvían del presupuesto.
 						</Typography>
 					</Stack>
 					<Stack direction="row" spacing={2} sx={{ justifyContent: "center" }}>
-						<Button component={RouterLink} href={paths.dashboard.overview} variant="contained">
-							Dashboard
+						<Button component={RouterLink} href={paths.pricing} variant="contained">
+							Ver planes
 						</Button>
 						<Button
 							component={RouterLink}
-							href={paths.components.index}
+							href={paths.register}
 							sx={{
 								color: "var(--mui-palette-common-white)",
 								"&:hover": { bgcolor: "var(--mui-palette-action-hover)" },
 							}}
 						>
-							Components
+							Crear cuenta gratuita
 						</Button>
 					</Stack>
 					<Stack direction="row" spacing={1} sx={{ alignItems: "center", justifyContent: "center " }}>
@@ -101,7 +103,7 @@ export function Hero() {
 							<Typography color="inherit" component="span" sx={{ fontWeight: 700 }} variant="inherit">
 								4.7/5
 							</Typography>{" "}
-							based on (100+ reviews)
+							jóvenes profesionales felices con BudgetApp
 						</Typography>
 					</Stack>
 				</Stack>

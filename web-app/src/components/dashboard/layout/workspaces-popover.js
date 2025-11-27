@@ -6,12 +6,12 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-export const workspaces = [
-	{ name: "Devias", avatar: "/assets/workspace-avatar-1.png" },
-	{ name: "Carpatin", avatar: "/assets/workspace-avatar-2.png" },
+export const defaultWorkspaces = [
+	{ name: "Personal", avatar: "/assets/workspace-avatar-1.png", value: "personal" },
+	{ name: "Familiar", avatar: "/assets/workspace-avatar-2.png", value: "household" },
 ];
 
-export function WorkspacesPopover({ anchorEl, onChange, onClose, open = false }) {
+export function WorkspacesPopover({ anchorEl, onChange, onClose, open = false, workspaces = defaultWorkspaces }) {
 	return (
 		<Menu
 			anchorEl={anchorEl}
@@ -23,9 +23,9 @@ export function WorkspacesPopover({ anchorEl, onChange, onClose, open = false })
 		>
 			{workspaces.map((workspace) => (
 				<MenuItem
-					key={workspace.name}
+					key={workspace.value ?? workspace.name}
 					onClick={() => {
-						onChange?.(workspace.name);
+						onChange?.(workspace.value ?? workspace.name);
 					}}
 				>
 					<ListItemAvatar>

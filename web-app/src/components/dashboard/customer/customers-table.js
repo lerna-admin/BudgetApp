@@ -6,7 +6,6 @@ import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import IconButton from "@mui/material/IconButton";
-import LinearProgress from "@mui/material/LinearProgress";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -46,16 +45,9 @@ const columns = [
 		width: "250px",
 	},
 	{
-		formatter: (row) => (
-			<Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
-				<LinearProgress sx={{ flex: "1 1 auto" }} value={row.quota} variant="determinate" />
-				<Typography color="text.secondary" variant="body2">
-					{new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 2 }).format(row.quota / 100)}
-				</Typography>
-			</Stack>
-		),
-		name: "Quota",
-		width: "250px",
+		formatter: (row) => <Chip label={row.planLabel} size="small" variant="outlined" />,
+		name: "Plan",
+		width: "180px",
 	},
 	{ field: "phone", name: "Phone number", width: "150px" },
 	{

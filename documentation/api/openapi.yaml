@@ -20,6 +20,8 @@ tags:
   - name: Transactions
   - name: Alerts
   - name: Bank Integrations
+  - name: Countries
+  - name: Auth
 paths:
   /api/onboarding:
     post:
@@ -57,9 +59,19 @@ paths:
           required: true
           description: Periodo en formato YYYY-MM.
         - in: query
+          name: country
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 3
+          required: false
+          description: Código ISO del país cuyo presupuesto se desea consultar.
+        - in: query
           name: householdId
           schema:
             type: string
+          required: false
+          description: Identificador del hogar cuando se trata de un presupuesto familiar.
           required: false
       responses:
         '200':
@@ -88,6 +100,44 @@ paths:
                 $ref: '#/components/schemas/Budget'
         '409':
           description: Ya existe un presupuesto para ese periodo.
+  /api/budgets/history:
+    get:
+      tags: [Budgets]
+      summary: Lista todos los presupuestos del usuario según el ámbito seleccionado.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: scope
+          schema:
+            type: string
+            enum: [personal, household]
+          required: false
+          description: Determina si se listan presupuestos personales o familiares.
+        - in: query
+          name: householdId
+          schema:
+            type: string
+          required: false
+          description: Filtra por un hogar específico cuando el usuario pertenece a varios.
+        - in: query
+          name: userId
+          schema:
+            type: string
+          required: false
+          description: Solo para agentes/admins, permite consultar el histórico de un usuario concreto.
+      responses:
+        '200':
+          description: Listado de presupuestos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Budget'
   /api/transactions:
     post:
       tags: [Transactions]
@@ -128,6 +178,12 @@ paths:
           schema:
             type: integer
             default: 50
+        - in: query
+          name: householdId
+          schema:
+            type: string
+            nullable: true
+          description: Filtra por hogar cuando se trata de un paquete familiar.
       responses:
         '200':
           description: Lista paginada.
@@ -193,6 +249,213 @@ paths:
                   expiresIn:
                     type: integer
                     description: Segundos de validez.
+  /api/households:
+    get:
+      tags: [Households]
+      summary: Lista los paquetes familiares accesibles para el usuario autenticado.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Catálogo de hogares.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Household'
+    post:
+      tags: [Households]
+      summary: Crea un paquete familiar (roles admin o cs_agent).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Household'
+      responses:
+        '201':
+          description: Hogar creado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Household'
+  /api/households/{id}:
+    put:
+      tags: [Households]
+      summary: Actualiza un paquete familiar existente.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Household'
+      responses:
+        '200':
+          description: Hogar actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Household'
+    delete:
+      tags: [Households]
+      summary: Elimina un paquete familiar.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '204':
+          description: Eliminado.
+  /api/households/{id}/members:
+    post:
+      tags: [Households]
+      summary: Agrega o actualiza un miembro del hogar.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HouseholdMember'
+      responses:
+        '200':
+          description: Hogar actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Household'
+    delete:
+      tags: [Households]
+      summary: Elimina un miembro del hogar.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+              required: [userId]
+      responses:
+        '200':
+          description: Hogar actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Household'
+  /api/tickets:
+    get:
+      tags: [Tickets]
+      summary: Lista los tickets del usuario (o todos si es admin/cs_agent).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de tickets.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+    post:
+      tags: [Tickets]
+      summary: Crea un ticket de soporte.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketInput'
+      responses:
+        '201':
+          description: Ticket creado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+  /api/tickets/{id}:
+    put:
+      tags: [Tickets]
+      summary: Actualiza estado/asignación o agrega comentarios.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [open, in_progress, resolved, closed]
+                assignedTo:
+                  type: string
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                comment:
+                  type: string
+      responses:
+        '200':
+          description: Ticket actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+  /api/reports/kpis:
+    get:
+      tags: [Reports]
+      summary: Devuelve KPIs globales (solo admin).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: KPIs calculados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KpiSummary'
 components:
   securitySchemes:
     bearerAuth:
@@ -221,6 +484,10 @@ components:
     OnboardingRequest:
       type: object
       properties:
+        country:
+          type: string
+          minLength: 2
+          maxLength: 3
         ingresosMensuales:
           type: number
         gastosFijos:
@@ -233,7 +500,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Goal'
-      required: [ingresosMensuales, gastosFijos]
+      required: [country, ingresosMensuales, gastosFijos]
     OnboardingResponse:
       type: object
       properties:
@@ -248,15 +515,45 @@ components:
     BudgetInput:
       type: object
       properties:
+        householdId:
+          type: string
+          nullable: true
+          description: Asociar a un hogar para presupuestos compartidos.
+        scope:
+          type: string
+          enum: [personal, household]
+          description: Determina si el presupuesto afecta al ámbito personal o familiar.
         period:
           type: string
         currency:
           type: string
+        country:
+          type: string
+          minLength: 2
+          maxLength: 3
+        frequency:
+          type: string
+          enum: [monthly, annual]
+          default: monthly
+          description: Periodicidad del presupuesto; por default es mensual.
+        userId:
+          type: string
+          description: Sólo agentes/admins pueden usarlo para guardar presupuestos de otro usuario.
+        userEmail:
+          type: string
+          format: email
+          description: Alternativa para que CS Agents busquen al usuario objetivo por correo.
+        startBalance:
+          type: number
+          description: Saldo inicial (Start Balance) definido en Start Here.
+        startWithMoney:
+          type: boolean
+          description: Indica si el periodo arranca con dinero ya asignado.
         categories:
           type: array
           items:
             $ref: '#/components/schemas/BudgetCategory'
-      required: [period, currency, categories]
+      required: [period, currency, country, categories]
     Budget:
       allOf:
         - $ref: '#/components/schemas/BudgetInput'
@@ -282,11 +579,34 @@ components:
           type: number
         gastado:
           type: number
+        subcategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetSubcategory'
+    BudgetSubcategory:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        asignado:
+          type: number
+        startWithMoney:
+          type: boolean
           readOnly: true
       required: [categoryId, asignado]
     TransactionInput:
       type: object
       properties:
+        householdId:
+          type: string
+          nullable: true
+          description: Identificador del hogar cuando la transacción afecta al presupuesto familiar.
+        country:
+          type: string
+          minLength: 2
+          maxLength: 3
         date:
           type: string
           format: date-time
@@ -304,7 +624,7 @@ components:
           items:
             type: string
             format: uri
-      required: [date, amount, categoryId]
+      required: [country, date, amount, categoryId]
     Transaction:
       allOf:
         - $ref: '#/components/schemas/TransactionInput'
@@ -361,3 +681,276 @@ components:
         targetDate:
           type: string
           format: date
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    CountryConfig:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        currency:
+          type: string
+        locale:
+          type: string
+        timezone:
+          type: string
+        provider:
+          type: string
+      required: [code, name, currency, locale, timezone]
+    HouseholdMember:
+      type: object
+      properties:
+        userId:
+          type: string
+        role:
+          type: string
+          enum: [owner, member]
+        sharePercent:
+          type: number
+      required: [userId]
+    Household:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        planType:
+          type: string
+        billingUserId:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/HouseholdMember'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, name, planType, billingUserId]
+    TicketComment:
+      type: object
+      properties:
+        id:
+          type: string
+        authorId:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high]
+        status:
+          type: string
+          enum: [open, in_progress, resolved, closed]
+        createdBy:
+          type: string
+        assignedTo:
+          type: string
+          nullable: true
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TicketComment'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, title, description, status, priority]
+    TicketInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high]
+        assignedTo:
+          type: string
+      required: [title, description]
+    KpiSummary:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalClients:
+          type: integer
+        totalAgents:
+          type: integer
+        activeHouseholds:
+          type: integer
+        openTickets:
+          type: integer
+        averageHouseholdBudget:
+          type: number
+  /api/countries:
+    get:
+      tags: [Countries]
+      summary: Lista la configuración de países disponible.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Catálogo de países.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CountryConfig'
+    post:
+      tags: [Countries]
+      summary: Crea un país nuevo (rol admin).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CountryConfig'
+      responses:
+        '201':
+          description: País registrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountryConfig'
+  /api/countries/{code}:
+    put:
+      tags: [Countries]
+      summary: Actualiza un país existente.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CountryConfig'
+      responses:
+        '200':
+          description: País actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountryConfig'
+    delete:
+      tags: [Countries]
+      summary: Elimina un país (requiere autorización).
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Eliminado.
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Crea un usuario y devuelve la sesión.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required: [name, email, password]
+      responses:
+        '201':
+          description: Usuario creado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '409':
+          description: Correo duplicado.
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Inicia sesión y crea cookie de sesión.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required: [email, password]
+      responses:
+        '200':
+          description: Sesión creada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Credenciales inválidas.
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Termina la sesión actual y limpia la cookie.
+      responses:
+        '200':
+          description: Sesión cerrada.

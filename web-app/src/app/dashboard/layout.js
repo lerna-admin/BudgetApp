@@ -1,20 +1,13 @@
-"use client";
-
 import * as React from "react";
+import { redirect } from "next/navigation";
 
-import { dashboardConfig } from "@/config/dashboard";
-import { useSettings } from "@/components/core/settings/settings-context";
-import { HorizontalLayout } from "@/components/dashboard/layout/horizontal/horizontal-layout";
-import { VerticalLayout } from "@/components/dashboard/layout/vertical/vertical-layout";
+import { getCurrentUser } from "@/lib/auth";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
-export default function Layout(props) {
-	const { settings } = useSettings();
-
-	const layout = settings.dashboardLayout ?? dashboardConfig.layout;
-
-	if (layout === "horizontal") {
-		return <HorizontalLayout {...props} />;
+export default async function Layout(props) {
+	const user = await getCurrentUser();
+	if (!user) {
+		redirect("/login");
 	}
-
-	return <VerticalLayout {...props} />;
+	return <DashboardShell {...props} user={user} />;
 }

@@ -15,33 +15,33 @@ import { QuestionIcon } from "@phosphor-icons/react/dist/ssr/Question";
 const faqs = [
 	{
 		id: "FAQ-1",
-		question: "Do you have a free demo to review the code before purchasing?",
+		question: "¿Cómo conectan mis bancos y tarjetas?",
 		answer:
-			"Yes, you can check out our open source dashboard template which should give you an overview of the code quality and folder structure. Keep in mind that some aspects may differ from this Paid version.",
+			"Trabajamos con proveedores Open Finance (Belvo, Minka) para obtener movimientos con autorización del usuario. La primera versión opera en Colombia y luego expandiremos a México y Brasil.",
 	},
 	{
 		id: "FAQ-2",
-		question: "How many projects can I build with Devias Kit PRO?",
+		question: "¿Cuál es la diferencia entre los planes Personal Free, Personal y Family?",
 		answer:
-			"The license is per project (domain), but if you intend to develop an unknown number of projects feel free to contact us and we'll find a solution.",
+			"Personal Free limita el historial a 30 días, Personal desbloquea presupuestos ilimitados e integración bancaria individual y Family extiende todo el set de funcionalidades a hogares de hasta 5 miembros con alertas avanzadas.",
 	},
 	{
 		id: "FAQ-3",
-		question: "How many projects can I build with this template?",
+		question: "¿Puedo usar BudgetApp fuera de Colombia?",
 		answer:
-			"Absolutely! If you intend to charge users for using your product Extended license is created specifically for this context.",
+			"La aplicación es global, pero las integraciones bancarias iniciarán en Colombia. Puedes registrar transacciones manuales desde cualquier país y pronto habilitaremos catálogos para México y Brasil.",
 	},
 	{
 		id: "FAQ-4",
-		question: "What browsers does the template support?",
+		question: "¿Qué tan rápido llegan las alertas?",
 		answer:
-			"The components in MUI are designed to work in the latest, stable releases of all major browsers, including Chrome, Firefox, Safari, and Edge. We don't support Internet Explorer 11.",
+			"Cuando sincronizamos transacciones desde el banco las evaluamos en segundos; si registras gastos manuales recalculamos tus KPIs al instante y notificamos por push, correo o WhatsApp según tus preferencias.",
 	},
 	{
 		id: "FAQ-5",
-		question: "For what kind of projects is the Standard license intended?",
+		question: "¿Necesito instalar algo para probar la demo?",
 		answer:
-			"The Standard license is designed for internal applications in which staff will access the application. An example could be the back-office dashboard of a public-facing e-commerce website in which staff would sign in and manage inventory, customers, etc.",
+			"No. Regístrate desde el navegador, levanta la maqueta con `pnpm dev` si eres parte del equipo técnico o usa la versión desplegada para validar el flujo de onboarding, presupuestos y soporte.",
 	},
 ];
 
@@ -56,16 +56,12 @@ export function Faqs() {
 								<Chip color="primary" icon={<QuestionIcon />} label="FAQ" variant="soft" />
 							</Box>
 							<Typography sx={{ textAlign: "center" }} variant="h3">
-								Questions we get asked
+								Preguntas frecuentes
 							</Typography>
 							<Typography color="text.secondary">
-								Have another question you do not see here? Contact us by{" "}
-								<Box
-									component="a"
-									href="mailto:support@deviasio.zendesk.com"
-									sx={{ color: "inherit", textDecoration: "underline" }}
-								>
-									email
+								¿Tienes otra duda? Escríbenos a{" "}
+								<Box component="a" href="mailto:hola@budgetapp.test" sx={{ color: "inherit", textDecoration: "underline" }}>
+									hola@budgetapp.test
 								</Box>
 								.
 							</Typography>

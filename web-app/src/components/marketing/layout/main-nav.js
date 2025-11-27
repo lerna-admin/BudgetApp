@@ -14,13 +14,16 @@ import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 
 import { paths } from "@/paths";
 import { isNavItemActive } from "@/lib/is-nav-item-active";
-import { Dropdown } from "@/components/core/dropdown/dropdown";
-import { DropdownPopover } from "@/components/core/dropdown/dropdown-popover";
-import { DropdownTrigger } from "@/components/core/dropdown/dropdown-trigger";
 import { Logo } from "@/components/core/logo";
 
 import { MobileNav } from "./mobile-nav";
-import { PagesPopover } from "./pages-popover";
+
+const marketingNav = [
+	{ href: `${paths.home}#producto`, title: "Producto" },
+	{ href: `${paths.home}#features`, title: "Funciones" },
+	{ href: paths.pricing, title: "Pricing" },
+	{ href: paths.contact, title: "Contacto" },
+];
 
 export function MainNav() {
 	const [openNav, setOpenNav] = React.useState(false);
@@ -47,8 +50,9 @@ export function MainNav() {
 						</Box>
 						<Box component="nav" sx={{ display: { xs: "none", md: "block" } }}>
 							<Stack component="ul" direction="row" spacing={1} sx={{ listStyle: "none", m: 0, p: 0 }}>
-								<NavItem href={paths.components.index} pathname={pathname} title="Components" />
-								<NavItem href={paths.docs} pathname={pathname} title="Documentation" />
+								{marketingNav.map((item) => (
+									<NavItem href={item.href} key={item.title} pathname={pathname} title={item.title} />
+								))}
 							</Stack>
 						</Box>
 					</Stack>
@@ -57,22 +61,31 @@ export function MainNav() {
 						spacing={2}
 						sx={{ alignItems: "center", flex: "1 1 auto", justifyContent: "flex-end" }}
 					>
-						<Box component="nav" sx={{ display: { xs: "none", md: "block" } }}>
-							<Stack component="ul" direction="row" spacing={1} sx={{ listStyle: "none", m: 0, p: 0 }}>
-								<NavItem pathname={pathname} title="Pages">
-									<PagesPopover />
-								</NavItem>
-							</Stack>
-						</Box>
+						<Box sx={{ alignItems: "center", display: { xs: "none", md: "flex" }, gap: 1 }}>
+							<Button
+								component={RouterLink}
+								href={paths.login}
+								sx={{ color: "var(--mui-palette-common-white)" }}
+								variant="text"
+							>
+								Iniciar sesión
+							</Button>
 						<Button
-							component="a"
-							href={paths.purchase}
-							sx={{ display: { xs: "none", md: "flex" } }}
-							target="_blank"
-							variant="contained"
+							component={RouterLink}
+							href={paths.pricing}
+							sx={{
+								borderColor: "rgba(255, 255, 255, 0.4)",
+								color: "var(--mui-palette-common-white)",
+								"&:hover": { borderColor: "var(--mui-palette-common-white)", bgcolor: "rgba(255,255,255,0.08)" },
+							}}
+							variant="outlined"
 						>
-							Purchase now
+							Ver pricing
 						</Button>
+							<Button component={RouterLink} href={paths.register} variant="contained">
+								Crear cuenta
+							</Button>
+						</Box>
 						<IconButton
 							onClick={() => {
 								setOpenNav(true);
@@ -162,16 +175,10 @@ export function NavItem({ children, disabled, external, href, matcher, pathname,
 
 	if (hasPopover) {
 		return (
-			<Dropdown>
-				<DropdownTrigger>{element}</DropdownTrigger>
-				<DropdownPopover
-					PaperProps={{ sx: { width: "800px", maxWidth: "100%" } }}
-					anchorOrigin={{ horizontal: "center", vertical: "bottom" }}
-					transformOrigin={{ horizontal: "center", vertical: "top" }}
-				>
-					{children}
-				</DropdownPopover>
-			</Dropdown>
+			<React.Fragment>
+				{element}
+				{children}
+			</React.Fragment>
 		);
 	}
 

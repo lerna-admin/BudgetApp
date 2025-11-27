@@ -1,31 +1,142 @@
+"use client";
+
 import * as React from "react";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
-import { BriefcaseIcon } from "@phosphor-icons/react/dist/ssr/Briefcase";
-import { FileCodeIcon } from "@phosphor-icons/react/dist/ssr/FileCode";
-import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
-import { ListChecksIcon } from "@phosphor-icons/react/dist/ssr/ListChecks";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
-import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
-import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning";
+import CircularProgress from "@mui/material/CircularProgress";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
-import { appConfig } from "@/config/app";
 import { dayjs } from "@/lib/dayjs";
-import { AppChat } from "@/components/dashboard/overview/app-chat";
-import { AppLimits } from "@/components/dashboard/overview/app-limits";
-import { AppUsage } from "@/components/dashboard/overview/app-usage";
-import { Events } from "@/components/dashboard/overview/events";
-import { HelperWidget } from "@/components/dashboard/overview/helper-widget";
-import { Subscriptions } from "@/components/dashboard/overview/subscriptions";
-import { Summary } from "@/components/dashboard/overview/summary";
-
-export const metadata = { title: `Overview | Dashboard | ${appConfig.name}` };
+import { apiEndpoints, apiFetch } from "@/lib/api-client";
+import { paths } from "@/paths";
+import { useUser } from "@/components/auth/user-context";
+import { LogoutButton } from "@/components/auth/logout-button";
+import { useCountry } from "@/components/country/country-context";
+import { CountryBadge } from "@/components/country/country-badge";
+import { AdminOverview } from "@/components/dashboard/admin/admin-overview";
+import { BudgetOverview, getPeriodRange, isPeriodEditable } from "@/components/dashboard/budget/budget-overview";
 
 export default function Page() {
+	const user = useUser();
+
+	if (!user) {
+		return null;
+	}
+
+	if (user.role === "admin") {
+		return <AdminOverview />;
+	}
+
+	return <ClientDashboard />;
+}
+
+function ClientDashboard() {
+	const searchParams = useSearchParams();
+	const initialPeriod = searchParams.get("period") ?? dayjs().format("YYYY-MM");
+	const [period, setPeriod] = React.useState(initialPeriod);
+	const [budgetState, setBudgetState] = React.useState({ data: null, loading: false, error: null });
+	const [txState, setTxState] = React.useState({ data: null, loading: false, error: null });
+	const { country, setCountry, options } = useCountry();
+	const user = useUser();
+	const [savingBudget, setSavingBudget] = React.useState(false);
+	const [saveError, setSaveError] = React.useState(null);
+
+	const loadBudgets = React.useCallback(async () => {
+		setBudgetState((prev) => ({ ...prev, loading: true, error: null }));
+		try {
+			const params = new URLSearchParams({
+				period,
+				country: country.code,
+			});
+			const data = await apiFetch(`${apiEndpoints.budgets}?${params.toString()}`);
+			setBudgetState({ data, loading: false, error: null });
+		} catch (error_) {
+			setBudgetState((prev) => ({ ...prev, loading: false, error: error_.message }));
+		}
+	}, [country.code, period]);
+
+	const loadTransactions = React.useCallback(async () => {
+		setTxState((prev) => ({ ...prev, loading: true, error: null }));
+		try {
+			const data = await apiFetch(apiEndpoints.transactions);
+			setTxState({ data, loading: false, error: null });
+		} catch (error_) {
+			setTxState((prev) => ({ ...prev, loading: false, error: error_.message }));
+		}
+	}, []);
+
+	React.useEffect(() => {
+		void loadBudgets();
+	}, [loadBudgets]);
+
+	React.useEffect(() => {
+		void loadTransactions();
+	}, [loadTransactions]);
+
+	const currency = country.currency ?? budgetState.data?.currency ?? "COP";
+	const locale = country.locale ?? "es-CO";
+	const filteredTransactions = React.useMemo(() => {
+		const { start, end } = getPeriodRange(period);
+		return (txState.data?.data ?? [])
+			.filter((transaction) => {
+				const date = new Date(transaction.date);
+				return (!start || date >= start) && (!end || date <= end);
+			})
+			.sort((a, b) => new Date(b.date) - new Date(a.date));
+	}, [txState.data?.data, period]);
+
+	const transactionsLink = `${paths.dashboard.transactions.list}?period=${period}`;
+	const canEdit = user?.startHereConfigured && isPeriodEditable(period);
+	const editHref = canEdit ? `${paths.dashboard.budgets}?period=${period}` : null;
+
+	const handleSaveBudgets = React.useCallback(
+		async (categories) => {
+			if (!budgetState.data) {
+				return;
+			}
+			setSaveError(null);
+			setSavingBudget(true);
+			try {
+				const payload = {
+					period,
+					country: country.code,
+					currency: budgetState.data?.currency ?? currency,
+					startBalance: budgetState.data?.startBalance ?? 0,
+					startWithMoney: budgetState.data?.startWithMoney ?? false,
+					scope: "personal",
+					categories: categories.map((category) => ({
+						categoryId: category.id,
+						asignado: category.subcategories.reduce((sum, item) => sum + item.asignado, 0),
+						subcategories: category.subcategories.map((subcategory) => ({
+							id: subcategory.id,
+							label: subcategory.label,
+							asignado: subcategory.asignado,
+							gastado: subcategory.gastado,
+						})),
+					})),
+				};
+				await apiFetch(apiEndpoints.budgets, {
+					method: "POST",
+					body: JSON.stringify(payload),
+				});
+				await loadBudgets();
+			} catch (error_) {
+				setSaveError(error_.message);
+			} finally {
+				setSavingBudget(false);
+			}
+		},
+		[budgetState.data, period, country.code, currency, loadBudgets],
+	);
+
 	return (
 		<Box
 			sx={{
@@ -36,255 +147,135 @@ export default function Page() {
 			}}
 		>
 			<Stack spacing={4}>
+				<Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ alignItems: "center", justifyContent: "space-between" }}>
+					<Box>
+						<Typography variant="h5">Hola, {user?.name ?? "Usuario"}</Typography>
+						<Typography color="text.secondary" variant="body2">
+							Rol: {user?.role ?? "user"} · Sesión iniciada con {user?.email}
+						</Typography>
+					</Box>
+					<LogoutButton />
+				</Stack>
+
 				<Stack direction={{ xs: "column", sm: "row" }} spacing={3} sx={{ alignItems: "flex-start" }}>
 					<Box sx={{ flex: "1 1 auto" }}>
-						<Typography variant="h4">Overview</Typography>
+						<Typography variant="h4">Budget Dashboard</Typography>
+						<Typography color="text.secondary" variant="body2">
+							Selecciona el periodo y visualiza tu presupuesto mensual tal cual como en la hoja Budget (Overview, columnas y log).
+						</Typography>
 					</Box>
-					<div>
-						<Button startIcon={<PlusIcon />} variant="contained">
-							Dashboard
+					<CountryBadge showProvider size="small" />
+					<Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: "stretch" }}>
+						<TextField
+							label="País"
+							select
+							size="small"
+							value={country.code}
+							onChange={(event) => setCountry(event.target.value)}
+						>
+							{options.map((option) => (
+								<MenuItem key={option.code} value={option.code}>
+									{option.name}
+								</MenuItem>
+							))}
+						</TextField>
+						<Button component={Link} href={paths.dashboard.budgets} variant="outlined">
+							Ir a Presupuestos
 						</Button>
-					</div>
+						<Button component={Link} href={paths.dashboard.transactions.create} variant="contained">
+							Nuevo gasto
+						</Button>
+					</Stack>
 				</Stack>
-				<Grid container spacing={4}>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<Summary amount={31} diff={15} icon={ListChecksIcon} title="Tickets" trend="up" />
-					</Grid>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<Summary amount={240} diff={5} icon={UsersIcon} title="Sign ups" trend="down" />
-					</Grid>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<Summary amount={21} diff={12} icon={WarningIcon} title="Open issues" trend="up" />
-					</Grid>
-					<Grid
-						size={{
-							md: 8,
-							xs: 12,
-						}}
-					>
-						<AppUsage
-							data={[
-								{ name: "Jan", v1: 36, v2: 19 },
-								{ name: "Feb", v1: 45, v2: 23 },
-								{ name: "Mar", v1: 26, v2: 12 },
-								{ name: "Apr", v1: 39, v2: 20 },
-								{ name: "May", v1: 26, v2: 12 },
-								{ name: "Jun", v1: 42, v2: 31 },
-								{ name: "Jul", v1: 38, v2: 19 },
-								{ name: "Aug", v1: 39, v2: 20 },
-								{ name: "Sep", v1: 37, v2: 18 },
-								{ name: "Oct", v1: 41, v2: 22 },
-								{ name: "Nov", v1: 45, v2: 24 },
-								{ name: "Dec", v1: 23, v2: 17 },
-							]}
-						/>
-					</Grid>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<Subscriptions
-							subscriptions={[
-								{
-									id: "supabase",
-									title: "Supabase",
-									icon: "/assets/company-avatar-5.png",
-									costs: "$599",
-									billingCycle: "year",
-									status: "paid",
-								},
-								{
-									id: "vercel",
-									title: "Vercel",
-									icon: "/assets/company-avatar-4.png",
-									costs: "$20",
-									billingCycle: "month",
-									status: "expiring",
-								},
-								{
-									id: "auth0",
-									title: "Auth0",
-									icon: "/assets/company-avatar-3.png",
-									costs: "$20-80",
-									billingCycle: "month",
-									status: "canceled",
-								},
-								{
-									id: "google_cloud",
-									title: "Google Cloud",
-									icon: "/assets/company-avatar-2.png",
-									costs: "$100-200",
-									billingCycle: "month",
-									status: "paid",
-								},
-								{
-									id: "stripe",
-									title: "Stripe",
-									icon: "/assets/company-avatar-1.png",
-									costs: "$70",
-									billingCycle: "month",
-									status: "paid",
-								},
-							]}
-						/>
-					</Grid>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<AppChat
-							messages={[
-								{
-									id: "MSG-001",
-									content: "Hello, we spoke earlier on the phone",
-									author: { name: "Alcides Antonio", avatar: "/assets/avatar-10.png", status: "online" },
-									createdAt: dayjs().subtract(2, "minute").toDate(),
-								},
-								{
-									id: "MSG-002",
-									content: "Is the job still available?",
-									author: { name: "Marcus Finn", avatar: "/assets/avatar-9.png", status: "offline" },
-									createdAt: dayjs().subtract(56, "minute").toDate(),
-								},
-								{
-									id: "MSG-003",
-									content: "What is a screening task? I'd like to",
-									author: { name: "Carson Darrin", avatar: "/assets/avatar-3.png", status: "online" },
-									createdAt: dayjs().subtract(3, "hour").subtract(23, "minute").toDate(),
-								},
-								{
-									id: "MSG-004",
-									content: "Still waiting for feedback",
-									author: { name: "Fran Perez", avatar: "/assets/avatar-5.png", status: "online" },
-									createdAt: dayjs().subtract(8, "hour").subtract(6, "minute").toDate(),
-								},
-								{
-									id: "MSG-005",
-									content: "Need more information about campaigns",
-									author: { name: "Jie Yan", avatar: "/assets/avatar-8.png", status: "offline" },
-									createdAt: dayjs().subtract(10, "hour").subtract(18, "minute").toDate(),
-								},
-							]}
-						/>
-					</Grid>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<Events
-							events={[
-								{
-									id: "EV-004",
-									title: "Meeting with partners",
-									description: "17:00 to 18:00",
-									createdAt: dayjs().add(1, "day").toDate(),
-								},
-								{
-									id: "EV-003",
-									title: "Interview with Jonas",
-									description: "15:30 to 16:45",
-									createdAt: dayjs().add(4, "day").toDate(),
-								},
-								{
-									id: "EV-002",
-									title: "Doctor's appointment",
-									description: "12:30 to 15:30",
-									createdAt: dayjs().add(4, "day").toDate(),
-								},
-								{
-									id: "EV-001",
-									title: "Weekly meeting",
-									description: "09:00 to 09:30",
-									createdAt: dayjs().add(7, "day").toDate(),
-								},
-							]}
-						/>
-					</Grid>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<AppLimits usage={80} />
-					</Grid>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<HelperWidget
-							action={
-								<Button color="secondary" endIcon={<ArrowRightIcon />} size="small">
-									Search jobs
-								</Button>
-							}
-							description="Search for jobs that match your skills and apply to them directly."
-							icon={BriefcaseIcon}
-							label="Jobs"
-							title="Find your dream job"
-						/>
-					</Grid>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<HelperWidget
-							action={
-								<Button color="secondary" endIcon={<ArrowRightIcon />} size="small">
-									Help center
-								</Button>
-							}
-							description="Find answers to your questions and get in touch with our team."
-							icon={InfoIcon}
-							label="Help center"
-							title="Need help figuring things out?"
-						/>
-					</Grid>
-					<Grid
-						size={{
-							md: 4,
-							xs: 12,
-						}}
-					>
-						<HelperWidget
-							action={
-								<Button color="secondary" endIcon={<ArrowRightIcon />} size="small">
-									Documentation
-								</Button>
-							}
-							description="Learn how to get started with our product and make the most of it."
-							icon={FileCodeIcon}
-							label="Documentation"
-							title="Explore documentation"
-						/>
-					</Grid>
-				</Grid>
+
+				<Card>
+					<CardContent>
+						<Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ alignItems: "center" }}>
+							<TextField
+								label="Periodo presupuestal"
+								type="month"
+								value={period}
+								onChange={(event) => setPeriod(event.target.value)}
+								InputLabelProps={{ shrink: true }}
+							/>
+							<Button onClick={() => loadBudgets()} disabled={budgetState.loading} variant="outlined">
+								Aplicar
+							</Button>
+						</Stack>
+					</CardContent>
+				</Card>
+
+				{renderOverview({
+					user,
+					budgetState,
+					period,
+					locale,
+					currency,
+					filteredTransactions,
+					transactionsState: txState,
+					transactionsLink,
+					editHref,
+					isEditable: canEdit,
+					onSaveBudgets: canEdit ? handleSaveBudgets : null,
+					saving: savingBudget,
+					saveError,
+				})}
 			</Stack>
 		</Box>
+	);
+}
+
+function renderOverview({
+	user,
+	budgetState,
+	period,
+	locale,
+	currency,
+	filteredTransactions,
+	transactionsState,
+	transactionsLink,
+	editHref,
+	isEditable,
+	onSaveBudgets,
+	saving,
+	saveError,
+}) {
+	const hasStartHere = Boolean(user?.startHereConfigured);
+	if (!hasStartHere) {
+		return (
+			<Alert severity="info">
+				Completa la plantilla Start Here en <Link href={paths.dashboard.budgets}>/dashboard/budgets</Link> para desbloquear este
+				resumen con KPIs y columnas.
+			</Alert>
+		);
+	}
+	if (budgetState.loading) {
+		return (
+			<Card>
+				<CardContent>
+					<CircularProgress />
+				</CardContent>
+			</Card>
+		);
+}
+	if (budgetState.error) {
+		return <Alert severity="error">{budgetState.error}</Alert>;
+	}
+	return (
+		<BudgetOverview
+			budget={budgetState.data}
+			period={period}
+			locale={locale}
+			currency={currency}
+			transactions={filteredTransactions}
+			transactionsLoading={transactionsState.loading}
+			transactionsError={transactionsState.error}
+			transactionsLink={transactionsLink}
+			editHref={editHref}
+			isEditable={isEditable}
+			onSaveBudgets={onSaveBudgets}
+			saving={saving}
+			saveError={saveError}
+		/>
 	);
 }

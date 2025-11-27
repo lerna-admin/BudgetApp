@@ -24,10 +24,12 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 | RF-10 | Media | Panel de suscripciones/recurrencias que detecte pagos repetitivos y sugiera acciones (cancelar, negociar). |
 | RF-11 | Baja | Centro de educación financiera con tips personalizados según resultados del diagnóstico. |
 | RF-12 | Baja | APIs/exports (CSV, XLSX) para respaldar datos o integrarse con contabilidad externa. |
+| RF-13 | Alta | Servicio `country_config` consultable (REST) que entregue configuración de países, monedas, proveedores y restricciones para sincronizar el frontend, backend y los mocks. |
+| RF-14 | Alta | Gestión básica de usuarios (registro, login, roles admin/user) con sesiones basadas en tokens para proteger el dashboard y poder administrar catálogos. |
 
 ## 4. Requisitos no funcionales
 - **Disponibilidad**: 99 % mensual para servicios web/móvil.
-- **Seguridad**: autenticación multifactor, cifrado de datos sensibles (en reposo y tránsito), cumplimiento normativo por país (Habeas Data/Ley 1581 en Colombia, equivalentes LATAM y lineamientos internacionales).
+- **Seguridad**: autenticación multifactor, cifrado de datos sensibles (en reposo y tránsito), cumplimiento normativo por país (Habeas Data/Ley 1581 en Colombia, equivalentes LATAM y lineamientos internacionales) y RBAC con roles `user`, `family_admin`, `admin`, `compliance`.
 - **Escalabilidad**: soportar al menos 50k usuarios activos con crecimiento horizontal de servicios.
 - **Usabilidad**: onboarding guiado <10 minutos, accesibilidad AA (WCAG 2.1), experiencia consistente web/móvil.
 - **Rendimiento**: respuesta <2s en vistas críticas (dashboard, registro de transacciones); sincronización bancaria en <5 minutos tras recibir webhooks.
@@ -57,3 +59,4 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 - Elaborar especificaciones de casos de uso priorizados (RF-01 a RF-06).
 - Definir criterios de aceptación y métricas por requisito.
 - Coordinar investigación regulatoria para el requisito RF-04.
+- Diseñar y exponer el endpoint de catálogo de países (RF-13) incluyendo la carga inicial de Colombia/México/Brasil.

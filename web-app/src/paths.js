@@ -1,5 +1,7 @@
 export const paths = {
 	home: "/",
+	login: "/login",
+	register: "/register",
 	checkout: "/checkout",
 	contact: "/contact",
 	pricing: "/pricing",
@@ -49,6 +51,17 @@ export const paths = {
 	},
 	dashboard: {
 		overview: "/dashboard",
+		family: "/dashboard/family",
+		support: {
+			tickets: "/dashboard/support/tickets",
+		},
+		admin: {
+			overview: "/dashboard/admin/overview",
+			countries: "/dashboard/admin/countries",
+		},
+		integrations: {
+			banks: "/dashboard/integrations/banks",
+		},
 		settings: {
 			account: "/dashboard/settings/account",
 			billing: "/dashboard/settings/billing",
@@ -119,9 +132,11 @@ export const paths = {
 		},
 		tasks: "/dashboard/tasks",
 		transactions: {
+			list: "/dashboard/transactions",
 			create: "/dashboard/transactions/create",
 		},
 		budgets: "/dashboard/budgets",
+		onboarding: "/dashboard/onboarding",
 	},
 	pdf: { invoice: (invoiceId) => `/pdf/invoices/${invoiceId}` },
 	components: {
