@@ -12,7 +12,7 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 ## 3. Requisitos funcionales (priorizados)
 | ID | Prioridad | Descripción |
 |----|-----------|-------------|
-| RF-01 | Alta | (analizar porque requeriria información previa para las formulas)Onboarding con cuestionario que calcule la salud financiera inicial (ingresos, gastos, deudas, metas) y entregue un diagnóstico. |
+| RF-01 | Muy Baja | (analizar porque requeriria información previa para las formulas)Onboarding con cuestionario que calcule la salud financiera inicial (ingresos, gastos, deudas, metas) y entregue un diagnóstico. |
 | RF-02 | Alta | Gestión de presupuestos mensuales/anuales replicando la lógica de la plantilla Excel (categorías, subcategorías, metas y saldos). |
 | RF-03 | Alta | Registro manual de transacciones (fecha, monto, categoría, subcategoría, método de pago/lugar de ahorro, notas, adjuntos). |
 | RF-04 | Alta | Integración bancaria (primera ola enfocada en entidades colombianas) para importar movimientos automáticamente y reconciliarlos con categorías, preservando una arquitectura lista para sumar nuevos países. |
