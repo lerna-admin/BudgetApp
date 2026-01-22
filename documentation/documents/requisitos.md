@@ -26,6 +26,10 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 | RF-12 | Baja | APIs/exports (CSV, XLSX) para respaldar datos o integrarse con contabilidad externa. |
 | RF-13 | Alta | Servicio `country_config` consultable (REST) que entregue configuración de países, monedas, proveedores y restricciones para sincronizar el frontend, backend y los mocks. |
 | RF-14 | Alta | Gestión básica de usuarios (registro, login, roles admin/user) con sesiones basadas en tokens para proteger el dashboard y poder administrar catálogos. |
+| RF-15 | Alta | Gamificación inicial: Mapa de avance de metas del año con conteo de pasos por dia) |
+| RF-16 | Alta | Gamificación: Contador de monedas por ingreso de gastos para personalizar el avatar y los iconos de los hitos |
+| RF-17 | Alta | Cierre de mes y limpieza: Actualización de información de acuerdo al estado real del usuario e inicio de presupuesto del siguiente mes |
+| RF-18 | Alta | Importar archivos: archivos csv y xsl con las columnas asociadas a nuestra plantilla |
 
 ## 4. Requisitos no funcionales
 - **Disponibilidad**: 99 % mensual para servicios web/móvil.
