@@ -25,6 +25,7 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
 4. **Integración bancaria**: usuario inicia flujo OAuth/Belvo Link; el Servicio de Integraciones suscribe webhooks y encola movimientos en una cola (p. ej. SQS). El Servicio de Transacciones procesa eventos, ejecuta reglas de categorización y actualiza dashboards.
 5. **Alertas**: reglas configurables se evalúan (cron + eventos); se envían push/email/WhatsApp via Notificaciones.
 6. **Planes de pago**: Stripe gestiona suscripciones; backend sincroniza beneficios (familia, alertas avanzadas) mediante webhooks.
+7. A futuro incluir opciones de accesibilidad
 
 ## 5. Modelo de datos (alto nivel)
 - `users`: perfil, preferencias, país/región, tipo de plan.
