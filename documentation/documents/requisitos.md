@@ -5,16 +5,16 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 
 ## 2. Actores principales
 - **Usuario Individual**: gestiona su presupuesto personal.
-- **Usuario Familiar**: comparte presupuestos con otros miembros (vista de gastos comunes y privados).
+- **Usuario Familiar**: comparte presupuestos con otros miembros (vista de gastos comunes y privados), monitoreo de indicadores familiares.
 - **Integración Bancaria**: servicios financieros externos que proveen movimientos automáticos.
 - **Administrador del Sistema**: configura planes, precios, catálogos y monitorea indicadores.
 
 ## 3. Requisitos funcionales (priorizados)
 | ID | Prioridad | Descripción |
 |----|-----------|-------------|
-| RF-01 | Alta | Onboarding con cuestionario que calcule la salud financiera inicial (ingresos, gastos, deudas, metas) y entregue un diagnóstico. |
+| RF-01 | Alta | (analizar porque requeriria información previa para las formulas)Onboarding con cuestionario que calcule la salud financiera inicial (ingresos, gastos, deudas, metas) y entregue un diagnóstico. |
 | RF-02 | Alta | Gestión de presupuestos mensuales/anuales replicando la lógica de la plantilla Excel (categorías, subcategorías, metas y saldos). |
-| RF-03 | Alta | Registro manual de transacciones (fecha, monto, categoría, subcategoría, método de pago, notas, adjuntos). |
+| RF-03 | Alta | Registro manual de transacciones (fecha, monto, categoría, subcategoría, método de pago/lugar de ahorro, notas, adjuntos). |
 | RF-04 | Alta | Integración bancaria (primera ola enfocada en entidades colombianas) para importar movimientos automáticamente y reconciliarlos con categorías, preservando una arquitectura lista para sumar nuevos países. |
 | RF-05 | Alta | Motor de categorización asistida con reglas editables por el usuario y aprendizaje según correcciones. |
 | RF-06 | Alta | Alertas en tiempo real (push, correo, WhatsApp opcional) cuando se excede un presupuesto o ocurre un cargo relevante. |
@@ -26,9 +26,12 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 | RF-12 | Baja | APIs/exports (CSV, XLSX) para respaldar datos o integrarse con contabilidad externa. |
 | RF-13 | Alta | Servicio `country_config` consultable (REST) que entregue configuración de países, monedas, proveedores y restricciones para sincronizar el frontend, backend y los mocks. |
 | RF-14 | Alta | Gestión básica de usuarios (registro, login, roles admin/user) con sesiones basadas en tokens para proteger el dashboard y poder administrar catálogos. |
+| RF-15 | Alta | Gamificación inicial: Mapa de avance de metas del año con conteo de pasos por dia) |
+| RF-16 | Alta | Gamificación: Contador de monedas por ingreso de gastos para personalizar el avatar y los iconos de los hitos |
+| RF-17 | Alta | Cierre de mes y limpieza: Actualización de información de acuerdo al estado real del usuario e inicio de presupuesto del siguiente mes |
 
 ## 4. Requisitos no funcionales
-- **Disponibilidad**: 99 % mensual para servicios web/móvil.
+- **Disponibilidad**: 99 % mensual para servicios web/móvil de información (revisar cuando no haya internet o caidas de servidor para actualización entre dispositivos).
 - **Seguridad**: autenticación multifactor, cifrado de datos sensibles (en reposo y tránsito), cumplimiento normativo por país (Habeas Data/Ley 1581 en Colombia, equivalentes LATAM y lineamientos internacionales) y RBAC con roles `user`, `family_admin`, `admin`, `compliance`.
 - **Escalabilidad**: soportar al menos 50k usuarios activos con crecimiento horizontal de servicios.
 - **Usabilidad**: onboarding guiado <10 minutos, accesibilidad AA (WCAG 2.1), experiencia consistente web/móvil.
@@ -56,7 +59,7 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 5. Estrategia de almacenamiento de documentos/adjuntos asociados a transacciones.
 
 ## 8. Próximos pasos
-- Elaborar especificaciones de casos de uso priorizados (RF-01 a RF-06).
+- Elaborar especificaciones de casos de uso priorizados (RF-01 a RF-06, RF-14 a RF-16).
 - Definir criterios de aceptación y métricas por requisito.
 - Coordinar investigación regulatoria para el requisito RF-04.
 - Diseñar y exponer el endpoint de catálogo de países (RF-13) incluyendo la carga inicial de Colombia/México/Brasil.
