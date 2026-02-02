@@ -112,7 +112,55 @@
 
 ---
 
+---
+
+## Módulo: Gestión de Usuarios y Autenticación
+
+> Documentación detallada disponible en: [casos_de_uso/](./casos_de_uso/)
+
+| ID | Nombre | Prioridad | Actor Primario | Enlace |
+|----|--------|-----------|----------------|--------|
+| UC-10 | Registrar Cuenta de Usuario | Alta | Usuario No Registrado | [Ver detalle](./casos_de_uso/UC-10_registro_usuario/README.md) |
+| UC-11 | Iniciar Sesión | Alta | Usuario Registrado | [Ver detalle](./casos_de_uso/UC-11_inicio_sesion/README.md) |
+| UC-12 | Configurar MFA | Alta | Usuario Autenticado | [Ver detalle](./casos_de_uso/UC-12_configurar_mfa/README.md) |
+| UC-13 | Gestionar Perfil de Usuario | Media | Usuario Autenticado | [Ver detalle](./casos_de_uso/UC-13_perfil_usuario/README.md) |
+| UC-14 | Recuperar Contraseña | Alta | Usuario No Autenticado | [Ver detalle](./casos_de_uso/UC-14_recuperar_contrasena/README.md) |
+| UC-15 | Cerrar Sesión | Alta | Usuario Autenticado | [Ver detalle](./casos_de_uso/UC-15_cerrar_sesion/README.md) |
+| UC-16 | Verificar Email/Teléfono | Alta | Usuario | [Ver detalle](./casos_de_uso/UC-16_verificar_email/README.md) |
+| UC-17 | Cambiar Contraseña | Alta | Usuario Autenticado | [Ver detalle](./casos_de_uso/UC-17_cambiar_contrasena/README.md) |
+| UC-18 | Gestionar Dispositivos Confiables | Media | Usuario con MFA | [Ver detalle](./casos_de_uso/UC-18_dispositivos_confiables/README.md) |
+| UC-19 | Eliminar Cuenta | Baja | Usuario Autenticado | [Ver detalle](./casos_de_uso/UC-19_eliminar_cuenta/README.md) |
+
+### Diagrama de Casos de Uso - Usuarios y Auth
+
+```mermaid
+graph LR
+    subgraph Usuarios
+        U1[Usuario No Registrado]
+        U2[Usuario Autenticado]
+    end
+
+    subgraph "Auth Module"
+        UC10[UC-10: Registro]
+        UC11[UC-11: Login]
+        UC12[UC-12: MFA]
+        UC14[UC-14: Recuperar Pass]
+        UC15[UC-15: Logout]
+    end
+
+    U1 --> UC10
+    U1 --> UC14
+    U2 --> UC11
+    U2 --> UC12
+    U2 --> UC15
+    UC10 -->|include| UC16[UC-16: Verificar Email]
+    UC11 -->|extend| UC12
+```
+
+---
+
 ## Próximos pasos
 1. Refinar casos de uso detallados (diagramas UML) para UC-01 a UC-05.
 2. Definir criterios de aceptación y escenarios BDD por caso de uso.
 3. Mapear requerimientos no funcionales a cada caso crítico (seguridad, rendimiento, disponibilidad).
+4. ✅ **Completado:** Casos de uso UC-10 a UC-19 (Gestión de Usuarios y MFA).
