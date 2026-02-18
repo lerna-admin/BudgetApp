@@ -1,9 +1,8 @@
-# budget-presupuesto.md
+# Casos de Uso - Gestion de Presupuestos (RF02)
 
-## 1. Casos de Uso – Gestión de Presupuestos
-# UC-01: Crear presupuesto mensual
+## UC-01: Crear presupuesto mensual
 
-## Información General
+### Información General
 
 | Campo | Valor |
 |-------|-------|
@@ -11,243 +10,906 @@
 | **Nombre** | Crear presupuesto mensual |
 | **Versión** | 1.0 |
 | **Fecha** | 2026-02-02 |
-| **Autor** | Alexandra Castaño |
+| **Autor** | Alexandra Castano |
 | **Prioridad** | Alta |
 | **Frecuencia de uso** | Alta (cada usuario) |
 | **Estado** | En desarrollo |
 
-## Descripción Breve
-Permite al usuario crear un presupuesto para un mes específico.
+### Descripción Breve
 
-## Actores
+Permite al usuario crear un presupuesto para un mes especifico.
+
+### Actores
 
 | Actor | Tipo | Descripción |
 |-------|------|-------------|
-| Usuario nuevo | Primario | Persona que desea crear por primera vez un presupuesto sin tener una base diferente a la plantilla por defecto|
-| Usuario con un presupuesto creado | Primario | Persona que ya tiene presupuesto de meses anteriores pero desea crear el del mes siguiente |
-| suario con un presupuesto creado en otra plataforma| Secundario | Persona que desea importar un archivo para ingresar la información de presupuestos anteriores |
+| Usuario | Primario | Persona que crea o actualiza su presupuesto mensual. |
 
-## Precondiciones
+### Precondiciones
 
-1. El usuario tiene acceso a la aplicación (web o móvil)
-2. El usuario está autenticado
-3. El sistema está disponible y operativo
+1. El usuario tiene acceso a la aplicacion (web o movil)
+2. El usuario esta autenticado
+3. El sistema esta disponible y operativo
 
+### Postcondiciones
 
-### Éxito
+#### Exito
 1. Se crea el presupuesto mensual
 2. Se muestra mensaje exitoso
 
-### Fallo
+#### Fallo
 1. No se crea el presupuesto mensual
 2. Se muestra mensaje de error apropiado al usuario
-3. Se registra el intento fallido en logs de auditoría
+3. Se registra el intento fallido en logs de auditoria
 
-**Flujo principal**:
-1. Usuario selecciona creación rápida mensual.
-2. Define fecha inicio y fin (dd-mm-yyyy).
-3. Selecciona plantilla base: vacía.
-4. El sistema carga categorías y subcategorías por defecto.
-5. El usuario registra los ingresos iniciales para el presupuesto.
-6. Usuario registra los valores estimados a gastar y a ahorrar en las subcategorias en la columna 'Plan' y su descripción en 'Descripción'
-6. El sistema calcula balance dinámicamente.
-7. Usuario guarda como borrador
-  7.1. cierra el presupuesto.
+### Flujo Básico
 
-**Flujo secundario**:
-1. Usuario selecciona creación rápida mensual.
-2. Define fecha inicio y fin (dd-mm-yyyy).
-3. Selecciona plantilla base: vacía.
-4. El sistema carga categorías y subcategorías por defecto.
-5. El usuario edita los nombres de la categoria y subcategorias por defecto.
-6. El usuario registra los ingresos iniciales para el presupuesto.
-7. Usuario registra los valores estimados a gastar y a ahorrar en las subcategorias en la columna 'Plan' y su descripción en 'Descripción'
-8. El sistema calcula balance dinámicamente.
-9. Usuario guarda como borrador o cierra el presupuesto.
+| Paso | Actor | Sistema |
+|------|-------|---------|
+| 1 | Usuario selecciona creacion rapida mensual. | - |
+| 2 | Usuario define fecha inicio y fin (dd-mm-yyyy). | - |
+| 3 | Usuario selecciona plantilla base: vacia. | - |
+| 4 | - | Carga categorias fijas (Gastos, Ingresos, Ahorro) y subcategorias base de Mindful Budget. |
+| 5 | Usuario registra ingreso estimado y saldo del mes anterior. | - |
+| 6 | Usuario registra valores planificados por subcategoria (Gastos/Ahorro) y rubro/arista (Ingresos). | - |
+| 6.1 | - | Calcula balance ingreso vs presupuesto y muestra un label si no es 0 (no bloquea). |
+| 7 | Usuario guarda como borrador. | - |
+| 8 | Usuario cierra el presupuesto (si aplica). | - |
 
-### UC-02: Crear presupuesto anual
+### Flujos Alternativos
+
+#### FA-1: Flujo secundario
+
+| Paso | Descripcion |
+|------|-------------|
+| 1a | Usuario selecciona creacion rapida mensual. |
+| 2a | Define fecha inicio y fin (dd-mm-yyyy). |
+| 3a | Selecciona plantilla base: vacia. |
+| 4a | El sistema carga categorias y subcategorias por defecto. |
+| 5a | El usuario ajusta subcategorias y aristas permitidas (no modifica categorias). |
+| 6a | El usuario registra los ingresos iniciales para el presupuesto. |
+| 7a | Usuario registra los valores estimados a gastar y a ahorrar en las subcategorias en la columna "Plan" y su descripcion en "Descripcion". |
+| 8a | El sistema calcula balance dinamicamente. |
+| 9a | Usuario guarda como borrador o cierra el presupuesto. |
+
+### Flujos de Excepción
+
+No hay.
+
+### Requisitos Especiales
+
+#### Datos / Persistencia
+- La interfaz muestra un log mensual por mes.
+- La base de datos almacena todas las transacciones en una sola tabla; el log mensual se obtiene por filtro de fechas.
+- Campos mínimos: id, user_id/household_id, fecha, monto, moneda, categoria (Gastos/Ingresos/Ahorro), subcategoria_id, rubro, subclasificacion, origen (manual/importado), notas, created_at.
+- Catálogos: subcategorías editables ligadas a categoría; aristas editables por subcategoría; Ingresos usa rubro/arista directamente (sin subcategoría).
+- En presupuesto mensual solo se permite presupuestar el mes actual.
+- Si un rubro corresponde a ahorro programado anual, en la vista mensual se muestra el valor mensual y un indicador de "ahorro programado"; la definición de fecha fin y valor objetivo se registra en el presupuesto anual (UC-02).
+
+#### Seguridad
+- Solo usuarios autenticados pueden crear presupuestos.
+
+#### Rendimiento
+- Sin requerimientos especiales.
+
+#### Usabilidad
+- Si el balance no es 0, se muestra un label informativo sin bloquear al usuario.
+
+#### Cumplimiento
+- No aplica.
+
+### Puntos de Extensión
+
+| Punto | Descripción |
+|---|---|
+| Importación de presupuesto | Extiende UC-01 con carga CSV/XLS (RF-18) |
+| Simulación | Extiende UC-BP-04 con escenario de simulación (US-BP-09) |
+| Ajuste de cierre de ahorro | Extiende UC-BP-10 cuando se cierra presupuesto (US-BP-11) |
+
+### Reglas de Negocio
+
+| ID | Regla |
+|----|-------|
+| RN-BP-01 | Las categorias son: Gastos, Ingresos y Ahorro. |
+| RN-BP-02 | Las categorias no son modificables. |
+| RN-BP-03 | Las subcategorias existen para Gastos y Ahorro; Ingresos usa rubro/arista directamente (sin subcategoria). |
+| RN-BP-04 | Cada subcategoria tiene aristas (rubro, subclasificacion) editables. |
+| RN-BP-05 | Subcategorias base de Gastos (Mindful Budget): Necesidades Basicas, Deudas, Casa, Alimentacion, Salud, Entretenimiento, Mascota, Regalos/Caridad, Transporte, Seguros, Cuidado Personal, Hijos, Otros. |
+| RN-BP-06 | Subcategoria base de Ahorro: Ahorros. |
+| RN-BP-07 | Aristas base por subcategoria se derivan de Mindful Budget (ver catalogo base). |
+| RN-BP-08 | En presupuesto mensual solo se presupuestan valores del mes actual. |
+| RN-BP-09 | Rubros marcados como ahorro programado se reflejan con indicador en el mes; cuando llega el mes de gasto real, el usuario puede desmarcar el ahorro y registrar el valor real, y el saldo restante queda como ahorro. |
+| RN-BP-10 | Si el usuario modifica un valor desde la vista mensual un rubro marcado como ahorro programado, se mostrar un mensaje diciendo "Se está modificando un ahorro programado y se ajustarán los demás valores para cumple el objetivo en la fecha indicada". |
+
+#### Catalogo base de aristas
+
+**Gastos**
+ Estructura de Categorías, Subcategorías y Aristas
+
+| Categoría | Subcategoría | Aristas base (rubro/subclasificación) |
+|---|---|---|
+| Gastos | Necesidades Básicas | Arriendo; Telefono/ Celular; Servicios publicos; Gas; Cable/Internet; Mercado; Gasolina; Transporte diario |
+| Gastos | Deudas | Deuda Carro; Deuda tarjeta 1; Deuda familiar; Deuda Estudio; Carro |
+| Gastos | Casa | Limpieza; Mantenimiento; Muebles; Impuestos |
+| Gastos | Alimentación | Restaurantes; Domicilios |
+| Gastos | Salud | Medicinas; Tratamientos; Deporte |
+| Gastos | Entretenimiento | Vacaciones; Citas; Cine; Plataformas de series 1; Plataformas de musica 1|
+| Gastos | Mascota | Comida; Veterinario; Juguetes; Medicinas |
+| Gastos | Regalos/ Caridad | Regalos Navidad; Regalos cumpleaños; Caridad |
+| Gastos | Transporte | app taxis/taxi; Estacionamiento; Mantenimiento; Impuestos; colpass/Peaje |
+| Gastos | Seguros | Carro; Vida; Casa; Salud |
+| Gastos | Cuidado Personal | Ropa; Belleza; Peluquería; Sastre; Tintorería |
+| Gastos | Hijos | Ropa; Estudio; Útiles Escolares; Niñera |
+| Gastos | Otros | (sin aristas base definidas) |
+
+
+**Ahorro**
+| Categoría | Subcategoría | Aristas base (rubro/subclasificación) |
+|---|---|---|
+| Ahorro | Ahorros | Fondo de Emergencia; Fondo de Pensión; Fondo de Educación; Cuota Inicial Casa; Aporte a Capital |
+
+**Ingresos (rubros/aristas base)**
+| Categoría | Subcategoría | Aristas base (rubro/subclasificación) |
+|---|---|---|
+| Ingresos | (sin subcategoría) | Salario; saldo mes anterior; Efectivo |
+
+### Trazabilidad
+
+| Tipo | ID | Descripción |
+|---|---|---|
+| Requisito funcional | RF-02 | Presupuestos mensuales/anuales |
+
+### Diagrama de Secuencia
+
+```mermaid
+sequenceDiagram
+    participant Usuario
+    participant Sistema
+    Usuario->>Sistema: Selecciona creación rápida mensual
+    Usuario->>Sistema: Define fechas e ingresa ingresos/saldo
+    Sistema-->>Usuario: Carga categorías y subcategorías base
+    Usuario->>Sistema: Registra valores planificados
+    Sistema-->>Usuario: Calcula balance y muestra label si no es 0
+    Usuario->>Sistema: Guarda borrador o cierra presupuesto
+    Sistema-->>Usuario: Confirma operación
+```
+
+### Mockups / Wireframes
+
+Pendiente por validar con el usuario.
+
+### Historial de Cambios
+
+| Versión | Fecha | Autor | Descripción |
+|---------|-------|-------|-------------|
+| 1.0 | 2026-02-02 | Alexandra Castano | Creación inicial |
+
+---
+
+## UC-02: Crear presupuesto anual
+
+### Información General
+
 | Campo | Valor |
 |-------|-------|
 | **ID** | UC-02 |
 | **Nombre** | Crear presupuesto anual |
 | **Versión** | 1.0 |
 | **Fecha** | 2026-02-02 |
-| **Autor** | Alexandra Castaño |
+| **Autor** | Alexandra Castano |
 | **Prioridad** | Alta |
 | **Frecuencia de uso** | Alta (cada usuario) |
 | **Estado** | En desarrollo |
-**Descripción**: Permite crear un presupuesto anual con vista consolidada y mensual.
-**Flujo principal**:
-1. Usuario selecciona creación rápida anual.
-2. El sistema replica categorías y subcategorías para todos los meses.
-3. Se visualiza sumatoria anual por categoría y subcategoría.
-4. Usuario puede alternar entre vista anual y mensual sin pérdida de datos.
 
-### UC-BP-03: Editar categorías y subcategorías
-**Descripción**: Permite modificar categorías por mes.
-**Regla clave**: Si una categoría tiene transacciones asociadas, el sistema alerta y aplica el cambio global.
+### Descripción Breve
 
-### UC-BP-04: Simular presupuesto
-**Descripción**: Permite crear simulaciones fuera del presupuesto activo sin afectar datos reales.
+Permite crear un presupuesto anual con vista consolidada y mensual.
 
-### UC-BP-05: Cerrar presupuesto
-**Descripción**: Permite marcar un presupuesto como cerrado.
-**Postcondición**: El presupuesto no puede eliminarse.
+### Actores
+
+| Actor | Tipo | Descripción |
+|-------|------|-------------|
+| Usuario | Primario | Persona que crea o actualiza su presupuesto anual. |
+
+### Precondiciones
+
+1. El usuario tiene acceso a la aplicacion (web o movil)
+2. El usuario esta autenticado
+3. El sistema esta disponible y operativo
+
+### Postcondiciones
+
+#### Exito
+1. Se crea el presupuesto anual.
+2. Los valores se reflejan en la vista mensual (mes actual editable).
+
+#### Fallo
+1. No se crea el presupuesto anual.
+2. Se muestra mensaje de error apropiado al usuario.
+3. Se registra el intento fallido en logs de auditoria.
+
+### Flujo Básico
+
+| Paso | Actor | Sistema |
+|------|-------|---------|
+| 1 | Usuario selecciona creacion rapida anual. | - |
+| 2 | - | Replica categorias y subcategorias para todos los meses. |
+| 3 | - | Se visualiza sumatoria anual por categoria y subcategoria. |
+| 4 | Usuario puede alternar entre vista anual y mensual sin perdida de datos. | - |
+
+### Flujos Alternativos
+
+#### FA-1: Creación anual como primer presupuesto
+
+| Paso | Descripción |
+|------|-------------|
+| 1a | Usuario selecciona creación anual como primer presupuesto. |
+| 2a | Sistema carga categorías fijas (Gastos, Ingresos, Ahorro) y subcategorías base de Mindful Budget. |
+| 3a | Usuario ajusta subcategorías y aristas permitidas (categorías no editables). |
+| 4a | Usuario ingresa valores anuales por subcategoría (Gastos/Ahorro) y rubro/arista (Ingresos). |
+| 5a | Sistema guarda el presupuesto anual y refleja los valores en la vista mensual. |
+| 6a | En vista mensual, solo el mes actual queda editable; los demás meses son de solo lectura. |
+
+### Flujos de Excepción
+
+No hay.
+
+### Requisitos Especiales
+
+#### Datos / Persistencia
+- El presupuesto anual permite ingresar valores presupuestados para aristas durante todo el año.
+- Para rubros de ahorro programado, el usuario define fecha fin y valor objetivo de ahorro.
+- Los valores guardados en el presupuesto anual se reflejan en la vista mensual; solo el mes actual es editable.
+
+#### Seguridad
+- Solo usuarios autenticados pueden crear presupuestos.
+
+#### Rendimiento
+- Sin requerimientos especiales.
+
+#### Usabilidad
+- El usuario puede alternar entre vista anual y mensual sin perdida de informacion.
+
+#### Cumplimiento
+- No aplica.
+
+### Puntos de Extensión
+
+| Punto | Descripción |
+|---|---|
+| Visualización mensual | Extiende UC-02 con vista mensual y edición del mes actual (US-BP-06). |
+
+### Reglas de Negocio
+
+| ID | Regla |
+|----|-------|
+| RN-BP-AN-01 | El presupuesto anual puede ser el primer presupuesto creado por el usuario. |
+| RN-BP-AN-02 | Las categorías son fijas (Gastos, Ingresos, Ahorro) y no son editables. |
+| RN-BP-AN-03 | El usuario puede ajustar subcategorías y aristas; Ingresos usa rubro/arista directamente. |
+| RN-BP-AN-04 | Los valores guardados en el presupuesto anual se reflejan en la vista mensual. |
+| RN-BP-AN-05 | En la vista mensual, solo el mes actual es editable; los demás meses son de solo lectura. |
+| RN-BP-AN-06 | Las reglas de balance y ahorro aplican igual en presupuesto anual y mensual. |
+| RN-BP-AN-07 | Cambios en el presupuesto anual se reflejan en el mensual y viceversa. |
+
+### Trazabilidad
+
+| Tipo | ID | Descripción |
+|---|---|---|
+| Requisito funcional | RF-02 | Presupuestos mensuales/anuales |
+
+### Diagrama de Secuencia
+
+```mermaid
+sequenceDiagram
+    participant Usuario
+    participant Sistema
+    Usuario->>Sistema: Selecciona creación rápida anual
+    Sistema-->>Usuario: Carga categorías y subcategorías base
+    Usuario->>Sistema: Ingresa valores anuales
+    Sistema-->>Usuario: Refleja valores en vista mensual (mes actual editable)
+    Usuario->>Sistema: Guarda presupuesto anual
+    Sistema-->>Usuario: Confirma creación
+```
+
+### Mockups / Wireframes
+
+Pendiente por validar con el usuario.
+
+### Historial de Cambios
+
+| Versión | Fecha | Autor | Descripción |
+|---------|-------|-------|-------------|
+| 1.0 | 2026-02-02 | Alexandra Castano | Creación inicial |
+
+---
+
+## UC-BP-03: Editar categorias y subcategorias
+
+### Información General
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | UC-BP-03 |
+| **Nombre** | Editar categorias y subcategorias |
+| **Versión** | 1.0 |
+| **Fecha** | 2026-02-02 |
+| **Autor** | Alexandra Castano |
+| **Prioridad** | Alta |
+| **Frecuencia de uso** | Media |
+| **Estado** | En desarrollo |
+
+### Descripción Breve
+
+Permite gestionar subcategorias y aristas asociadas al presupuesto sin modificar las categorias fijas.
+
+### Actores
+
+| Actor | Tipo | Descripción |
+|-------|------|-------------|
+| Usuario | Primario | Persona que administra su catalogo de subcategorias y aristas. |
+
+### Precondiciones
+
+1. El usuario tiene acceso a la aplicacion (web o movil)
+2. El usuario esta autenticado
+3. El sistema esta disponible y operativo
+
+### Postcondiciones
+
+#### Exito
+1. Se actualizan subcategorias y aristas.
+2. Los cambios se reflejan en presupuestos, transacciones y graficos relacionados.
+3. Se muestra confirmacion al usuario.
+
+#### Fallo
+1. No se aplican cambios.
+2. Se muestra mensaje de error apropiado al usuario.
+3. Se registra el intento fallido en logs de auditoria.
+
+### Flujo Básico
+
+| Paso | Actor | Sistema |
+|------|-------|---------|
+| 1 | Usuario abre la gestion de categorias y subcategorias. | - |
+| 2 | - | Muestra categorias fijas y subcategorias/aristas editables. |
+| 3 | Usuario crea, edita o elimina subcategorias o aristas. | - |
+| 4 | - | Valida cambios y muestra advertencia si existen transacciones asociadas. |
+| 5 | Usuario confirma cambios. | - |
+| 6 | - | Aplica cambios y actualiza presupuestos, transacciones y graficos. |
+
+### Flujos Alternativos
+
+#### FA-1: Subcategoria/arista con transacciones asociadas
+
+| Paso | Descripción |
+|------|-------------|
+| 4a | El sistema alerta que el cambio impacta transacciones y presupuestos relacionados. |
+| 5a | El usuario confirma la aplicacion global del cambio. |
+| 6a | El sistema aplica el cambio en todos los registros asociados. |
+
+### Flujos de Excepción
+
+No hay.
+
+### Requisitos Especiales
+
+#### Seguridad
+- Solo usuarios autenticados pueden editar catalogos.
+
+#### Rendimiento
+- Los cambios deben reflejarse de forma inmediata en la vista.
+
+#### Usabilidad
+- El sistema debe advertir claramente el impacto en transacciones existentes.
+
+#### Cumplimiento
+- No aplica.
+
+### Puntos de Extensión
+
+| Punto | Descripción |
+|---|---|
+| No aplica | - |
+
+### Reglas de Negocio
+
+| ID | Regla |
+|----|-------|
+| - | Si una categoria tiene transacciones asociadas, el sistema alerta y aplica el cambio global. |
+
+### Trazabilidad
+
+| Tipo | ID | Descripción |
+|---|---|---|
+| Requisito funcional | RF-02 | Gestión de presupuestos y catálogos |
+
+### Diagrama de Secuencia
+
+```mermaid
+sequenceDiagram
+    participant Usuario
+    participant Sistema
+    Usuario->>Sistema: Abre gestión de categorías/subcategorías
+    Sistema-->>Usuario: Muestra catálogo editable
+    Usuario->>Sistema: Crea/edita/elimina subcategorías o aristas
+    Sistema-->>Usuario: Valida y muestra advertencias
+    Usuario->>Sistema: Confirma cambios
+    Sistema-->>Usuario: Aplica cambios y confirma
+```
+
+### Mockups / Wireframes
+
+Pendiente por validar con el usuario.
+
+### Historial de Cambios
+
+| Versión | Fecha | Autor | Descripción |
+|---------|-------|-------|-------------|
+| 1.0 | 2026-02-02 | Alexandra Castano | Creación inicial |
+
+---
+
+## UC-BP-04: Simular presupuesto
+
+### Información General
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | UC-BP-04 |
+| **Nombre** | Simular presupuesto |
+| **Versión** | 1.0 |
+| **Fecha** | 2026-02-02 |
+| **Autor** | Alexandra Castano |
+| **Prioridad** | Media |
+| **Frecuencia de uso** | Media |
+| **Estado** | En desarrollo |
+
+### Descripción Breve
+
+Permite crear simulaciones fuera del presupuesto activo sin afectar datos reales.
+
+### Actores
+
+| Actor | Tipo | Descripción |
+|-------|------|-------------|
+| Usuario | Primario | Persona que quiere simular un presupuesto sin afectar el real. |
+
+### Precondiciones
+
+1. El usuario tiene acceso a la aplicacion (web o movil)
+2. El usuario esta autenticado
+3. El sistema esta disponible y operativo
+
+### Postcondiciones
+
+#### Exito
+1. El simulacro queda creado o actualizado.
+2. Los datos reales no se alteran hasta generar presupuesto.
+3. Se muestra confirmacion al usuario.
+
+#### Fallo
+1. No se aplican cambios.
+2. Se muestra mensaje de error apropiado al usuario.
+3. Se registra el intento fallido en logs de auditoria.
+
+### Flujo Básico
+
+| Paso | Actor | Sistema |
+|------|-------|---------|
+| 1 | Usuario selecciona simular presupuesto. | - |
+| 2 | - | Carga la misma plantilla del presupuesto mensual/anual. |
+| 3 | Usuario ingresa valores del simulacro. | - |
+| 4 | - | Calcula balance y muestra label si no es 0. |
+| 5 | Usuario decide guardar, limpiar o generar presupuesto. | - |
+
+### Flujos Alternativos
+
+#### FA-1: Guardar simulacro
+
+| Paso | Descripción |
+|------|-------------|
+| 5a | El usuario selecciona "Guardar simulacro". |
+| 6a | El sistema guarda el simulacro y confirma la operacion. |
+
+#### FA-2: Limpiar simulacro
+
+| Paso | Descripción |
+|------|-------------|
+| 5b | El usuario selecciona "Limpiar simulacro". |
+| 6b | El sistema elimina los valores ingresados y deja la plantilla en blanco. |
+
+#### FA-3: Generar presupuesto
+
+| Paso | Descripción |
+|------|-------------|
+| 5c | El usuario selecciona "Generar presupuesto". |
+| 6c | El sistema crea el presupuesto real con los valores del simulacro. |
+| 7c | El sistema confirma la creacion del presupuesto. |
+
+### Flujos de Excepción
+
+No hay.
+
+### Requisitos Especiales
+
+#### Seguridad
+- Solo usuarios autenticados pueden simular presupuestos.
+
+#### Rendimiento
+- El calculo de balance debe ser inmediato.
+
+#### Usabilidad
+- La simulacion usa la misma plantilla que el presupuesto real y no permite cierre.
+
+#### Cumplimiento
+- No aplica.
+
+### Puntos de Extensión
+
+| Punto | Descripción |
+|---|---|
+| No aplica | - |
+
+### Reglas de Negocio
+
+| ID | Regla |
+|----|-------|
+| RN-BP-SIM-01 | La simulacion usa la misma plantilla que el presupuesto real. |
+| RN-BP-SIM-02 | La simulacion no afecta presupuestos activos. |
+| RN-BP-SIM-03 | El usuario puede guardar, limpiar o generar un presupuesto a partir del simulacro. |
+| RN-BP-SIM-04 | La simulacion no permite cierre. |
+
+### Trazabilidad
+
+| Tipo | ID | Descripción |
+|---|---|---|
+| Requisito funcional | RF-07 | Simulador “¿puedo permitírmelo?” |
+
+### Diagrama de Secuencia
+
+```mermaid
+sequenceDiagram
+    participant Usuario
+    participant Sistema
+    Usuario->>Sistema: Selecciona simular presupuesto
+    Sistema-->>Usuario: Carga plantilla de simulacion
+    Usuario->>Sistema: Ingresa valores
+    Sistema-->>Usuario: Calcula balance y muestra label
+    Usuario->>Sistema: Guarda, limpia o genera presupuesto
+    Sistema-->>Usuario: Confirma accion
+```
+
+### Mockups / Wireframes
+
+Pendiente por validar con el usuario.
+
+### Historial de Cambios
+
+| Versión | Fecha | Autor | Descripción |
+|---------|-------|-------|-------------|
+| 1.0 | 2026-02-02 | Alexandra Castano | Creación inicial |
+
+---
+
+## UC-BP-05: Cerrar presupuesto
+
+### Información General
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | UC-BP-05 |
+| **Nombre** | Cerrar presupuesto |
+| **Versión** | 1.0 |
+| **Fecha** | 2026-02-02 |
+| **Autor** | Alexandra Castano |
+| **Prioridad** | Alta |
+| **Frecuencia de uso** | Alta (cada cierre de mes) |
+| **Estado** | En desarrollo |
+
+### Descripción Breve
+
+Permite cerrar un presupuesto del mes y habilitar el presupuesto del siguiente mes.
+
+### Actores
+
+| Actor | Tipo | Descripción |
+|-------|------|-------------|
+| Usuario | Primario | Persona que cierra el presupuesto del mes. |
+
+### Precondiciones
+
+1. El usuario tiene acceso a la aplicacion (web o movil)
+2. El usuario esta autenticado
+3. El sistema esta disponible y operativo
+
+### Postcondiciones
+
+#### Exito
+1. El presupuesto queda cerrado y no es editable.
+2. Se crea el presupuesto del siguiente mes y queda disponible para dashboard y registro de gastos.
+3. Se registra la conciliacion de saldo real (si aplica).
+4. Se muestra confirmacion al usuario.
+
+#### Fallo
+1. El presupuesto no se cierra.
+2. Se muestra mensaje de error apropiado al usuario.
+3. Se registra el intento fallido en logs de auditoria.
+
+### Flujo Básico
+
+| Paso | Actor | Sistema |
+|------|-------|---------|
+| 1 | Usuario selecciona cerrar presupuesto del mes. | - |
+| 2 | - | Calcula balance y muestra label si no es 0. |
+| 3 | - | Solicita confirmacion de cierre. |
+| 4 | - | Si hay sobrante, recomienda asignarlo a Ahorro o como rubro/arista en una subcategoria. |
+| 5 | Usuario confirma cierre e ingresa saldo real de ahorro (si aplica). | - |
+| 6 | - | Realiza conciliacion de saldo real vs ahorro en app y registra el ajuste. |
+| 7 | - | Marca presupuesto como cerrado y crea el presupuesto del siguiente mes. |
+| 8 | - | Confirma el cierre y habilita dashboard y registro de gastos. |
+
+### Flujos Alternativos
+
+No hay.
+
+### Flujos de Excepción
+
+No hay.
+
+### Requisitos Especiales
+
+#### Seguridad
+- Solo usuarios autenticados pueden cerrar presupuestos.
+
+#### Rendimiento
+- El cierre debe completarse en una sola operacion.
+
+#### Usabilidad
+- El sistema debe explicar la conciliacion de saldo real antes de confirmar el cierre.
+
+#### Cumplimiento
+- No aplica.
+
+### Puntos de Extensión
+
+| Punto | Descripción |
+|---|---|
+| Conciliación de saldo real | Extiende el cierre con el ajuste de ahorro real (US-BP-11). |
+
+### Reglas de Negocio
+
+| ID | Regla |
+|----|-------|
+| RN-BP-CI-01 | Si el balance no es 0, el sistema muestra un label informativo sin bloquear. |
+| RN-BP-CI-02 | Si existe sobrante y el usuario confirma el cierre, el sistema recomienda agregarlo a Ahorro o como rubro/arista en una subcategoria. |
+| RN-BP-CI-03 | El cierre genera el presupuesto del siguiente mes y habilita dashboard y registro de gastos. |
+| RN-BP-CI-04 | La conciliacion de saldo real no modifica transacciones historicas. |
+
+### Trazabilidad
+
+| Tipo | ID | Descripción |
+|---|---|---|
+| Requisito funcional | RF-17 | Cierre de mes y limpieza |
+
+### Diagrama de Secuencia
+
+```mermaid
+sequenceDiagram
+    participant Usuario
+    participant Sistema
+    Usuario->>Sistema: Selecciona cerrar presupuesto
+    Sistema-->>Usuario: Calcula balance y muestra label
+    Sistema-->>Usuario: Solicita confirmacion de cierre
+    Usuario->>Sistema: Confirma cierre y saldo real (si aplica)
+    Sistema-->>Usuario: Recomienda asignacion de sobrante
+    Sistema-->>Usuario: Conciliacion de saldo real
+    Sistema-->>Usuario: Crea presupuesto siguiente mes
+    Sistema-->>Usuario: Confirma cierre
+```
+
+### Mockups / Wireframes
+
+Pendiente por validar con el usuario.
+
+### Historial de Cambios
+
+| Versión | Fecha | Autor | Descripción |
+|---------|-------|-------|-------------|
+| 1.0 | 2026-02-02 | Alexandra Castano | Creación inicial |
 
 ---
 
 ## 2. Features e Historias de Usuario
 
-### Épica: Gestión de presupuestos mensuales/anuales
+### Epica: Gestion de presupuestos mensuales/anuales
 
-#### Feature: Creación de presupuesto
-- **US-BP-01**: Como usuario, quiero crear un presupuesto mensual desde cero o con ejemplo para planificar mis gastos.
-- **US-BP-02**: Como usuario, quiero crear un presupuesto anual y ver el consolidado por categorías.
+#### Feature: Creacion de presupuesto
+- **US-BP-01**: Como usuario, quiero crear un presupuesto mensual con ingreso estimado y saldo del mes anterior para planificar mis gastos.
+- **US-BP-02**: Como usuario, quiero crear un presupuesto anual y que sus valores se reflejen en la vista mensual (solo el mes actual editable).
 
-#### Feature: Gestión de plantilla
-- **US-BP-03**: Como usuario, quiero editar categorías y subcategorías usando UTF-8.
-- **US-BP-04**: Como usuario, quiero limpiar toda la plantilla de ejemplo con una sola acción.
+#### Feature: Registro mensual y validacion
+- **US-BP-03**: Como usuario, quiero registrar mis movimientos en un log mensual con validacion de categoria/subcategoria/rubro.
 
-#### Feature: Balance dinámico
-- **US-BP-05**: Como usuario, quiero que el balance se actualice automáticamente al ingresar montos.
+#### Feature: Balance dinamico
+- **US-BP-04**: Como usuario, quiero que el balance se actualice automaticamente y me avise si no suma cero sin bloquearme; al cerrar recibo recomendacion si hay sobrante.
+
+#### Feature: Catalogos y reglas
+- **US-BP-05**: Como usuario, quiero gestionar subcategorias y aristas segun el catalogo base sin modificar las categorias fijas.
 
 #### Feature: Multiplataforma
-- **US-BP-06**: Como usuario, quiero que los cambios en web y mobile estén siempre sincronizados.
+- **US-BP-06**: Como usuario, quiero que los cambios en web y mobile esten siempre sincronizados.
 
 #### Feature: Tags y simulaciones
-- **US-BP-07**: Como usuario, quiero asignar tags personalizadas para futuros gráficos.
+- **US-BP-07**: Como usuario, quiero asignar tags personalizadas para futuros graficos.
 - **US-BP-08**: Como usuario, quiero crear simulaciones sin afectar mi presupuesto real.
+- **US-BP-09**: Como usuario, quiero crear simulaciones con opcion de guardar, limpiar o generar presupuesto real.
+
+#### Feature: Cierre y conciliacion
+- **US-BP-10**: Como usuario, quiero cerrar un presupuesto, generar el siguiente mes para dashboard y recibir recomendaciones si existe sobrante.
+- **US-BP-11**: Como usuario, quiero hacer un ajuste de cierre de ahorro para iniciar el nuevo mes con el ahorro real.
 
 ---
 
 # README2.md
 
-## Gestión de Presupuesto – Historias de Usuario
+## Gestion de Presupuesto – Historias de Usuario
 
-### Épica: Gestión de presupuestos mensuales/anuales
-Replicar y digitalizar la lógica de una plantilla Excel de presupuesto, permitiendo planificación, control y simulación de presupuestos mensuales y anuales sincronizados entre web y mobile.
+### Epica: Gestion de presupuestos mensuales/anuales
+Replicar y digitalizar la logica de una plantilla Excel de presupuesto, permitiendo planificacion, control y simulacion de presupuestos mensuales y anuales sincronizados entre web y mobile.
 
 ---
 
 ## US-BP-01: Crear presupuesto mensual
 
-**Descripción**  
-Como usuario, quiero crear un presupuesto mensual desde cero o usando una plantilla de ejemplo, para planificar mis ingresos y gastos del mes.
+**Descripcion**  
+Como usuario, quiero crear un presupuesto mensual con ingreso estimado y saldo del mes anterior para planificar mis ingresos y gastos del mes.
 
-**Criterios de aceptación**
-- El usuario puede elegir entre plantilla vacía o plantilla con datos de ejemplo.
-- La plantilla de ejemplo puede limpiarse completamente con una sola acción.
+**Criterios de aceptacion**
+- El usuario puede elegir entre plantilla vacia o plantilla con datos de ejemplo.
 - El presupuesto incluye fecha inicio y fin en formato dd-mm-yyyy.
+- Las categorias fijas son: Gastos, Ingresos y Ahorro (no editables).
+- Las subcategorias base corresponden a Mindful Budget y pueden ajustarse junto con sus aristas.
+- El usuario registra ingreso estimado y saldo del mes anterior.
+- Se muestra un label si el balance no es 0, sin bloquear el ingreso de informacion.
 - El presupuesto se guarda inicialmente como borrador.
 
 ---
 
 ## US-BP-02: Crear presupuesto anual
 
-**Descripción**  
-Como usuario, quiero crear un presupuesto anual para visualizar y planificar mis finanzas de todo el año.
+**Descripcion**  
+Como usuario, quiero crear un presupuesto anual para visualizar y planificar mis finanzas de todo el ano y verlo reflejado en la vista mensual.
 
-**Criterios de aceptación**
-- El presupuesto anual replica las mismas categorías y subcategorías en todos los meses.
-- El sistema muestra una fila de sumatoria anual por categoría y subcategoría.
-- Las categorías se resaltan visualmente frente a las subcategorías.
-- El usuario puede alternar entre vista anual y mensual sin pérdida de información.
-
----
-
-## US-BP-03: Gestión de entradas de dinero
-
-**Descripción**  
-Como usuario, quiero registrar una o varias entradas de dinero asociadas a categorías y subcategorías, para reflejar correctamente mis ingresos.
-
-**Criterios de aceptación**
-- Cada entrada debe asociarse obligatoriamente a una categoría y subcategoría.
-- El balance se actualiza automáticamente con cada entrada.
-- Si el presupuesto está cerrado, no se permite editar ni eliminar entradas.
+**Criterios de aceptacion**
+- El presupuesto anual puede ser el primer presupuesto creado por el usuario.
+- Las categorias fijas son: Gastos, Ingresos y Ahorro (no editables).
+- El usuario puede ajustar subcategorias y aristas; Ingresos usa rubro/arista directamente.
+- El presupuesto anual replica las mismas categorias y subcategorias en todos los meses.
+- El sistema muestra un consolidado anual con totales por mes.
+- El usuario puede alternar entre vista anual y mensual sin perdida de informacion.
+- El usuario puede ingresar valores presupuestados para aristas durante todo el ano.
+- Para rubros de ahorro programado se define fecha fin y valor objetivo de ahorro.
+- Los valores anuales se reflejan en la vista mensual; solo el mes actual es editable.
+- Las reglas de balance y ahorro aplican igual en presupuesto anual y mensual.
+- Cambios en presupuesto anual y mensual se reflejan en ambos sentidos.
 
 ---
 
-## US-BP-04: Cálculo dinámico de balance
+## US-BP-03: Registro mensual de transacciones
 
-**Descripción**  
-Como usuario, quiero que el balance del presupuesto se calcule automáticamente para conocer mi disponibilidad.
+**Descripcion**  
+Como usuario, quiero registrar mis movimientos en un log mensual para controlar mis gastos e ingresos del mes.
 
-**Criterios de aceptación**
-- El balance se calcula como: total entradas – total cantidades presupuestadas.
+**Criterios de aceptacion**
+- El log mensual permite registrar: fecha, monto, categoria (Gastos/Ingresos/Ahorro), subcategoria (para Gastos/Ahorro), rubro/arista (para Ingresos) y descripcion.
+- El sistema valida categoria y subcategoria; si no corresponden, muestra un label de advertencia sin bloquear el registro.
+- Los movimientos registrados actualizan automaticamente el balance y los totales del presupuesto.
+
+---
+
+## US-BP-04: Calculo dinamico de balance
+
+**Descripcion**  
+Como usuario, quiero que el balance del presupuesto se calcule automaticamente para conocer mi disponibilidad.
+
+**Criterios de aceptacion**
+- El balance se calcula como: total ingresos – total cantidades presupuestadas.
 - El balance se actualiza en tiempo real ante cualquier cambio.
-- El balance es solo de lectura cuando el presupuesto está cerrado.
+- Si el balance no es 0, el sistema muestra un label informativo sin bloquear al usuario.
+- La recomendacion de asignar sobrante solo se muestra cuando el usuario intenta cerrar presupuesto.
 
 ---
 
-## US-BP-05: Gestión de categorías y subcategorías
+## US-BP-05: Gestion de categorias y subcategorias
 
-**Descripción**  
-Como usuario, quiero crear y editar categorías y subcategorías para adaptar el presupuesto a mis necesidades.
+**Descripcion**  
+Como usuario, quiero gestionar subcategorias y aristas para adaptar el presupuesto a mis necesidades sin modificar las categorias fijas.
 
-**Criterios de aceptación**
-- Las categorías y subcategorías permiten caracteres UTF-8.
-- El usuario puede crear nuevas categorías y subcategorías.
-- Al editar una categoría existente, el cambio se sobreescribe históricamente.
-- El sistema advierte al usuario si la categoría tiene transacciones asociadas.
-- El cambio impacta transacciones, presupuestos y gráficos relacionados.
+**Criterios de aceptacion**
+- Las categorias fijas son: Gastos, Ingresos y Ahorro (no editables).
+- Las subcategorias base se derivan de Mindful Budget (Necesidades Basicas, Entretenimiento, Salud, etc.).
+- Las subcategorias y aristas pueden editarse.
+- Ingresos usa rubro/arista directamente (sin subcategoria).
+- El sistema advierte al usuario si la subcategoria tiene transacciones asociadas.
+- El cambio impacta transacciones, presupuestos y graficos relacionados.
 
 ---
 
-## US-BP-06: Visualización mensual ↔ anual
+## US-BP-06: Visualizacion mensual ↔ anual
 
-**Descripción**  
+**Descripcion**  
 Como usuario, quiero poder visualizar mi presupuesto en formato mensual o anual indistintamente.
 
-**Criterios de aceptación**
+**Criterios de aceptacion**
 - Un presupuesto mensual puede visualizarse en vista anual.
 - Un presupuesto anual puede visualizarse por mes.
 - Los valores ingresados se mantienen consistentes entre vistas.
 
 ---
 
-## US-BP-07: Gestión de idioma
+## US-BP-07: Gestion de idioma
 
-**Descripción**  
-Como usuario, quiero que los títulos y categorías por defecto se adapten al idioma seleccionado.
+**Descripcion**  
+Como usuario, quiero que los titulos y categorias por defecto se adapten al idioma seleccionado.
 
-**Criterios de aceptación**
-- El sistema soporta al menos español e inglés.
-- El cambio de idioma afecta títulos, categorías y subcategorías por defecto.
-- Los datos personalizados del usuario no se traducen automáticamente.
+**Criterios de aceptacion**
+- El sistema soporta al menos espanol e ingles.
+- El cambio de idioma afecta titulos, categorias y subcategorias por defecto.
+- Los datos personalizados del usuario no se traducen automaticamente.
 
 ---
 
 ## US-BP-08: Tags personalizadas
 
-**Descripción**  
-Como usuario, quiero asignar tags personalizadas a mi presupuesto para análisis y gráficos futuros.
+**Descripcion**  
+Como usuario, quiero asignar tags personalizadas a mi presupuesto para analisis y graficos futuros.
 
-**Criterios de aceptación**
+**Criterios de aceptacion**
 - El usuario puede crear, editar y eliminar tags.
-- Las tags pueden asociarse a categorías y subcategorías.
-- Las tags se almacenan para uso analítico posterior.
+- Las tags pueden asociarse a categorias y subcategorias.
+- Las tags se almacenan para uso analitico posterior.
 
 ---
 
-## US-BP-09: Simulación de presupuesto
+## US-BP-09: Simulacion de presupuesto
 
-**Descripción**  
+**Descripcion**  
 Como usuario, quiero crear simulaciones de presupuesto para evaluar escenarios sin afectar mi presupuesto real.
 
-**Criterios de aceptación**
-- La simulación usa exactamente la misma plantilla que el presupuesto real.
+**Criterios de aceptacion**
+- La simulacion usa exactamente la misma plantilla que el presupuesto real.
 - Las simulaciones no afectan presupuestos activos.
-- El usuario puede copiar una simulación y guardarla como presupuesto real.
+- El usuario puede guardar un simulacro para continuarlo despues.
+- El usuario puede limpiar un simulacro y dejar la plantilla en blanco.
+- El usuario puede generar un presupuesto real a partir del simulacro.
+- La simulacion no permite cierre de presupuesto.
 
 ---
 
 ## US-BP-10: Cierre de presupuesto
 
-**Descripción**  
-Como usuario, quiero cerrar un presupuesto para dejarlo como histórico.
+**Descripcion**  
+Como usuario, quiero cerrar un presupuesto para dejarlo como historico y habilitar el presupuesto del siguiente mes.
 
-**Criterios de aceptación**
+**Criterios de aceptacion**
 - Un presupuesto cerrado no puede editarse.
 - Un presupuesto cerrado no puede eliminarse.
 - El estado de cerrado es visible claramente para el usuario.
+- Si el balance no es 0, el sistema muestra un label informativo (no bloquea).
+- Si existe sobrante y el usuario da clic en cerrar, el sistema recomienda agregarlo a Ahorro o como rubro/arista en alguna subcategoria.
+- Al cerrar, el sistema crea el presupuesto del siguiente mes para el dashboard y el registro de gastos.
+- Aplica las mismas reglas de balanceo y alertas de ingresos vs gastos + ahorro.
+
+---
+
+## US-BP-11: Ajuste de cierre de ahorro
+
+**Descripcion**  
+Como usuario, quiero ajustar mi ahorro real al cierre del mes para iniciar el nuevo mes con el saldo correcto (conciliacion de saldo real).
+
+**Criterios de aceptacion**
+- El usuario registra el saldo real de ahorro al cierre del mes.
+- El sistema compara el saldo real con el ahorro registrado en la aplicacion y calcula la diferencia.
+- El ajuste se registra sin modificar transacciones historicas.
+- El nuevo mes inicia con el ahorro real ajustado.
 
