@@ -11,6 +11,9 @@ Este modelo amplía la documentación RUP existente y recoge las decisiones reci
 | `countries` | `code PK`, `name`, `currency`, `timezone`, `default_language`, `legal_notes`, `banking_provider`, `created_at` | Catálogo multi-país; el frontend y backend descargan este catálogo antes del onboarding. |
 | `banks` | `id`, `name`, `institution_code`, `country_code`, `provider`, `status`, `created_at` | Catálogo de bancos que el usuario puede seleccionar; se extiende desde la nueva sección de configuración para crear bancos/monedas. |
 | `accounts` | `id`, `user_id`, `bank_id`, `account_name`, `account_type`, `currency`, `balance`, `external_reference`, `created_at` | Guarda las cuentas bancarias/efectivo; sirve para el seguimiento de movimientos por cuenta. |
+| `cards` | `id`, `user_id`, `bank_id`, `card_name`, `card_type`, `limit`, `available_credit`, `currency`, `expiration`, `created_at` | Representa tarjetas de crédito/débito; permite calcular disponiblidad y enlazar pagos a presupuestos/transacciones. |
+| `debts` | `id`, `user_id`, `bank_id`, `card_id`, `account_id`, `debt_type`, `principal`, `interest_rate`, `minimum_payment`, `currency`, `status`, `due_date`, `created_at` | Registra obligaciones (tarjetas, préstamos, líneas de crédito); se relaciona con los perfiles orientados a pago de deudas y genera recordatorios/alertas. |
+| `debt_payments` | `id`, `debt_id`, `user_id`, `amount`, `currency`, `payment_date`, `method`, `notes`, `created_at` | Trail de pagos realizados sobre cada deuda para mantener metas de pago y liquidación. |
 | `profiles` | `id`, `slug`, `name`, `description`, `objective`, `primary_goal`, `tags`, `status`, `created_at` | Cada perfil (ahorro, pago de deudas, inversión, mentalidad Tilbury) describe la intención. El `primary_goal` se usa para guiar acciones y notificaciones. |
 | `profile_objectives` | `id`, `profile_id`, `metric`, `target_value`, `frequency`, `created_at` | Desglosa metas subyacentes a cada perfil (ej.: `savings_percent`, `debt_reduction`, `investment_contribution`). |
 | `profile_selections` | `id`, `user_id`, `profile_id`, `selected_at`, `active`, `notes` | Historial de selección; cuando el usuario cambia de perfil el backend registra la intención actual. |
@@ -26,6 +29,7 @@ Este modelo amplía la documentación RUP existente y recoge las decisiones reci
 
 1. `users` 1:N `households` (un `family_admin` puede crear varios hogares). `households` también puede tener múltiples presupuestos y members.
 2. `users` 1:N `accounts`; cada cuenta referencia un `bank` y una `country`. Este vínculo alimenta el seguimiento “por cuenta” (Bancolombia→Lulo, Bancolombia→Bolsillo, etc.).
+3. `users` 1:N `cards`; las tarjetas se relacionan con `banks` y generan `transactions`/`debts` específicos para el seguimiento de crédito. `debts` y `debt_payments` sirven para los perfiles orientados a pago de deudas y encadenan con los `alerts` y `gamification_logs`.
 3. `profiles` 1:N `profile_objectives`; `profile_selections` mantiene la intención activa de cada usuario y permite evaluar si un presupuesto sigue la estrategia actual.
 4. `budgets` 1:N `transactions`; `transactions.account_id` permite mostrar movimientos por cuenta en el dashboard. `transactions` también alimenta eventos de `achievements` y `alerts`.
 5. `users` 1:N `profile_achievements` y `gamification_logs`; estos datos alimentan la vista de juego (desktop) y las notificaciones motivacionales.
