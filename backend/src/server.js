@@ -1,11 +1,13 @@
 require("dotenv").config();
 const express = require("express");
 const profileRoutes = require("./routes/profileRoutes");
+const gamificationRoutes = require("./routes/gamificationRoutes");
 
 const app = express();
 app.use(express.json());
 
 app.use("/api/profiles", profileRoutes);
+app.use("/api/gamification", gamificationRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
