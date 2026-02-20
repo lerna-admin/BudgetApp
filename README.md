@@ -85,3 +85,14 @@ flowchart TD
 1. Revisar los documentos anteriores antes de proponer cambios.
 2. Registrar toda conversación relevante en `historic/<fecha>.log` según el proceso acordado con el stakeholder.
 3. Usar la llave SSH `~/.ssh/id_ed25519_microimpulso` para interactuar con `git@github.com:lerna-admin/BudgetApp.git`.
+
+## Estructura de desarrollo compartido
+- `backend/`: servicio MVC Express + PostgreSQL. Controladores, servicios y repositorios en esta carpeta exponen la API que consumen todos los clientes (web, móvil, scripts).
+- `frontend/`: app Next.js (React 19) que sirve como vista de referencia. Está pensada para conectarse al backend y, eventualmente, reemplazarse por el producto final.
+- `pm2.config.js`: permite levantar ambos servicios simultáneamente en desarrollo (`pm2 start pm2.config.js --watch`). Cada carpeta sigue pudiendo ejecutarse por separado (`npm run dev`).
+
+### Pasos mínimos para correr todo
+1. Ejecuta `npm install` dentro de `backend/` y `frontend/`.
+2. Define el `.env` del backend con `DATABASE_URL` (PostgreSQL/otro), `DB_SSL` opcional y `PORT=4000`.
+3. Corre `pm2 start pm2.config.js --watch` desde la raíz; el backend escucha en `4000` y el frontend en `3000`.
+4. Mientras se estabiliza el MVP, puedes mantener los servicios unidos con PM2 y luego desplegarlos como servicios independientes (containers/hosting dedicado).

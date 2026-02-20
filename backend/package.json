@@ -1,0 +1,14 @@
+{
+  "name": "budgetapp-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "NODE_ENV=development node src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.2",
+    "express": "^4.19.2",
+    "pg": "^8.11.1"
+  }
+}
