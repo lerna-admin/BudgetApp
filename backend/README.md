@@ -28,12 +28,12 @@ npm run dev        # ejecuta Express en http://localhost:4000
 Si arrancas el servicio con `docker compose`, puedes usar la URL `postgresql://budgetapp:budgetapp@localhost:5432/budgetapp_dev` (el servicio expone ese usuario/contraseña). Ejecutar las migraciones y seed requiere que `DATABASE_URL` apunte a una base existente.
 
 ## Base aislada con Docker Compose
-1. Instala `docker`/`docker compose`.
-2. Ejecuta `docker compose -f backend/docker-compose.yml up -d`.
-3. Exporta `DATABASE_URL=postgresql://budgetapp:budgetapp@localhost:5432/budgetapp_dev`.
-4. Corre `npm run migrate` y luego `npm run seed`.
-5. Arranca el backend (`npm run dev`). Cuando termines, baja la base con `docker compose -f backend/docker-compose.yml down`.
+1. Instala `docker` y `docker compose` (si ya tienes Docker Desktop, ambas herramientas vienen juntas).
+2. Desde la raíz del repo ejecuta `docker compose -f backend/docker-compose.yml up --build`.
+3. El servicio `backend` ejecutará `npm run migrate`, `npm run seed` y luego arrancará el servidor en `http://localhost:4000` sin que tengas que instalar Node o PostgreSQL localmente.
+4. El servicio `frontend` (puedes levantarse con `docker compose -f backend/docker-compose.yml up frontend`) apuntará a `http://backend:4000` y expondrá el puerto `3000`.
+5. Cuando termines, para todo con `docker compose -f backend/docker-compose.yml down` (las bases de datos persisten en el volumen `db-data`).
 
-> Nota: en este entorno no puedo levantar la base porque `docker`/`postgresql` no están disponibles. Usa la configuración anterior en tu máquina para correr todo localmente.
+> Esta composición es suficiente para desarrollar sin instalar dependencias en la máquina anfitriona: todo corre dentro de contenedores aislados (base Postgres + backend + frontend). En este entorno no puedo iniciar Docker, pero el archivo ya está listo para que lo arranques en tu equipo.
 
 Si la base no está disponible, el backend responde con datos de muestra y también puedes conectar la opción `profiles` para crear una tabla `profiles(id, name, objective, tags jsonb, updated_at)`. Ejecutar las migraciones/seed solo funciona cuando `DATABASE_URL` está definido.

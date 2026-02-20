@@ -16,5 +16,37 @@ services:
       interval: 10s
       retries: 5
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://budgetapp:budgetapp@db:5432/budgetapp_dev
+      DB_SSL: "false"
+      PORT: 4000
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+    command: sh -c "npm run migrate && npm run seed && npm run dev"
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://backend:4000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/app
+    command: npm run dev
+
 volumes:
   db-data:

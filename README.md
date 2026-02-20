@@ -92,7 +92,6 @@ flowchart TD
 - `pm2.config.js`: permite levantar ambos servicios simultáneamente en desarrollo (`pm2 start pm2.config.js --watch`). Cada carpeta sigue pudiendo ejecutarse por separado (`npm run dev`).
 
 ### Pasos mínimos para correr todo
-1. Ejecuta `npm install` dentro de `backend/` y `frontend/`.
-2. Define el `.env` del backend con `DATABASE_URL` (PostgreSQL/otro), `DB_SSL` opcional y `PORT=4000`.
-3. Corre `pm2 start pm2.config.js --watch` desde la raíz; el backend escucha en `4000` y el frontend en `3000`.
-4. Mientras se estabiliza el MVP, puedes mantener los servicios unidos con PM2 y luego desplegarlos como servicios independientes (containers/hosting dedicado).
+1. Usa `docker compose -f backend/docker-compose.yml up --build` para arrancar base de datos, backend y frontend sin instalar nada localmente; el backend escucha en `4000` y el frontend en `3000`.
+2. Si prefieres aún ver los servicios separadamente para debugging, puedes levantar el backend o frontend solos a partir del `docker compose` anterior (por ejemplo `docker compose -f backend/docker-compose.yml up backend`).
+3. Cuando todo esté estable, desplegamos los servicios como contenedores independientes (backend en su host / frontend en Vercel o similar), mientras que PM2 se reserva para instalaciones locales temporales si es necesario.
