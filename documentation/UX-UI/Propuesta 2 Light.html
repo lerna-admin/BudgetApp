@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mindful Budget — UX Proposal Light</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+  :root {
+    --violet: #6D28D9;
+    --violet-mid: #8B5CF6;
+    --violet-light: #EDE9FE;
+    --violet-soft: #F5F3FF;
+    --electric: #059669;
+    --electric-mid: #10B981;
+    --electric-light: #D1FAE5;
+    --coral: #EA580C;
+    --coral-mid: #F97316;
+    --coral-light: #FFF7ED;
+    --pink: #DB2777;
+    --pink-mid: #EC4899;
+    --pink-light: #FCE7F3;
+    --yellow: #D97706;
+    --yellow-mid: #F59E0B;
+    --yellow-light: #FFFBEB;
+    --bg: #F8F7FF;
+    --surface: #FFFFFF;
+    --surface2: #F3F2FB;
+    --border: #E2DFFA;
+    --border-strong: #C4BFEE;
+    --text: #1A1033;
+    --text-muted: #6B6190;
+    --text-dim: #A89EC8;
+    --green: #059669;
+    --red: #DC2626;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    letter-spacing: 0.01em;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  /* ===================== COVER ===================== */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(ellipse at 20% 10%, #DDD6FE 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 80%, #A7F3D0 0%, transparent 55%),
+      radial-gradient(ellipse at 60% 40%, #FCE7F3 0%, transparent 50%),
+      #F8F7FF;
+    text-align: center;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    width: 620px; height: 620px;
+    border: 1.5px solid #8B5CF640;
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    width: 940px; height: 940px;
+    border: 1px solid #10B98130;
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .cover-badge {
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 7px 20px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 20px #6D28D940;
+  }
+
+  .cover h1 {
+    font-size: clamp(56px, 8vw, 96px);
+    line-height: 0.95;
+    color: var(--text);
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover h1 span {
+    background: linear-gradient(135deg, var(--violet), var(--pink-mid));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .cover p {
+    font-size: 18px;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+    line-height: 1.7;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .cover-meta-item { text-align: left; }
+  .cover-meta-item .label {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+  }
+  .cover-meta-item .value {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  /* ===================== SECTION ===================== */
+  .section {
+    padding: 80px 60px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .section-label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--violet-mid);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(30px, 4vw, 50px);
+    line-height: 1.1;
+    margin-bottom: 48px;
+    color: var(--text);
+  }
+
+  .section-title span {
+    background: linear-gradient(135deg, var(--violet), var(--pink-mid));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ===================== TOKENS ===================== */
+  .tokens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+
+  .token-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 12px #6D28D908;
+  }
+
+  .color-swatch {
+    height: 64px;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 16px #00000015;
+  }
+
+  .token-name { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+  .token-value { font-size: 13px; color: var(--text-muted); font-family: monospace; }
+
+  /* ===================== TYPE DEMO ===================== */
+  .type-demo {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: 0 4px 24px #6D28D910;
+  }
+
+  .type-sample { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1.5px solid var(--border); }
+  .type-sample:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .type-meta {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  /* ===================== ARCHITECTURE ===================== */
+  .arch-container {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .nav-demo {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    position: sticky;
+    top: 20px;
+    box-shadow: 0 4px 24px #6D28D912;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    padding-bottom: 22px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .nav-logo-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--violet), var(--pink-mid));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900;
+    font-family: 'Nunito', sans-serif;
+    color: white;
+    box-shadow: 0 4px 12px #6D28D940;
+  }
+
+  .nav-logo-text {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .nav-logo-sub { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+  .nav-section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    padding-left: 12px;
+    font-weight: 700;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    margin-bottom: 3px;
+    font-size: 14px;
+    color: var(--text-muted);
+    position: relative;
+    font-weight: 500;
+  }
+
+  .nav-item.active {
+    background: var(--violet-light);
+    color: var(--violet);
+    font-weight: 700;
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 60%;
+    background: linear-gradient(to bottom, var(--violet), var(--pink-mid));
+    border-radius: 0 3px 3px 0;
+  }
+
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--violet);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+
+  .nav-badge.green { background: var(--electric); }
+  .nav-badge.coral { background: var(--coral); }
+
+  .nav-divider { border: none; border-top: 1.5px solid var(--border); margin: 14px 0; }
+
+  .nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1.5px solid var(--border);
+  }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet), var(--pink-mid));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: white;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .user-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .user-level { font-size: 12px; color: var(--violet-mid); font-weight: 600; }
+
+  .arch-content { display: flex; flex-direction: column; gap: 18px; }
+
+  .page-block {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 26px;
+    box-shadow: 0 2px 12px #6D28D908;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .page-block:hover {
+    border-color: var(--violet-mid);
+    box-shadow: 0 4px 24px #6D28D918;
+  }
+
+  .page-block-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .page-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .page-block h4 { font-size: 17px; color: var(--text); }
+  .page-block p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+  .page-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .feature-tag {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ===================== WIREFRAMES ===================== */
+  .wireframes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 28px;
+  }
+
+  .wireframe-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px #6D28D910;
+  }
+
+  .wireframe-header {
+    padding: 16px 22px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+  }
+
+  .wireframe-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .wireframe-badge {
+    font-size: 12px;
+    padding: 3px 12px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .wireframe-body { padding: 22px; }
+
+  /* WF COMPONENTS */
+  .wf-bar {
+    height: 10px;
+    border-radius: 100px;
+    background: var(--border);
+    margin-bottom: 8px;
+  }
+
+  .wf-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .wf-hero {
+    background: linear-gradient(135deg, var(--violet-light), #FCE7F3);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .wf-stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .wf-stat {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .wf-stat-val {
+    height: 14px;
+    background: var(--border-strong);
+    border-radius: 6px;
+    margin-bottom: 6px;
+  }
+
+  .wf-stat-label {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    width: 70%;
+    margin: 0 auto;
+  }
+
+  .wf-chart-area {
+    height: 110px;
+    background: var(--surface2);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    gap: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .wf-bar-chart {
+    flex: 1;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .wf-list-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .wf-list-item:last-child { border-bottom: none; }
+
+  .wf-list-icon {
+    width: 30px; height: 30px;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .wf-list-info { flex: 1; }
+
+  .wf-form-field {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .wf-form-label {
+    height: 8px;
+    width: 30%;
+    background: var(--border-strong);
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  .wf-form-input {
+    height: 12px;
+    width: 60%;
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  .wf-progress {
+    height: 8px;
+    background: var(--border);
+    border-radius: 100px;
+    margin: 8px 0;
+    overflow: hidden;
+  }
+
+  .wf-progress-fill {
+    height: 100%;
+    border-radius: 100px;
+  }
+
+  .wf-achievement {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .wf-badge-card {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .wf-badge-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+  }
+
+  /* ===================== MOCKUPS SECTION ===================== */
+  .mockups-section { padding: 80px 60px; }
+
+  /* DESKTOP */
+  .desktop-frame {
+    background: var(--surface);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 48px #6D28D918;
+  }
+
+  .desktop-titlebar {
+    background: #EDEBFB;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #F43F5E; }
+  .dot-yellow { background: #F59E0B; }
+  .dot-green { background: #10B981; }
+
+  .desktop-url {
+    flex: 1;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0 auto;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  .desktop-app {
+    display: grid;
+    grid-template-columns: 235px 1fr;
+    height: 620px;
+  }
+
+  /* SIDEBAR */
+  .app-sidebar {
+    background: var(--surface);
+    border-right: 1.5px solid var(--border);
+    padding: 24px 18px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    padding-bottom: 22px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--violet), var(--pink-mid));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    font-weight: 900;
+    font-family: 'Nunito', sans-serif;
+    color: white;
+    box-shadow: 0 4px 14px #6D28D940;
+  }
+
+  .logo-text {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .logo-sub { font-size: 12px; color: var(--text-muted); }
+
+  .sidebar-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-dim);
+    margin: 14px 0 6px 12px;
+    font-weight: 700;
+  }
+
+  .s-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+    position: relative;
+    font-weight: 500;
+  }
+
+  .s-item.active {
+    background: var(--violet-light);
+    color: var(--violet);
+    font-weight: 700;
+  }
+
+  .s-icon { font-size: 15px; width: 18px; }
+
+  .s-badge {
+    margin-left: auto;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 1px 8px;
+    border-radius: 100px;
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--violet-light);
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+  }
+
+  .s-avatar {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--violet), var(--pink-mid));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: white;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .s-user-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .s-user-xp { font-size: 12px; color: var(--violet); font-weight: 600; }
+
+  /* MAIN */
+  .app-main {
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .main-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 28px 0;
+  }
+
+  .period-selector {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    padding: 4px;
+  }
+
+  .period-btn {
+    padding: 5px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .period-btn.active {
+    background: linear-gradient(135deg, var(--violet), var(--violet-mid));
+    color: white;
+    box-shadow: 0 2px 8px #6D28D940;
+  }
+
+  .topbar-actions { display: flex; gap: 8px; }
+
+  .icon-btn {
+    width: 36px; height: 36px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+
+  .main-scroll { padding: 18px 28px; }
+
+  .greeting { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+  .main-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 18px;
+  }
+  .main-title span { color: var(--violet); }
+
+  /* HERO CARDS */
+  .hero-cards {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .hero-card {
+    border-radius: 18px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card.primary {
+    background: linear-gradient(135deg, var(--violet), #5B21B6);
+    box-shadow: 0 6px 28px #6D28D940;
+  }
+
+  .hero-card.green {
+    background: linear-gradient(135deg, #065F46, #059669);
+    box-shadow: 0 6px 20px #05966930;
+  }
+
+  .hero-card.coral {
+    background: linear-gradient(135deg, #7C2D12, var(--coral));
+    box-shadow: 0 6px 20px #EA580C30;
+  }
+
+  .hero-card-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    opacity: 0.75;
+    margin-bottom: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    color: white;
+  }
+
+  .hero-card-value {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 26px;
+    color: white;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .hero-card-value.small { font-size: 20px; }
+
+  .hero-card-sub { font-size: 12px; opacity: 0.65; color: white; }
+
+  .hero-card-bg {
+    position: absolute;
+    right: -24px; top: -24px;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: white;
+    opacity: 0.08;
+  }
+
+  .hero-card-bg2 {
+    position: absolute;
+    right: 12px; bottom: -34px;
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    background: white;
+    opacity: 0.06;
+  }
+
+  .progress-bar-outer {
+    height: 6px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 100px;
+    margin-top: 12px;
+    overflow: hidden;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.85);
+  }
+
+  /* MID SECTION */
+  .mid-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 2px 12px #6D28D908;
+  }
+
+  .card-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-title-link {
+    font-size: 12px;
+    color: var(--violet-mid);
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  /* MINI BAR CHART */
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 80px;
+  }
+
+  .mini-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+  .mini-bar {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    min-height: 4px;
+  }
+
+  .mini-bar-label { font-size: 11px; color: var(--text-dim); }
+
+  /* TRANSACTIONS */
+  .tx-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .tx-item:last-child { border-bottom: none; }
+
+  .tx-icon {
+    width: 30px; height: 30px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .tx-info { flex: 1; }
+  .tx-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .tx-cat { font-size: 12px; color: var(--text-muted); }
+  .tx-amount { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; }
+  .tx-neg { color: var(--coral); }
+  .tx-pos { color: var(--electric); }
+
+  /* ===================== MOBILE ===================== */
+  .mobile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 56px;
+  }
+
+  .phone-frame {
+    background: var(--surface);
+    border: 2px solid var(--border-strong);
+    border-radius: 38px;
+    overflow: hidden;
+    aspect-ratio: 9/19;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 16px 56px #6D28D920;
+  }
+
+  .phone-notch {
+    width: 80px; height: 24px;
+    background: #EDEBFB;
+    border-radius: 0 0 16px 16px;
+    margin: 0 auto;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .phone-screen {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+  }
+
+  .phone-navbar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1.5px solid var(--border);
+    padding: 10px 0 16px;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .phone-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  .phone-nav-item.active { color: var(--violet); }
+
+  .phone-nav-icon { font-size: 17px; }
+
+  .phone-content { padding: 14px 15px; padding-bottom: 78px; }
+
+  .phone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .phone-greeting { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .phone-name { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 17px; color: var(--text); }
+
+  .phone-hero {
+    background: linear-gradient(135deg, var(--violet), #5B21B6);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 24px #6D28D940;
+  }
+
+  .phone-hero::after {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 80px; height: 80px;
+    background: white; opacity: 0.07; border-radius: 50%;
+  }
+
+  .phone-hero-label { font-size: 11px; color: rgba(255,255,255,0.65); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; font-weight: 700; }
+  .phone-hero-value { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 24px; color: white; margin-bottom: 10px; }
+
+  .phone-hero-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .phone-stat-mini {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 8px;
+    backdrop-filter: blur(4px);
+  }
+
+  .phone-stat-mini-label { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 600; }
+  .phone-stat-mini-val { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 14px; color: white; }
+
+  .phone-section-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .phone-section-link { color: var(--violet-mid); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; }
+
+  .phone-tx {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .phone-tx:last-child { border-bottom: none; }
+
+  .phone-tx-icon {
+    width: 30px; height: 30px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+
+  .phone-tx-name { font-size: 12px; font-weight: 700; color: var(--text); }
+  .phone-tx-cat { font-size: 11px; color: var(--text-muted); }
+  .phone-tx-amt { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; margin-left: auto; }
+
+  /* GAMIFICATION PHONE */
+  .xp-bar-outer {
+    height: 7px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 100px;
+    margin: 6px 0 10px;
+    overflow: hidden;
+  }
+
+  .xp-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.9);
+  }
+
+  .phone-badge-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .phone-badge-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 11px;
+    text-align: center;
+    box-shadow: 0 2px 8px #6D28D908;
+  }
+
+  .phone-badge-emoji { font-size: 22px; margin-bottom: 4px; }
+  .phone-badge-name { font-size: 11px; font-weight: 800; color: var(--text); font-family: 'Nunito', sans-serif; }
+  .phone-badge-desc { font-size: 11px; color: var(--text-muted); }
+
+  .phone-streak {
+    background: linear-gradient(135deg, #D97706, #F59E0B);
+    border-radius: 14px;
+    padding: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 16px #D9770640;
+  }
+
+  .phone-streak-emoji { font-size: 26px; }
+  .phone-streak-title { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 14px; color: white; }
+  .phone-streak-sub { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 600; }
+
+  /* REGISTRO PHONE */
+  .phone-form-field {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 13px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 4px #6D28D908;
+  }
+
+  .phone-form-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  .phone-form-value { font-size: 13px; font-weight: 700; color: var(--text); }
+  .phone-form-value.placeholder { color: var(--text-dim); font-weight: 500; }
+
+  .phone-cat-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-bottom: 8px;
+  }
+
+  .phone-cat-option {
+    padding: 9px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--surface);
+    color: var(--text-muted);
+  }
+
+  .phone-cat-option.selected {
+    border-color: var(--violet);
+    background: var(--violet-light);
+    color: var(--violet);
+  }
+
+  .phone-submit-btn {
+    background: linear-gradient(135deg, var(--violet), var(--pink-mid));
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 13px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    box-shadow: 0 4px 16px #6D28D940;
+  }
+
+  /* GAMIFICATION SECTION */
+  .gami-features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-top: 32px;
+  }
+
+  .gami-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 4px 20px #6D28D910;
+    transition: box-shadow 0.2s;
+  }
+
+  .gami-card:hover { box-shadow: 0 8px 32px #6D28D920; }
+
+  .gami-icon { font-size: 34px; margin-bottom: 12px; }
+  .gami-title { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 15px; color: var(--text); margin-bottom: 8px; }
+  .gami-desc { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+  /* DECISIONS */
+  .decisions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .decision-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 2px 12px #6D28D908;
+  }
+
+  .decision-icon { font-size: 30px; margin-bottom: 12px; }
+  .decision-title { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 16px; color: var(--text); margin-bottom: 8px; }
+  .decision-text { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+  /* MOBILE LABEL */
+  .mobile-section-label {
+    text-align: center;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 32px;
+  }
+
+  .mobile-caption {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 14px;
+    font-weight: 600;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--surface);
+    border-top: 1.5px solid var(--border);
+    padding: 44px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .footer-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .footer-sub { font-size: 14px; color: var(--text-muted); }
+
+  .stack-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+
+  .stack-tag {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: monospace;
+    font-weight: 600;
+  }
+
+  hr.nav-divider { border: none; border-top: 1.5px solid var(--border); margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<div class="cover">
+  <span class="cover-badge">🎨 UX Proposal — v2.0 Light — Feb 2026</span>
+  <h1>Mindful<br><span>Budget</span></h1>
+  <p>Arquitectura UX, wireframes y mockups para una app financiera bold, playful y lista para gamificación</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="label">Plataformas</div>
+      <div class="value">Web · Android · iOS</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Audiencia</div>
+      <div class="value">Todos los perfiles</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Estilo</div>
+      <div class="value">Bold & Playful Fintech</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Autora</div>
+      <div class="value">Alexandra Castaño</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 01 DESIGN TOKENS ===================== -->
+<div class="section">
+  <div class="section-label">01 — Sistema de Diseño</div>
+  <h2 class="section-title">Paleta de colores & <span>tipografía</span></h2>
+
+  <div class="tokens-grid">
+    <div class="token-card">
+      <div class="color-swatch" style="background: linear-gradient(135deg, #6D28D9, #8B5CF6);"></div>
+      <div class="token-name">Violet — Principal</div>
+      <div class="token-value">#6D28D9 · #8B5CF6 · #EDE9FE</div>
+    </div>
+    <div class="token-card">
+      <div class="color-swatch" style="background: linear-gradient(135deg, #059669, #10B981);"></div>
+      <div class="token-name">Emerald — Ahorro / Positivo</div>
+      <div class="token-value">#059669 · #10B981 · #D1FAE5</div>
+    </div>
+    <div class="token-card">
+      <div class="color-swatch" style="background: linear-gradient(135deg, #EA580C, #F97316);"></div>
+      <div class="token-name">Coral — Gastos / Alertas</div>
+      <div class="token-value">#EA580C · #F97316 · #FFF7ED</div>
+    </div>
+    <div class="token-card">
+      <div class="color-swatch" style="background: linear-gradient(135deg, #DB2777, #EC4899);"></div>
+      <div class="token-name">Pink — Acento / Gamificación</div>
+      <div class="token-value">#DB2777 · #EC4899 · #FCE7F3</div>
+    </div>
+    <div class="token-card">
+      <div class="color-swatch" style="background: linear-gradient(135deg, #D97706, #F59E0B);"></div>
+      <div class="token-name">Amber — Logros / Streaks</div>
+      <div class="token-value">#D97706 · #F59E0B · #FFFBEB</div>
+    </div>
+    <div class="token-card">
+      <div class="color-swatch" style="background: linear-gradient(135deg, #F8F7FF, #EDEBFB, #DDD6FE);"></div>
+      <div class="token-name">Fondos — Light Surfaces</div>
+      <div class="token-value">#F8F7FF · #FFFFFF · #F3F2FB</div>
+    </div>
+  </div>
+
+  <div class="type-demo">
+    <div class="type-sample">
+      <div class="type-meta">Display / Hero — Nunito 900</div>
+      <h1 style="font-size: 52px; line-height: 1; color: var(--text);">Tu presupuesto,<br><span style="background: linear-gradient(135deg, var(--violet), var(--pink-mid)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">tu juego.</span></h1>
+    </div>
+    <div class="type-sample">
+      <div class="type-meta">Heading — Nunito 800</div>
+      <h3 style="font-size: 26px; color: var(--text);">Dashboard de Presupuesto — Febrero 2026</h3>
+    </div>
+    <div class="type-sample">
+      <div class="type-meta">Body — Plus Jakarta Sans 400</div>
+      <p style="color: var(--text-muted); max-width: 500px; font-size: 15px; line-height: 1.7;">Registra tus gastos, visualiza tu progreso y alcanza tus metas de ahorro mes a mes con un sistema intuitivo y divertido.</p>
+    </div>
+    <div class="type-sample">
+      <div class="type-meta">Valores monetarios — Nunito 900</div>
+      <div style="display: flex; align-items: baseline; gap: 6px;">
+        <span style="font-size: 14px; color: var(--text-muted); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600;">COP</span>
+        <span style="font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 40px; color: var(--electric);">4.250.000</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 02 ARQUITECTURA ===================== -->
+<div class="section">
+  <div class="section-label">02 — Arquitectura de Información</div>
+  <h2 class="section-title">Estructura del <span>menú</span> y secciones</h2>
+
+  <div class="arch-container">
+    <div class="nav-demo">
+      <div class="nav-logo">
+        <div class="nav-logo-icon">M</div>
+        <div>
+          <div class="nav-logo-text">MindfulBudget</div>
+          <div class="nav-logo-sub">tu finanza, tu regla</div>
+        </div>
+      </div>
+
+      <div class="nav-section-title">Principal</div>
+      <div class="nav-item active">
+        <span class="nav-icon">🏠</span> Inicio / Dashboard
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">📊</span> Presupuesto
+        <span class="nav-badge">Feb</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">✏️</span> Registro de Gastos
+        <span class="nav-badge coral">3</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">🎯</span> Metas & Logros
+        <span class="nav-badge green">🔥7</span>
+      </div>
+
+      <hr class="nav-divider">
+
+      <div class="nav-section-title">Configuración</div>
+      <div class="nav-item"><span class="nav-icon">⚙️</span> Categorías</div>
+      <div class="nav-item"><span class="nav-icon">🔔</span> Alertas</div>
+      <div class="nav-item"><span class="nav-icon">📤</span> Exportar</div>
+
+      <div class="nav-user">
+        <div class="avatar">AC</div>
+        <div>
+          <div class="user-name">Alexandra C.</div>
+          <div class="user-level">⭐ Nivel 7 · 2.340 XP</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-content">
+      <div class="page-block">
+        <div class="page-block-header">
+          <div class="page-icon" style="background: var(--violet-light);">🏠</div>
+          <h4>Inicio / Dashboard</h4>
+        </div>
+        <p>Vista central del estado financiero del período. Muestra el balance disponible, progreso hacia el presupuesto, flujo de caja, resumen por categorías y accesos rápidos. Corresponde a <strong style="color: var(--violet);">UC-DASH-01</strong>.</p>
+        <div class="page-features">
+          <span class="feature-tag">Balance disponible</span>
+          <span class="feature-tag">Overview ingresos / ahorro / gastos</span>
+          <span class="feature-tag">Budget vs Actual</span>
+          <span class="feature-tag">Cash Flow</span>
+          <span class="feature-tag">Acceso rápido +Gasto</span>
+          <span class="feature-tag">Selector de período</span>
+          <span class="feature-tag">Rollover de saldo</span>
+        </div>
+      </div>
+
+      <div class="page-block">
+        <div class="page-block-header">
+          <div class="page-icon" style="background: var(--electric-light);">📊</div>
+          <h4>Presupuesto</h4>
+        </div>
+        <p>Creación y edición del presupuesto mensual o anual. Organizado por Categorías fijas (Gastos, Ingresos, Ahorro) y subcategorías editables tipo Mindful Budget. Permite ver la tabla de planificación, ajustar aristas y simular escenarios. Corresponde a <strong style="color: var(--electric);">UC-01</strong>.</p>
+        <div class="page-features">
+          <span class="feature-tag">Vista mensual / anual</span>
+          <span class="feature-tag">Tabla de planificación</span>
+          <span class="feature-tag">Balance dinámico en tiempo real</span>
+          <span class="feature-tag">Cierre de presupuesto</span>
+          <span class="feature-tag">Simulaciones</span>
+          <span class="feature-tag">Importar CSV/XLS</span>
+        </div>
+      </div>
+
+      <div class="page-block">
+        <div class="page-block-header">
+          <div class="page-icon" style="background: var(--coral-light);">✏️</div>
+          <h4>Registro de Gastos</h4>
+        </div>
+        <p>Log mensual de transacciones. Permite ingresar gastos y ahorros (no ingresos) con selección guiada por Categoría → Subcategoría → Arista. Funciona offline en móvil con sincronización posterior. Corresponde a <strong style="color: var(--coral);">UC-BP-06</strong>.</p>
+        <div class="page-features">
+          <span class="feature-tag">Registro rápido con FAB</span>
+          <span class="feature-tag">Selección guiada de categorías</span>
+          <span class="feature-tag">Método de pago y tags</span>
+          <span class="feature-tag">Offline en móvil</span>
+          <span class="feature-tag">Filtros por mes</span>
+          <span class="feature-tag">Lista de movimientos</span>
+        </div>
+      </div>
+
+      <div class="page-block">
+        <div class="page-block-header">
+          <div class="page-icon" style="background: var(--yellow-light);">🎯</div>
+          <h4>Metas & Logros (Gamificación)</h4>
+        </div>
+        <p>Centro de gamificación. Muestra el nivel del usuario, XP acumulado, racha de registro, insignias desbloqueadas y retos financieros semanales. Diseñado para crecer en etapas — los hooks visuales están desde el inicio.</p>
+        <div class="page-features">
+          <span class="feature-tag">Nivel & XP</span>
+          <span class="feature-tag">Racha de días registrando</span>
+          <span class="feature-tag">Insignias / Logros</span>
+          <span class="feature-tag">Retos semanales</span>
+          <span class="feature-tag">Metas de ahorro programadas</span>
+          <span class="feature-tag">Historial de recompensas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 03 WIREFRAMES ===================== -->
+<div class="section">
+  <div class="section-label">03 — Wireframes</div>
+  <h2 class="section-title">Estructura de <span>pantallas</span></h2>
+
+  <div class="wireframes-grid">
+
+    <!-- DASHBOARD WF -->
+    <div class="wireframe-card">
+      <div class="wireframe-header">
+        <span class="wireframe-title">🏠 Dashboard — Web</span>
+        <span class="wireframe-badge" style="background: var(--violet-light); color: var(--violet); border: 1.5px solid #C4BFEE;">Principal</span>
+      </div>
+      <div class="wireframe-body">
+        <div class="wf-topbar">
+          <div style="display: flex; gap: 6px;">
+            <div style="width: 56px; height: 9px; background: var(--border-strong); border-radius: 4px;"></div>
+            <div style="width: 56px; height: 9px; background: var(--border); border-radius: 4px;"></div>
+            <div style="width: 56px; height: 9px; background: var(--border); border-radius: 4px;"></div>
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <div style="width: 26px; height: 26px; border-radius: 8px; background: var(--border);"></div>
+            <div style="width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #8B5CF660, #EC489960);"></div>
+          </div>
+        </div>
+        <div class="wf-bar" style="width: 35%; height: 9px; background: var(--border); margin-bottom: 5px;"></div>
+        <div class="wf-bar" style="width: 60%; height: 15px; background: var(--border-strong); margin-bottom: 16px;"></div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 7px; margin-bottom: 14px;">
+          <div style="background: linear-gradient(135deg, #8B5CF640, #6D28D920); border: 1.5px solid #C4BFEE; border-radius: 12px; padding: 14px; height: 82px;"></div>
+          <div style="background: #D1FAE5; border: 1.5px solid #A7F3D0; border-radius: 12px; height: 82px;"></div>
+          <div style="background: #FFF7ED; border: 1.5px solid #FED7AA; border-radius: 12px; height: 82px;"></div>
+        </div>
+        <div class="wf-chart-area">
+          <div class="wf-bar-chart" style="height: 60%; background: #8B5CF660;"></div>
+          <div class="wf-bar-chart" style="height: 40%; background: #8B5CF660;"></div>
+          <div class="wf-bar-chart" style="height: 82%; background: #8B5CF680;"></div>
+          <div class="wf-bar-chart" style="height: 55%; background: #8B5CF660;"></div>
+          <div class="wf-bar-chart" style="height: 70%; background: #10B98160;"></div>
+          <div class="wf-bar-chart" style="height: 45%; background: #8B5CF640; border: 1.5px dashed #C4BFEE;"></div>
+        </div>
+        <div class="wf-list-item">
+          <div class="wf-list-icon" style="background: #FFF7ED; border-color: #FED7AA;"></div>
+          <div class="wf-list-info">
+            <div class="wf-bar" style="width: 60%; height: 9px; margin-bottom: 5px;"></div>
+            <div class="wf-bar" style="width: 35%; height: 7px;"></div>
+          </div>
+          <div style="width: 44px; height: 11px; background: #FED7AA; border-radius: 4px;"></div>
+        </div>
+        <div class="wf-list-item">
+          <div class="wf-list-icon" style="background: #D1FAE5; border-color: #A7F3D0;"></div>
+          <div class="wf-list-info">
+            <div class="wf-bar" style="width: 55%; height: 9px; margin-bottom: 5px;"></div>
+            <div class="wf-bar" style="width: 38%; height: 7px;"></div>
+          </div>
+          <div style="width: 44px; height: 11px; background: #A7F3D0; border-radius: 4px;"></div>
+        </div>
+        <div class="wf-list-item">
+          <div class="wf-list-icon" style="background: #FCE7F3; border-color: #FBCFE8;"></div>
+          <div class="wf-list-info">
+            <div class="wf-bar" style="width: 65%; height: 9px; margin-bottom: 5px;"></div>
+            <div class="wf-bar" style="width: 40%; height: 7px;"></div>
+          </div>
+          <div style="width: 44px; height: 11px; background: #FBCFE8; border-radius: 4px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESUPUESTO WF -->
+    <div class="wireframe-card">
+      <div class="wireframe-header">
+        <span class="wireframe-title">📊 Presupuesto — Web</span>
+        <span class="wireframe-badge" style="background: var(--electric-light); color: var(--electric); border: 1.5px solid #A7F3D0;">Planning</span>
+      </div>
+      <div class="wireframe-body">
+        <div style="display: flex; gap: 5px; margin-bottom: 14px; background: var(--surface2); border-radius: 12px; padding: 5px; border: 1.5px solid var(--border);">
+          <div style="flex: 1; height: 28px; border-radius: 9px; background: linear-gradient(135deg, #6D28D9, #8B5CF6);"></div>
+          <div style="flex: 1; height: 28px; border-radius: 9px;"></div>
+        </div>
+        <div class="wf-stat-row">
+          <div class="wf-stat"><div class="wf-stat-val"></div><div class="wf-stat-label"></div></div>
+          <div class="wf-stat"><div class="wf-stat-val"></div><div class="wf-stat-label"></div></div>
+          <div class="wf-stat"><div class="wf-stat-val"></div><div class="wf-stat-label"></div></div>
+        </div>
+        <div style="border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden;">
+          <div style="background: var(--surface2); padding: 9px 13px; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; border-bottom: 1px solid var(--border);">
+            <div class="wf-bar" style="width: 60%; height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px;"></div>
+          </div>
+          <div style="padding: 9px 13px; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; border-bottom: 1px solid var(--border); background: #D1FAE530;">
+            <div class="wf-bar" style="width: 85%; height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px; background: #A7F3D0;"></div>
+          </div>
+          <div style="padding: 9px 13px; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; border-bottom: 1px solid var(--border);">
+            <div class="wf-bar" style="width: 65%; height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px; background: #FED7AA;"></div>
+          </div>
+          <div style="padding: 9px 13px; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; border-bottom: 1px solid var(--border);">
+            <div class="wf-bar" style="width: 80%; height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px; background: #A7F3D0;"></div>
+          </div>
+          <div style="padding: 9px 13px; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
+            <div class="wf-bar" style="width: 45%; height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px;"></div>
+            <div class="wf-bar" style="height: 9px;"></div>
+          </div>
+        </div>
+        <div style="margin-top: 14px; display: flex; justify-content: space-between;">
+          <div style="width: 88px; height: 32px; border-radius: 10px; background: var(--surface2); border: 1.5px solid var(--border);"></div>
+          <div style="width: 110px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #6D28D9, #8B5CF6); box-shadow: 0 3px 12px #6D28D940;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTRO WF -->
+    <div class="wireframe-card">
+      <div class="wireframe-header">
+        <span class="wireframe-title">✏️ Registro de Gastos</span>
+        <span class="wireframe-badge" style="background: var(--coral-light); color: var(--coral); border: 1.5px solid #FED7AA;">Log</span>
+      </div>
+      <div class="wireframe-body">
+        <div style="display: flex; gap: 7px; margin-bottom: 14px;">
+          <div style="height: 28px; flex: 1; background: linear-gradient(135deg, #6D28D9, #8B5CF6); border-radius: 100px; box-shadow: 0 2px 8px #6D28D940;"></div>
+          <div style="height: 28px; flex: 1; background: var(--surface2); border-radius: 100px; border: 1.5px solid var(--border);"></div>
+          <div style="height: 28px; flex: 1; background: var(--surface2); border-radius: 100px; border: 1.5px solid var(--border);"></div>
+        </div>
+        <div class="wf-form-field" style="border-color: var(--violet); background: var(--violet-soft);">
+          <div class="wf-form-label" style="background: #C4BFEE;"></div>
+          <div style="display: flex; gap: 8px;">
+            <div style="flex: 1; height: 11px; background: #8B5CF660; border-radius: 4px;"></div>
+            <div style="flex: 1; height: 11px; background: var(--border); border-radius: 4px;"></div>
+          </div>
+        </div>
+        <div class="wf-form-field"><div class="wf-form-label"></div><div class="wf-form-input"></div></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div class="wf-form-field"><div class="wf-form-label"></div><div class="wf-form-input"></div></div>
+          <div class="wf-form-field"><div class="wf-form-label"></div><div class="wf-form-input"></div></div>
+        </div>
+        <div style="height: 38px; background: linear-gradient(135deg, #6D28D9, #EC4899); border-radius: 12px; margin-top: 10px; box-shadow: 0 3px 12px #6D28D940;"></div>
+        <hr class="nav-divider" style="margin: 14px 0;">
+        <div class="wf-bar" style="width: 30%; height: 11px; background: var(--border-strong); margin-bottom: 12px;"></div>
+        <div class="wf-list-item">
+          <div class="wf-list-icon" style="background: #FFF7ED; border-color: #FED7AA;"></div>
+          <div class="wf-list-info">
+            <div class="wf-bar" style="width: 60%; height: 9px; margin-bottom: 5px;"></div>
+            <div class="wf-bar" style="width: 35%; height: 7px;"></div>
+          </div>
+          <div style="width: 44px; height: 11px; background: #FED7AA; border-radius: 4px;"></div>
+        </div>
+        <div class="wf-list-item">
+          <div class="wf-list-icon" style="background: #FFF7ED; border-color: #FED7AA;"></div>
+          <div class="wf-list-info">
+            <div class="wf-bar" style="width: 75%; height: 9px; margin-bottom: 5px;"></div>
+            <div class="wf-bar" style="width: 40%; height: 7px;"></div>
+          </div>
+          <div style="width: 44px; height: 11px; background: #FED7AA; border-radius: 4px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAMIFICATION WF -->
+    <div class="wireframe-card">
+      <div class="wireframe-header">
+        <span class="wireframe-title">🎯 Metas & Logros</span>
+        <span class="wireframe-badge" style="background: var(--yellow-light); color: var(--yellow); border: 1.5px solid #FDE68A;">Gamification</span>
+      </div>
+      <div class="wireframe-body">
+        <div class="wf-hero" style="background: linear-gradient(135deg, var(--violet-light), var(--pink-light));">
+          <div class="wf-bar" style="width: 35%; height: 9px; background: #C4BFEE; margin-bottom: 7px;"></div>
+          <div class="wf-bar" style="width: 55%; height: 20px; background: #A78BFA; border-radius: 8px; margin-bottom: 10px;"></div>
+          <div class="wf-progress">
+            <div class="wf-progress-fill" style="width: 68%; background: linear-gradient(90deg, var(--violet), var(--pink-mid));"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+            <div style="width: 40px; height: 7px; background: #C4BFEE; border-radius: 4px;"></div>
+            <div style="width: 40px; height: 7px; background: #C4BFEE; border-radius: 4px;"></div>
+          </div>
+        </div>
+        <div style="background: linear-gradient(135deg, #FFFBEB, #FEF3C7); border: 1.5px solid #FDE68A; border-radius: 14px; padding: 13px; margin-bottom: 13px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 10px #D9770620;">
+          <div style="width: 38px; height: 38px; background: linear-gradient(135deg, #D97706, #F59E0B); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔥</div>
+          <div class="wf-list-info">
+            <div class="wf-bar" style="width: 60%; height: 10px; margin-bottom: 5px; background: #FDE68A;"></div>
+            <div class="wf-bar" style="width: 38%; height: 7px; background: #FEF3C7;"></div>
+          </div>
+        </div>
+        <div class="wf-achievement">
+          <div class="wf-badge-card" style="border-color: var(--violet); background: var(--violet-soft);">
+            <div class="wf-badge-icon" style="background: linear-gradient(135deg, var(--violet-light), var(--pink-light));"></div>
+            <div class="wf-bar" style="width: 65%; height: 9px; margin: 0 auto 5px; background: #C4BFEE;"></div>
+            <div class="wf-bar" style="width: 42%; height: 7px; margin: 0 auto; background: var(--border);"></div>
+          </div>
+          <div class="wf-badge-card" style="border-color: var(--electric); background: #F0FDF4;">
+            <div class="wf-badge-icon" style="background: linear-gradient(135deg, var(--electric-light), #A7F3D0);"></div>
+            <div class="wf-bar" style="width: 65%; height: 9px; margin: 0 auto 5px; background: #A7F3D0;"></div>
+            <div class="wf-bar" style="width: 42%; height: 7px; margin: 0 auto; background: var(--border);"></div>
+          </div>
+          <div class="wf-badge-card" style="opacity: 0.4; border-style: dashed;">
+            <div class="wf-badge-icon" style="background: var(--border);"></div>
+            <div class="wf-bar" style="width: 42%; height: 9px; margin: 0 auto 5px;"></div>
+          </div>
+          <div class="wf-badge-card" style="opacity: 0.4; border-style: dashed;">
+            <div class="wf-badge-icon" style="background: var(--border);"></div>
+            <div class="wf-bar" style="width: 42%; height: 9px; margin: 0 auto 5px;"></div>
+          </div>
+        </div>
+        <div style="background: var(--surface2); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px;">
+          <div class="wf-bar" style="width: 55%; height: 9px; margin-bottom: 7px;"></div>
+          <div class="wf-progress">
+            <div class="wf-progress-fill" style="width: 40%; background: linear-gradient(90deg, var(--electric), #6EE7B7);"></div>
+          </div>
+          <div class="wf-bar" style="width: 70%; height: 7px; margin-top: 6px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== 04 MOCKUP WEB ===================== -->
+<div class="mockups-section">
+  <div class="section-label" style="padding: 0 0 12px;">04 — Mockup</div>
+  <h2 class="section-title" style="margin-bottom: 32px;">Dashboard principal — <span>Web Desktop</span></h2>
+
+  <div class="desktop-frame">
+    <div class="desktop-titlebar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="desktop-url">app.mindfulbudget.co/dashboard</div>
+      <div style="width: 60px;"></div>
+    </div>
+
+    <div class="desktop-app">
+      <!-- SIDEBAR -->
+      <div class="app-sidebar">
+        <div class="logo-area">
+          <div class="logo-icon">M</div>
+          <div>
+            <div class="logo-text">MindfulBudget</div>
+            <div class="logo-sub">tu finanza, tu regla</div>
+          </div>
+        </div>
+
+        <div class="sidebar-label">Principal</div>
+        <div class="s-item active"><span class="s-icon">🏠</span> Dashboard</div>
+        <div class="s-item"><span class="s-icon">📊</span> Presupuesto <span class="s-badge" style="background: var(--violet);">Feb</span></div>
+        <div class="s-item"><span class="s-icon">✏️</span> Gastos <span class="s-badge" style="background: var(--coral);">3</span></div>
+        <div class="s-item"><span class="s-icon">🎯</span> Metas <span class="s-badge" style="background: var(--yellow-mid);">🔥7</span></div>
+
+        <div class="sidebar-label" style="margin-top: 14px;">Configuración</div>
+        <div class="s-item"><span class="s-icon">⚙️</span> Categorías</div>
+        <div class="s-item"><span class="s-icon">🔔</span> Alertas</div>
+        <div class="s-item"><span class="s-icon">📤</span> Exportar</div>
+
+        <div class="sidebar-spacer"></div>
+
+        <div class="sidebar-user">
+          <div class="s-avatar">AC</div>
+          <div>
+            <div class="s-user-name">Alexandra C.</div>
+            <div class="s-user-xp">⭐ Niv. 7 · 2.340 XP</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div class="app-main">
+        <div class="main-topbar">
+          <div class="period-selector">
+            <span class="period-btn active">Mensual</span>
+            <span class="period-btn">12 meses</span>
+            <span class="period-btn">Anual</span>
+          </div>
+          <div class="topbar-actions">
+            <div class="icon-btn">🔔</div>
+            <div class="icon-btn" style="background: linear-gradient(135deg, var(--violet), var(--pink-mid)); border-color: transparent; color: white; font-size: 13px; font-weight: 800; font-family: 'Nunito', sans-serif; padding: 0 14px; width: auto; border-radius: 12px; box-shadow: 0 3px 12px #6D28D940;">+ Gasto</div>
+          </div>
+        </div>
+
+        <div class="main-scroll">
+          <div class="greeting">Buenos días ✨</div>
+          <div class="main-title">Febrero 2026 — <span>$4.250.000</span> disponibles</div>
+
+          <div class="hero-cards">
+            <div class="hero-card primary">
+              <div class="hero-card-bg"></div>
+              <div class="hero-card-bg2"></div>
+              <div class="hero-card-label">Saldo disponible</div>
+              <div class="hero-card-value">$4.250.000</div>
+              <div class="hero-card-sub">de $9.500.000 presupuestados</div>
+              <div class="progress-bar-outer">
+                <div class="progress-bar-inner" style="width: 55%;"></div>
+              </div>
+            </div>
+            <div class="hero-card green">
+              <div class="hero-card-bg"></div>
+              <div class="hero-card-label">Ahorro del mes</div>
+              <div class="hero-card-value small">$890.000</div>
+              <div class="hero-card-sub">Meta: $1.000.000 🎯</div>
+              <div class="progress-bar-outer">
+                <div class="progress-bar-inner" style="width: 89%;"></div>
+              </div>
+            </div>
+            <div class="hero-card coral">
+              <div class="hero-card-bg"></div>
+              <div class="hero-card-label">Gastos reales</div>
+              <div class="hero-card-value small">$4.360.000</div>
+              <div class="hero-card-sub">Presup.: $5.000.000</div>
+              <div class="progress-bar-outer">
+                <div class="progress-bar-inner" style="width: 87%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mid-section">
+            <div class="card">
+              <div class="card-title">
+                Flujo de Caja — Feb
+                <span class="card-title-link">Ver detalle →</span>
+              </div>
+              <div class="mini-chart">
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar" style="height: 70%; background: linear-gradient(to top, var(--violet), var(--violet-mid));"></div>
+                  <div class="mini-bar-label">1</div>
+                </div>
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar" style="height: 45%; background: linear-gradient(to top, var(--violet), var(--violet-mid));"></div>
+                  <div class="mini-bar-label">5</div>
+                </div>
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar" style="height: 85%; background: linear-gradient(to top, var(--electric), #6EE7B7);"></div>
+                  <div class="mini-bar-label">10</div>
+                </div>
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar" style="height: 55%; background: linear-gradient(to top, var(--violet), var(--violet-mid));"></div>
+                  <div class="mini-bar-label">15</div>
+                </div>
+                <div class="mini-bar-wrap">
+                  <div class="mini-bar" style="height: 65%; background: linear-gradient(to top, var(--coral), #FED7AA);"></div>
+                  <div class="mini-bar-label">18</div>
+                </div>
+                <div class="mini-bar-wrap" style="opacity: 0.35;">
+                  <div class="mini-bar" style="height: 30%; background: var(--border); border: 1.5px dashed var(--border-strong);"></div>
+                  <div class="mini-bar-label">25</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                Últimos movimientos
+                <span class="card-title-link">Ver todos →</span>
+              </div>
+              <div class="tx-item">
+                <div class="tx-icon" style="background: #FFF7ED;">🍕</div>
+                <div class="tx-info">
+                  <div class="tx-name">Domicilio Papa John's</div>
+                  <div class="tx-cat">Alimentación · Domicilios</div>
+                </div>
+                <div class="tx-amount tx-neg">-$42.000</div>
+              </div>
+              <div class="tx-item">
+                <div class="tx-icon" style="background: #FFF7ED;">⛽</div>
+                <div class="tx-info">
+                  <div class="tx-name">Gasolina</div>
+                  <div class="tx-cat">Necesidades Básicas · Gasolina</div>
+                </div>
+                <div class="tx-amount tx-neg">-$95.000</div>
+              </div>
+              <div class="tx-item">
+                <div class="tx-icon" style="background: #D1FAE5;">🏦</div>
+                <div class="tx-info">
+                  <div class="tx-name">Fondo de Emergencia</div>
+                  <div class="tx-cat">Ahorro · Ahorros</div>
+                </div>
+                <div class="tx-amount tx-pos">+$200.000</div>
+              </div>
+              <div class="tx-item">
+                <div class="tx-icon" style="background: #FCE7F3;">🎬</div>
+                <div class="tx-info">
+                  <div class="tx-name">Netflix</div>
+                  <div class="tx-cat">Entretenimiento · Plataformas</div>
+                </div>
+                <div class="tx-amount tx-neg">-$21.900</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MOBILE ===================== -->
+  <div style="margin-top: 70px;">
+    <div class="mobile-section-label">📱 Vistas Mobile — Android & iOS</div>
+
+    <div class="mobile-grid">
+
+      <!-- PHONE 1: Dashboard -->
+      <div>
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-content">
+              <div class="phone-header">
+                <div>
+                  <div class="phone-greeting">Buenos días ✨</div>
+                  <div class="phone-name">Alexandra C.</div>
+                </div>
+                <div style="width: 34px; height: 34px; background: linear-gradient(135deg, var(--violet), var(--pink-mid)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: white; font-family: 'Nunito', sans-serif; box-shadow: 0 3px 10px #6D28D940;">AC</div>
+              </div>
+
+              <div class="phone-hero">
+                <div class="phone-hero-label">Disponible este mes</div>
+                <div class="phone-hero-value">$4.250.000</div>
+                <div class="phone-hero-row">
+                  <div class="phone-stat-mini">
+                    <div class="phone-stat-mini-label">Ahorro 🎯</div>
+                    <div class="phone-stat-mini-val">$890K</div>
+                  </div>
+                  <div class="phone-stat-mini">
+                    <div class="phone-stat-mini-label">Gastos 📊</div>
+                    <div class="phone-stat-mini-val">$4.36M</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="phone-section-title">
+                Recientes <span class="phone-section-link">Ver todo</span>
+              </div>
+
+              <div class="phone-tx">
+                <div class="phone-tx-icon" style="background: #FFF7ED;">🍕</div>
+                <div><div class="phone-tx-name">Papa John's</div><div class="phone-tx-cat">Alimentación</div></div>
+                <div class="phone-tx-amt tx-neg">-$42K</div>
+              </div>
+              <div class="phone-tx">
+                <div class="phone-tx-icon" style="background: #FFF7ED;">⛽</div>
+                <div><div class="phone-tx-name">Gasolina</div><div class="phone-tx-cat">Necesidades</div></div>
+                <div class="phone-tx-amt tx-neg">-$95K</div>
+              </div>
+              <div class="phone-tx">
+                <div class="phone-tx-icon" style="background: #D1FAE5;">🏦</div>
+                <div><div class="phone-tx-name">Fondo Emergencia</div><div class="phone-tx-cat">Ahorro</div></div>
+                <div class="phone-tx-amt tx-pos">+$200K</div>
+              </div>
+            </div>
+
+            <div class="phone-navbar">
+              <div class="phone-nav-item active"><span class="phone-nav-icon">🏠</span><span>Inicio</span></div>
+              <div class="phone-nav-item"><span class="phone-nav-icon">📊</span><span>Budget</span></div>
+              <div class="phone-nav-item" style="position: relative;">
+                <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); width: 46px; height: 46px; background: linear-gradient(135deg, var(--violet), var(--pink-mid)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; font-weight: 900; border: 3px solid var(--bg); box-shadow: 0 4px 16px #6D28D960;">+</div>
+                <span class="phone-nav-icon" style="opacity: 0;">+</span>
+                <span>Registrar</span>
+              </div>
+              <div class="phone-nav-item"><span class="phone-nav-icon">🎯</span><span>Metas</span></div>
+              <div class="phone-nav-item"><span class="phone-nav-icon">⚙️</span><span>Config</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-caption">Dashboard</div>
+      </div>
+
+      <!-- PHONE 2: Registro -->
+      <div>
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-content">
+              <div class="phone-header">
+                <div style="font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 17px; color: var(--text);">Registrar Gasto</div>
+                <div style="font-size: 20px; color: var(--text-muted); cursor: pointer;">✕</div>
+              </div>
+
+              <div class="phone-form-field" style="background: var(--violet-soft); border-color: var(--violet); margin-bottom: 12px;">
+                <div class="phone-form-label" style="color: var(--violet);">Valor</div>
+                <div style="font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 30px; color: var(--violet);">$42.000</div>
+              </div>
+
+              <div class="phone-form-label" style="padding: 0 0 7px; margin-top: 4px;">Categoría</div>
+              <div class="phone-cat-selector">
+                <div class="phone-cat-option selected">💸 Gastos</div>
+                <div class="phone-cat-option">🏦 Ahorro</div>
+              </div>
+
+              <div class="phone-form-field">
+                <div class="phone-form-label">Subcategoría</div>
+                <div class="phone-form-value">🍽️ Alimentación</div>
+              </div>
+              <div class="phone-form-field">
+                <div class="phone-form-label">Arista / Rubro</div>
+                <div class="phone-form-value">Domicilios</div>
+              </div>
+              <div class="phone-form-field">
+                <div class="phone-form-label">Detalle</div>
+                <div class="phone-form-value placeholder">Papa John's — Pizza...</div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="phone-form-field">
+                  <div class="phone-form-label">Fecha</div>
+                  <div class="phone-form-value" style="font-size: 12px;">18 Feb 2026</div>
+                </div>
+                <div class="phone-form-field">
+                  <div class="phone-form-label">Método</div>
+                  <div class="phone-form-value" style="font-size: 12px;">💳 Tarjeta</div>
+                </div>
+              </div>
+
+              <div class="phone-submit-btn">Guardar gasto ✓</div>
+            </div>
+
+            <div class="phone-navbar">
+              <div class="phone-nav-item"><span class="phone-nav-icon">🏠</span><span>Inicio</span></div>
+              <div class="phone-nav-item"><span class="phone-nav-icon">📊</span><span>Budget</span></div>
+              <div class="phone-nav-item active" style="position: relative;">
+                <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); width: 46px; height: 46px; background: linear-gradient(135deg, var(--violet), var(--pink-mid)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; font-weight: 900; border: 3px solid var(--bg); box-shadow: 0 4px 16px #6D28D960;">+</div>
+                <span class="phone-nav-icon" style="opacity: 0;">+</span>
+                <span>Registrar</span>
+              </div>
+              <div class="phone-nav-item"><span class="phone-nav-icon">🎯</span><span>Metas</span></div>
+              <div class="phone-nav-item"><span class="phone-nav-icon">⚙️</span><span>Config</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-caption">Registro de Gastos</div>
+      </div>
+
+      <!-- PHONE 3: Gamificación -->
+      <div>
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-content">
+              <div class="phone-header">
+                <div style="font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 17px; color: var(--text);">Mis Logros 🏆</div>
+              </div>
+
+              <!-- Level card -->
+              <div style="background: linear-gradient(135deg, var(--violet), #7C3AED); border-radius: 18px; padding: 16px; margin-bottom: 12px; position: relative; overflow: hidden; box-shadow: 0 6px 24px #6D28D940;">
+                <div style="position: absolute; right: -24px; top: -24px; width: 90px; height: 90px; background: white; opacity: 0.08; border-radius: 50%;"></div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.65); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 3px; font-weight: 700;">Nivel actual</div>
+                <div style="font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 24px; color: white; margin-bottom: 3px;">⭐ Nivel 7</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 10px; font-weight: 600;">2.340 / 3.000 XP</div>
+                <div class="xp-bar-outer"><div class="xp-bar-fill" style="width: 78%;"></div></div>
+              </div>
+
+              <!-- Streak -->
+              <div class="phone-streak">
+                <div class="phone-streak-emoji">🔥</div>
+                <div>
+                  <div class="phone-streak-title">¡7 días seguidos!</div>
+                  <div class="phone-streak-sub">Registrando tus gastos. ¡Sigue así!</div>
+                </div>
+              </div>
+
+              <div class="phone-section-title">Insignias desbloqueadas</div>
+              <div class="phone-badge-grid">
+                <div class="phone-badge-card" style="border-color: var(--violet); background: var(--violet-soft);">
+                  <div class="phone-badge-emoji">💎</div>
+                  <div class="phone-badge-name">Primer Ahorro</div>
+                  <div class="phone-badge-desc">Ahorraste por primera vez</div>
+                </div>
+                <div class="phone-badge-card" style="border-color: var(--electric); background: #F0FDF4;">
+                  <div class="phone-badge-emoji">📊</div>
+                  <div class="phone-badge-name">Planificador</div>
+                  <div class="phone-badge-desc">Creaste tu presupuesto</div>
+                </div>
+                <div class="phone-badge-card" style="opacity: 0.4; border-style: dashed;">
+                  <div class="phone-badge-emoji" style="filter: grayscale(1);">🎯</div>
+                  <div class="phone-badge-name">Meta Cumplida</div>
+                  <div class="phone-badge-desc">Bloqueado</div>
+                </div>
+                <div class="phone-badge-card" style="opacity: 0.4; border-style: dashed;">
+                  <div class="phone-badge-emoji" style="filter: grayscale(1);">🏆</div>
+                  <div class="phone-badge-name">Maestro del Mes</div>
+                  <div class="phone-badge-desc">Bloqueado</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-navbar">
+              <div class="phone-nav-item"><span class="phone-nav-icon">🏠</span><span>Inicio</span></div>
+              <div class="phone-nav-item"><span class="phone-nav-icon">📊</span><span>Budget</span></div>
+              <div class="phone-nav-item" style="position: relative;">
+                <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); width: 46px; height: 46px; background: linear-gradient(135deg, var(--violet), var(--pink-mid)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; font-weight: 900; border: 3px solid var(--bg); box-shadow: 0 4px 16px #6D28D960;">+</div>
+                <span class="phone-nav-icon" style="opacity: 0;">+</span>
+                <span>Registrar</span>
+              </div>
+              <div class="phone-nav-item active"><span class="phone-nav-icon">🎯</span><span>Metas</span></div>
+              <div class="phone-nav-item"><span class="phone-nav-icon">⚙️</span><span>Config</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-caption">Metas & Gamificación</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 05 GAMIFICATION ===================== -->
+<div class="section">
+  <div class="section-label">05 — Sistema de Gamificación</div>
+  <h2 class="section-title">Elementos de <span>juego</span> planificados</h2>
+  <div class="gami-features">
+    <div class="gami-card">
+      <div class="gami-icon">⭐</div>
+      <div class="gami-title">Puntos & Niveles</div>
+      <div class="gami-desc">XP por cada acción: registrar gasto, cerrar presupuesto, cumplir meta. Sistema de niveles del 1 al 50+ con títulos progresivos.</div>
+    </div>
+    <div class="gami-card">
+      <div class="gami-icon">🔥</div>
+      <div class="gami-title">Racha Diaria</div>
+      <div class="gami-desc">Contador de días consecutivos registrando gastos. Visible en sidebar y pantalla de logros con animación al aumentar.</div>
+    </div>
+    <div class="gami-card">
+      <div class="gami-icon">🏅</div>
+      <div class="gami-title">Insignias</div>
+      <div class="gami-desc">Logros desbloqueables: primer ahorro, primer mes cerrado, 30 días de racha, etc. Los bloqueados son visibles para motivar.</div>
+    </div>
+    <div class="gami-card">
+      <div class="gami-icon">🎯</div>
+      <div class="gami-title">Retos Semanales</div>
+      <div class="gami-desc">Desafíos renovables: "Reduce domicilios esta semana", "Ahorra $50K extra". Con barra de progreso y recompensa en XP.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<div class="footer">
+  <div>
+    <div class="footer-title">Stack recomendado</div>
+    <div class="footer-sub">Para implementar esta propuesta con Next.js + React Native / Expo</div>
+    <div class="stack-list">
+      <span class="stack-tag">Next.js 14+</span>
+      <span class="stack-tag">shadcn/ui</span>
+      <span class="stack-tag">Tailwind CSS</span>
+      <span class="stack-tag">Framer Motion</span>
+      <span class="stack-tag">Tremor</span>
+      <span class="stack-tag">React Native + Expo</span>
+      <span class="stack-tag">Zustand</span>
+      <span class="stack-tag">React Query</span>
+      <span class="stack-tag">Nunito</span>
+      <span class="stack-tag">Plus Jakarta Sans</span>
+    </div>
+  </div>
+  <div style="text-align: right;">
+    <div class="footer-title" style="background: linear-gradient(135deg, var(--violet), var(--pink-mid)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">MindfulBudget</div>
+    <div class="footer-sub">Propuesta UX v2.0 Light · Feb 2026<br>Alexandra Castaño</div>
+  </div>
+</div>
+
+</body>
+</html>
