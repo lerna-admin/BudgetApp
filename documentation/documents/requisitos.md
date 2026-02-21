@@ -13,7 +13,7 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 | ID | Prioridad | Descripción |
 |----|-----------|-------------|
 | RF-01 | Alta | Onboarding con cuestionario que calcule la salud financiera inicial (ingresos, gastos, deudas, metas) y entregue un diagnóstico. |
-| RF-02 | Alta | Gestión de presupuestos mensuales/anuales replicando la lógica de la plantilla Excel (categorías, subcategorías, metas y saldos). |
+| RF-02 | Alta | Gestión de presupuestos mensuales/anuales replicando la lógica de la plantilla Excel (categorías, subcategorías, metas y saldos) e incluye selección de perfil antes de crear el presupuesto para activar alertas y recomendaciones (sin modificar la estructura de la plantilla). El usuario puede cambiar de perfil durante el año sin afectar información histórica. |
 | RF-03 | Alta | Registro manual de transacciones (fecha, monto, categoría, subcategoría, método de pago, notas, adjuntos). |
 | RF-04 | Alta | Integración bancaria (primera ola enfocada en entidades colombianas) para importar movimientos automáticamente y reconciliarlos con categorías, preservando una arquitectura lista para sumar nuevos países. |
 | RF-05 | Alta | Motor de categorización asistida con reglas editables por el usuario y aprendizaje según correcciones. |

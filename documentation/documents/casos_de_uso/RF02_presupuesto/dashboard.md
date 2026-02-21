@@ -78,22 +78,14 @@ Pendiente por validar con el usuario.
 
 Ver el catálogo base en `UC.md` (UC-01: Crear presupuesto mensual).
 
-### Gráficas y Secciones del Dashboard (Presupuesto plantilla 1)
+### Gráficas y Secciones del Dashboard
 
-| Sección/Gráfica | Descripción | Referencia en plantilla |
+| Sección/Gráfica | Descripción | Detalle de interacción |
 |---|---|---|
-| Dashboard de Presupuesto | Resumen general del presupuesto del período. | "BUDGET DASHBOARD" |
-| Resumen general | Indicadores de ingresos, ahorro, facturas, gastos y deudas. | "OVERVIEW" |
-| Saldo por presupuestar | Monto pendiente por asignar al presupuesto. | "LEFT TO BUDGET" |
-| Saldo por gastar | Monto disponible para gastar según el presupuesto. | "LEFT TO SPEND" |
-| Presupuesto vs Real | Comparativo entre lo presupuestado y lo ejecutado. | "BUDGET VS ACTUAL" |
-| Flujo de caja | Entradas y salidas de efectivo del período. | "CASH FLOW" |
-| Facturas | Sección de facturas con presupuesto, gasto real y saldo. | "BILLS" |
-| Gastos | Sección de gastos con presupuesto, gasto real y saldo. | "EXPENSES" |
-| Deudas | Sección de deudas con presupuesto, pago real y saldo. | "DEBT" |
-| Desglose | Distribución por ahorro, facturas, gastos y deudas. | "BREAKDOWN" |
-| Fecha de inicio / Fecha de fin | Rango de fechas del período. | "Start Date" / "End Date" |
-| Arrastre de saldo | Saldo inicial trasladado del período anterior. | "Rollover" |
+| Barras horizontales (Presupuesto vs Real por subcategoría) | Comparación de presupuesto vs real para todas las categorías por subcategoría. | Se visualiza para todas las categorías en el periodo activo. |
+| Pastel por subcategorías (por categoría) | Distribución de subcategorías dentro de una categoría específica. | Por defecto muestra Gastos; permite seleccionar otra categoría. |
+| Disponible restante | Indicador del disponible que queda en el periodo activo. | Muestra cuánto disponible queda vs total presupuestado. |
+| Pastel por aristas (detalle de subcategoría) | Distribución de aristas (rubro/subclasificación) dentro de una subcategoría. | Por defecto usa Necesidades Básicas o la primera subcategoría por ID en el presupuesto; permite cambiar subcategoría. |
 
 ### Puntos de Extensión
 

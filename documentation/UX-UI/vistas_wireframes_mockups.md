@@ -1,0 +1,31 @@
+# Listado de vistas para Wireframes y Mockups
+
+- Onboarding (cuestionario salud financiera)
+- Login
+- Registro
+- Seleccion de perfil financiero
+- Dashboard de presupuesto
+- Presupuesto mensual (vista edicion)
+- Presupuesto anual (vista edicion)
+- Presupuesto anual ↔ mensual (vista sincronizada)
+- Crear presupuesto (wizard)
+- Simulador de presupuesto
+- Simulador (resultado y acciones)
+- Registro de gastos (log mensual)
+- Registro de gastos (detalle de movimiento)
+- Registro offline (sin conexion)
+- Movimientos entre cuentas
+- Conciliacion de saldo real (limpieza)
+- Cierre de presupuesto
+- Ajuste de cierre de ahorro
+- Gestion de categorias y subcategorias
+- Gestion de aristas (rubros/subclasificaciones)
+- Configuracion de bancos
+- Configuracion de tarjetas
+- Configuracion de monedas
+- Configuracion de metodos de pago
+- Configuracion de tags
+- Importacion de presupuesto (CSV/XLS)
+- Importacion de movimientos (CSV/XLS)
+- Alertas y recomendaciones (perfil)
+- Historial de cambios (presupuesto)

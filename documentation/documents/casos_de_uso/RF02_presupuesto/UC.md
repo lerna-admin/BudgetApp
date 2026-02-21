@@ -51,8 +51,8 @@ Permite al usuario crear un presupuesto para un mes especifico.
 | 3 | Usuario selecciona plantilla base: vacia. | - |
 | 4 | - | Carga categorias fijas (Gastos, Ingresos, Ahorro) y subcategorias base de Mindful Budget. |
 | 5 | Usuario registra ingreso estimado y saldo del mes anterior. | - |
-| 6 | Usuario registra valores planificados por subcategoria (Gastos/Ahorro) y rubro/arista (Ingresos). | - |
-| 6.1 | - | Calcula balance ingreso vs presupuesto y muestra un label si no es 0 (no bloquea). |
+| 6 | Usuario registra valores planificados por subcategoria (Gastos/Ahorro) y rubro/arista (Ingresos), incluyendo medio de pago (tarjeta, efectivo, transferencia, prestamo), banco/tarjeta y moneda cuando aplique. | - |
+| 6.1 | - | Calcula balance ingreso vs presupuesto y muestra un toast de notificación si no es 0 (no bloquea). |
 | 7 | Usuario guarda como borrador. | - |
 | 8 | Usuario cierra el presupuesto (si aplica). | - |
 
@@ -68,7 +68,7 @@ Permite al usuario crear un presupuesto para un mes especifico.
 | 4a | El sistema carga categorias y subcategorias por defecto. |
 | 5a | El usuario ajusta subcategorias y aristas permitidas (no modifica categorias). |
 | 6a | El usuario registra los ingresos iniciales para el presupuesto. |
-| 7a | Usuario registra los valores estimados a gastar y a ahorrar en las subcategorias en la columna "Plan" y su descripcion en "Descripcion". |
+| 7a | Usuario registra los valores estimados a gastar y a ahorrar en las subcategorias en la columna "Plan" y su descripcion en "Descripcion", incluyendo medio de pago, banco/tarjeta y moneda cuando aplique. |
 | 8a | El sistema calcula balance dinamicamente. |
 | 9a | Usuario guarda como borrador o cierra el presupuesto. |
 
@@ -81,8 +81,9 @@ No hay.
 #### Datos / Persistencia
 - La interfaz muestra un log mensual por mes.
 - La base de datos almacena todas las transacciones en una sola tabla; el log mensual se obtiene por filtro de fechas.
-- Campos mínimos: id, user_id/household_id, fecha, monto, moneda, categoria (Gastos/Ingresos/Ahorro), subcategoria_id, rubro, subclasificacion, origen (manual/importado), notas, created_at.
+- Campos mínimos: id, user_id/household_id, fecha, monto, moneda, categoria (Gastos/Ingresos/Ahorro), subcategoria_id, rubro, subclasificacion, medio_pago (tarjeta/efectivo/transferencia/prestamo), banco_id, tarjeta_id, origen (manual/importado), notas, created_at.
 - Catálogos: subcategorías editables ligadas a categoría; aristas editables por subcategoría; Ingresos usa rubro/arista directamente (sin subcategoría).
+- Si medio de pago es tarjeta o transferencia, se selecciona banco; si es tarjeta, se selecciona tarjeta; siempre se selecciona moneda.
 - En presupuesto mensual solo se permite presupuestar el mes actual.
 - Si un rubro corresponde a ahorro programado anual, en la vista mensual se muestra el valor mensual y un indicador de "ahorro programado"; la definición de fecha fin y valor objetivo se registra en el presupuesto anual (UC-02).
 
@@ -93,7 +94,7 @@ No hay.
 - Sin requerimientos especiales.
 
 #### Usabilidad
-- Si el balance no es 0, se muestra un label informativo sin bloquear al usuario.
+- Si el balance no es 0, se muestra un toast de notificación informativo sin bloquear al usuario.
 
 #### Cumplimiento
 - No aplica.
@@ -169,7 +170,7 @@ sequenceDiagram
     Usuario->>Sistema: Define fechas e ingresa ingresos/saldo
     Sistema-->>Usuario: Carga categorías y subcategorías base
     Usuario->>Sistema: Registra valores planificados
-    Sistema-->>Usuario: Calcula balance y muestra label si no es 0
+    Sistema-->>Usuario: Calcula balance y muestra toast de notificación si no es 0
     Usuario->>Sistema: Guarda borrador o cierra presupuesto
     Sistema-->>Usuario: Confirma operación
 ```
@@ -499,7 +500,7 @@ Permite crear simulaciones fuera del presupuesto activo sin afectar datos reales
 | 1 | Usuario selecciona simular presupuesto. | - |
 | 2 | - | Carga la misma plantilla del presupuesto mensual/anual. |
 | 3 | Usuario ingresa valores del simulacro. | - |
-| 4 | - | Calcula balance y muestra label si no es 0. |
+| 4 | - | Calcula balance y muestra toast de notificación si no es 0. |
 | 5 | Usuario decide guardar, limpiar o generar presupuesto. | - |
 
 ### Flujos Alternativos
@@ -523,8 +524,9 @@ Permite crear simulaciones fuera del presupuesto activo sin afectar datos reales
 | Paso | Descripción |
 |------|-------------|
 | 5c | El usuario selecciona "Generar presupuesto". |
-| 6c | El sistema crea el presupuesto real con los valores del simulacro. |
-| 7c | El sistema confirma la creacion del presupuesto. |
+| 6c | El sistema crea el presupuesto mensual en borrador (draft) con los valores del simulacro. |
+| 7c | El usuario guarda manualmente el presupuesto cuando lo considere. |
+| 8c | El sistema confirma el guardado del presupuesto. |
 
 ### Flujos de Excepción
 
@@ -557,6 +559,7 @@ No hay.
 | RN-BP-SIM-01 | La simulacion usa la misma plantilla que el presupuesto real. |
 | RN-BP-SIM-02 | La simulacion no afecta presupuestos activos. |
 | RN-BP-SIM-03 | El usuario puede guardar, limpiar o generar un presupuesto a partir del simulacro. |
+| RN-BP-SIM-05 | Si se genera presupuesto mensual desde un simulacro, queda en borrador (draft) y requiere guardado manual. |
 | RN-BP-SIM-04 | La simulacion no permite cierre. |
 
 ### Trazabilidad
@@ -574,7 +577,7 @@ sequenceDiagram
     Usuario->>Sistema: Selecciona simular presupuesto
     Sistema-->>Usuario: Carga plantilla de simulacion
     Usuario->>Sistema: Ingresa valores
-    Sistema-->>Usuario: Calcula balance y muestra label
+    Sistema-->>Usuario: Calcula balance y muestra toast de notificación
     Usuario->>Sistema: Guarda, limpia o genera presupuesto
     Sistema-->>Usuario: Confirma accion
 ```
@@ -625,7 +628,7 @@ Permite cerrar un presupuesto del mes y habilitar el presupuesto del siguiente m
 ### Postcondiciones
 
 #### Exito
-1. El presupuesto queda cerrado y no es editable.
+1. El presupuesto queda marcado como cerrado para habilitar el siguiente mes, sin bloquear la edición durante el mes activo.
 2. Se crea el presupuesto del siguiente mes y queda disponible para dashboard y registro de gastos.
 3. Se registra la conciliacion de saldo real (si aplica).
 4. Se muestra confirmacion al usuario.
@@ -640,7 +643,7 @@ Permite cerrar un presupuesto del mes y habilitar el presupuesto del siguiente m
 | Paso | Actor | Sistema |
 |------|-------|---------|
 | 1 | Usuario selecciona cerrar presupuesto del mes. | - |
-| 2 | - | Calcula balance y muestra label si no es 0. |
+| 2 | - | Calcula balance y muestra toast de notificación si no es 0. |
 | 3 | - | Solicita confirmacion de cierre. |
 | 4 | - | Si hay sobrante, recomienda asignarlo a Ahorro o como rubro/arista en una subcategoria. |
 | 5 | Usuario confirma cierre e ingresa saldo real de ahorro (si aplica). | - |
@@ -680,9 +683,10 @@ No hay.
 
 | ID | Regla |
 |----|-------|
-| RN-BP-CI-01 | Si el balance no es 0, el sistema muestra un label informativo sin bloquear. |
+| RN-BP-CI-01 | Si el balance no es 0, el sistema muestra un toast de notificación informativo sin bloquear. |
 | RN-BP-CI-02 | Si existe sobrante y el usuario confirma el cierre, el sistema recomienda agregarlo a Ahorro o como rubro/arista en una subcategoria. |
 | RN-BP-CI-03 | El cierre genera el presupuesto del siguiente mes y habilita dashboard y registro de gastos. |
+| RN-BP-CI-05 | El cierre no bloquea la edición del presupuesto durante el mes activo. |
 | RN-BP-CI-04 | La conciliacion de saldo real no modifica transacciones historicas. |
 
 ### Trazabilidad
@@ -698,7 +702,7 @@ sequenceDiagram
     participant Usuario
     participant Sistema
     Usuario->>Sistema: Selecciona cerrar presupuesto
-    Sistema-->>Usuario: Calcula balance y muestra label
+    Sistema-->>Usuario: Calcula balance y muestra toast de notificación
     Sistema-->>Usuario: Solicita confirmacion de cierre
     Usuario->>Sistema: Confirma cierre y saldo real (si aplica)
     Sistema-->>Usuario: Recomienda asignacion de sobrante
@@ -719,6 +723,321 @@ Pendiente por validar con el usuario.
 
 ---
 
+
+## UC-BP-07: Seleccionar perfil de presupuesto
+
+### Información General
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | UC-BP-07 |
+| **Nombre** | Seleccionar perfil de presupuesto |
+| **Versión** | 1.0 |
+| **Fecha** | 2026-02-20 |
+| **Autor** | Alexandra Castano |
+| **Prioridad** | Alta |
+| **Frecuencia de uso** | Media |
+| **Estado** | En desarrollo |
+
+### Descripción Breve
+
+Permite seleccionar un perfil financiero antes de crear el presupuesto para activar alertas y recomendaciones sin modificar la estructura de la plantilla. El usuario puede cambiar el perfil durante el año sin afectar información histórica.
+
+### Actores
+
+| Actor | Tipo | Descripción |
+|-------|------|-------------|
+| Usuario | Primario | Persona que selecciona o ajusta el perfil de presupuesto. |
+
+### Precondiciones
+
+1. El usuario tiene acceso a la aplicación (web o móvil).
+2. El usuario está autenticado.
+3. El sistema está disponible y operativo.
+
+### Postcondiciones
+
+#### Éxito
+1. Se guarda el perfil seleccionado con porcentajes por defecto o editados.
+2. Se activan alertas y recomendaciones según el perfil.
+3. Los cambios de perfil aplican desde la fecha seleccionada sin modificar histórico.
+
+#### Fallo
+1. No se guarda el perfil.
+2. Se muestra mensaje de error apropiado al usuario.
+3. Se registra el intento fallido en logs de auditoría.
+
+### Flujo Básico
+
+| Paso | Actor | Sistema |
+|------|-------|---------|
+| 1 | Usuario abre “Seleccionar perfil” antes de crear el presupuesto. | - |
+| 2 | - | Muestra perfiles con objetivo, conceptos y porcentajes por defecto. |
+| 3 | Usuario selecciona un perfil y (opcional) ajusta porcentajes. | - |
+| 4 | - | Valida que la suma sea 100% y guarda la configuración. |
+| 5 | - | Activa alertas y recomendaciones y continúa con la creación del presupuesto. |
+
+### Flujos Alternativos
+
+#### FA-1: Cambiar perfil durante el año
+
+| Paso | Descripción |
+|------|-------------|
+| 1a | El usuario cambia de perfil desde el presupuesto anual activo. |
+| 2a | El sistema aplica el nuevo perfil desde la fecha de cambio. |
+| 3a | La información histórica previa no se modifica. |
+
+#### FA-2: Ajustar porcentajes
+
+| Paso | Descripción |
+|------|-------------|
+| 3b | El usuario modifica los porcentajes por defecto. |
+| 4b | El sistema valida la suma total y solicita ajustes si no es 100%. |
+
+### Flujos de Excepción
+
+No hay.
+
+### Requisitos Especiales
+
+#### Datos / Persistencia
+- Se guarda el perfil seleccionado, porcentajes configurados y fecha efectiva del cambio.
+- El perfil no altera la estructura de la plantilla.
+
+#### Seguridad
+- Solo usuarios autenticados pueden seleccionar o cambiar perfil.
+
+#### Rendimiento
+- La activación del perfil debe ser inmediata.
+
+#### Usabilidad
+- Cada perfil muestra su objetivo y el significado de cada concepto.
+- Las recomendaciones se basan en el perfil activo.
+
+#### Cumplimiento
+- No aplica.
+
+### Puntos de Extensión
+
+| Punto | Descripción |
+|---|---|
+| Alertas y recomendaciones | Extiende el perfil con reglas de alerta (RF-06). |
+
+### Reglas de Negocio
+
+| ID | Regla |
+|----|-------|
+| RN-BP-PR-01 | La selección de perfil no modifica la estructura de la plantilla. |
+| RN-BP-PR-02 | Cada perfil define porcentajes por defecto editables por el usuario. |
+| RN-BP-PR-03 | El mapeo de subcategorías a conceptos varía por perfil. |
+| RN-BP-PR-04 | El cambio de perfil no modifica información histórica previa. |
+| RN-BP-PR-05 | El perfil solo genera alertas y recomendaciones. |
+
+#### Conceptos del perfil
+
+| Concepto | Descripción |
+|---|---|
+| Esenciales | Gastos básicos para vivir (vivienda, alimentación, transporte, salud, seguros). |
+| Ahorro/Estabilidad | Reserva para emergencias y estabilidad financiera. |
+| Crecimiento/Inversión | Recursos destinados a inversión y crecimiento patrimonial. |
+| Deuda | Pagos para reducir obligaciones financieras. |
+| Recompensas | Gastos no esenciales o de estilo de vida. |
+
+#### Tabla de perfiles (por defecto editable)
+
+| Perfil | Objetivo | Distribución por defecto |
+|---|---|---|
+| Perfil Tilbury (1%) | Priorizar crecimiento con equilibrio entre estabilidad y recompensas. | Crecimiento 25% / Esenciales 50% / Estabilidad 15% / Recompensas 10% |
+| Perfil Ahorro Acelerado | Maximizar ahorro mensual sin alterar la plantilla. | Ahorro 30% / Esenciales 55% / Deuda 10% / Recompensas 5% |
+| Perfil Inversión Prioritaria | Priorizar inversión sistemática. | Inversión 30% / Esenciales 50% / Deuda 10% / Recompensas 10% |
+| Perfil Pago de Deudas | Acelerar el pago de obligaciones. | Deuda 25% / Esenciales 55% / Ahorro 15% / Recompensas 5% |
+
+#### Mapeo por perfil (subcategorías → concepto)
+
+**Perfil Tilbury (1%)**
+| Subcategoría | Concepto |
+|---|---|
+| Necesidades Básicas, Alimentación, Casa, Salud, Transporte, Seguros, Hijos | Esenciales |
+| Deudas | Estabilidad |
+| Ahorros | Crecimiento/Inversión |
+| Entretenimiento, Mascota, Cuidado Personal, Regalos/Caridad, Otros | Recompensas |
+
+**Perfil Ahorro Acelerado**
+| Subcategoría | Concepto |
+|---|---|
+| Necesidades Básicas, Alimentación, Casa, Salud, Transporte, Seguros, Hijos | Esenciales |
+| Deudas | Deuda |
+| Ahorros | Ahorro/Estabilidad |
+| Entretenimiento, Mascota, Cuidado Personal, Regalos/Caridad, Otros | Recompensas |
+
+**Perfil Inversión Prioritaria**
+| Subcategoría | Concepto |
+|---|---|
+| Necesidades Básicas, Alimentación, Casa, Salud, Transporte, Seguros, Hijos | Esenciales |
+| Deudas | Deuda |
+| Ahorros | Crecimiento/Inversión |
+| Entretenimiento, Mascota, Cuidado Personal, Regalos/Caridad, Otros | Recompensas |
+
+**Perfil Pago de Deudas**
+| Subcategoría | Concepto |
+|---|---|
+| Necesidades Básicas, Alimentación, Casa, Salud, Transporte, Seguros, Hijos | Esenciales |
+| Deudas | Deuda |
+| Ahorros | Ahorro/Estabilidad |
+| Entretenimiento, Mascota, Cuidado Personal, Regalos/Caridad, Otros | Recompensas |
+
+### Trazabilidad
+
+| Tipo | ID | Descripción |
+|---|---|---|
+| Requisito funcional | RF-02 | Gestión de presupuestos |
+
+### Diagrama de Secuencia
+
+```mermaid
+sequenceDiagram
+    participant Usuario
+    participant Sistema
+    Usuario->>Sistema: Selecciona perfil
+    Sistema-->>Usuario: Muestra objetivos y porcentajes
+    Usuario->>Sistema: Ajusta porcentajes (opcional)
+    Sistema-->>Usuario: Guarda perfil y activa recomendaciones
+```
+
+### Mockups / Wireframes
+
+Pendiente por validar con el usuario.
+
+### Historial de Cambios
+
+| Versión | Fecha | Autor | Descripción |
+|---------|-------|-------|-------------|
+| 1.0 | 2026-02-20 | Alexandra Castano | Creación inicial |
+
+---
+
+## UC-BP-08: Gestionar bancos y monedas
+
+### Información General
+
+| Campo | Valor |
+|-------|-------|
+| **ID** | UC-BP-08 |
+| **Nombre** | Gestionar bancos y monedas |
+| **Versión** | 1.0 |
+| **Fecha** | 2026-02-21 |
+| **Autor** | Alexandra Castano |
+| **Prioridad** | Media |
+| **Frecuencia de uso** | Media |
+| **Estado** | En desarrollo |
+
+### Descripción Breve
+
+Permite crear y administrar bancos, tarjetas y monedas para su uso en presupuesto y registro de gastos.
+
+### Actores
+
+| Actor | Tipo | Descripción |
+|-------|------|-------------|
+| Usuario | Primario | Persona que configura bancos, tarjetas y monedas. |
+
+### Precondiciones
+
+1. El usuario tiene acceso a la aplicación (web o móvil).
+2. El usuario está autenticado.
+3. El sistema está disponible y operativo.
+
+### Postcondiciones
+
+#### Éxito
+1. Se crean o actualizan bancos, tarjetas y monedas.
+2. La configuración queda disponible para presupuesto y registro de gastos.
+
+#### Fallo
+1. No se guardan los cambios.
+2. Se muestra mensaje de error apropiado al usuario.
+3. Se registra el intento fallido en logs de auditoría.
+
+### Flujo Básico
+
+| Paso | Actor | Sistema |
+|------|-------|---------|
+| 1 | Usuario abre Configuración de bancos y monedas. | - |
+| 2 | - | Muestra listado de bancos, tarjetas y monedas existentes. |
+| 3 | Usuario crea o edita un banco. | - |
+| 4 | Usuario agrega tarjetas asociadas al banco (si aplica). | - |
+| 5 | Usuario selecciona o agrega monedas disponibles. | - |
+| 6 | - | Guarda la configuración y confirma. |
+
+### Flujos Alternativos
+
+No hay.
+
+### Flujos de Excepción
+
+No hay.
+
+### Requisitos Especiales
+
+#### Datos / Persistencia
+- Se almacenan catálogos de bancos, tarjetas y monedas para reutilización.
+
+#### Seguridad
+- Solo usuarios autenticados pueden configurar bancos y monedas.
+
+#### Rendimiento
+- La carga de catálogos debe ser inmediata.
+
+#### Usabilidad
+- Permite buscar y reutilizar bancos, tarjetas y monedas existentes.
+
+#### Cumplimiento
+- No aplica.
+
+### Puntos de Extensión
+
+| Punto | Descripción |
+|---|---|
+| Presupuesto y registro | Extiende UC-01 y UC-BP-06 con selección de banco/tarjeta/moneda. |
+
+### Reglas de Negocio
+
+| ID | Regla |
+|----|-------|
+| RN-BP-BM-01 | Si el medio de pago es tarjeta o transferencia, se debe seleccionar banco. |
+| RN-BP-BM-02 | Si el medio de pago es tarjeta, se debe seleccionar tarjeta. |
+| RN-BP-BM-03 | Toda transacción o rubro presupuestado debe tener moneda. |
+
+### Trazabilidad
+
+| Tipo | ID | Descripción |
+|---|---|---|
+| Requisito funcional | RF-03 | Registro manual de transacciones |
+
+### Diagrama de Secuencia
+
+```mermaid
+sequenceDiagram
+    participant Usuario
+    participant Sistema
+    Usuario->>Sistema: Abre configuración
+    Sistema-->>Usuario: Lista bancos, tarjetas y monedas
+    Usuario->>Sistema: Crea/edita bancos y tarjetas
+    Usuario->>Sistema: Agrega monedas
+    Sistema-->>Usuario: Guarda y confirma
+```
+
+### Mockups / Wireframes
+
+Pendiente por validar con el usuario.
+
+### Historial de Cambios
+
+| Versión | Fecha | Autor | Descripción |
+|---------|-------|-------|-------------|
+| 1.0 | 2026-02-21 | Alexandra Castano | Creación inicial |
+
+---
 ## 2. Features e Historias de Usuario
 
 ### Epica: Gestion de presupuestos mensuales/anuales
@@ -728,13 +1047,19 @@ Pendiente por validar con el usuario.
 - **US-BP-02**: Como usuario, quiero crear un presupuesto anual y que sus valores se reflejen en la vista mensual (solo el mes actual editable).
 
 #### Feature: Registro mensual y validacion
-- **US-BP-03**: Como usuario, quiero registrar mis movimientos en un log mensual con validacion de categoria/subcategoria/rubro.
+- **US-BP-03**: Como usuario, quiero registrar mis movimientos en un log mensual con validacion de categoria/subcategoria/rubro, incluyendo metodo de pago, banco/tarjeta y moneda cuando aplique.
 
 #### Feature: Balance dinamico
 - **US-BP-04**: Como usuario, quiero que el balance se actualice automaticamente y me avise si no suma cero sin bloquearme; al cerrar recibo recomendacion si hay sobrante.
 
 #### Feature: Catalogos y reglas
 - **US-BP-05**: Como usuario, quiero gestionar subcategorias y aristas segun el catalogo base sin modificar las categorias fijas.
+
+#### Feature: Perfiles y recomendaciones
+- **US-BP-12**: Como usuario, quiero seleccionar un perfil de presupuesto con porcentajes editables para recibir alertas y recomendaciones enfocadas en ahorro, inversión o deuda sin modificar la plantilla, y poder cambiarlo durante el año sin afectar histórico.
+
+#### Feature: Configuracion financiera
+- **US-BP-13**: Como usuario, quiero crear y gestionar bancos, tarjetas y monedas para usarlas en presupuesto y registro de gastos.
 
 #### Feature: Multiplataforma
 - **US-BP-06**: Como usuario, quiero que los cambios en web y mobile esten siempre sincronizados.
@@ -770,7 +1095,8 @@ Como usuario, quiero crear un presupuesto mensual con ingreso estimado y saldo d
 - Las categorias fijas son: Gastos, Ingresos y Ahorro (no editables).
 - Las subcategorias base corresponden a Mindful Budget y pueden ajustarse junto con sus aristas.
 - El usuario registra ingreso estimado y saldo del mes anterior.
-- Se muestra un label si el balance no es 0, sin bloquear el ingreso de informacion.
+- El presupuesto permite indicar medio de pago (tarjeta, efectivo, transferencia, prestamo), banco/tarjeta cuando aplique y moneda.
+- Se muestra un toast de notificación si el balance no es 0, sin bloquear el ingreso de informacion.
 - El presupuesto se guarda inicialmente como borrador.
 
 ---
@@ -801,7 +1127,7 @@ Como usuario, quiero crear un presupuesto anual para visualizar y planificar mis
 Como usuario, quiero registrar mis movimientos en un log mensual para controlar mis gastos e ingresos del mes.
 
 **Criterios de aceptacion**
-- El log mensual permite registrar: fecha, monto, categoria (Gastos/Ingresos/Ahorro), subcategoria (para Gastos/Ahorro), rubro/arista (para Ingresos) y descripcion.
+- El log mensual permite registrar: fecha, monto, categoria (Gastos/Ingresos/Ahorro), subcategoria (para Gastos/Ahorro), rubro/arista (para Ingresos), metodo de pago, banco/tarjeta (si aplica), moneda y descripcion.
 - El sistema valida categoria y subcategoria; si no corresponden, muestra un label de advertencia sin bloquear el registro.
 - Los movimientos registrados actualizan automaticamente el balance y los totales del presupuesto.
 
@@ -815,7 +1141,7 @@ Como usuario, quiero que el balance del presupuesto se calcule automaticamente p
 **Criterios de aceptacion**
 - El balance se calcula como: total ingresos – total cantidades presupuestadas.
 - El balance se actualiza en tiempo real ante cualquier cambio.
-- Si el balance no es 0, el sistema muestra un label informativo sin bloquear al usuario.
+- Si el balance no es 0, el sistema muestra un toast de notificación informativo sin bloquear al usuario.
 - La recomendacion de asignar sobrante solo se muestra cuando el usuario intenta cerrar presupuesto.
 
 ---
@@ -881,7 +1207,7 @@ Como usuario, quiero crear simulaciones de presupuesto para evaluar escenarios s
 - Las simulaciones no afectan presupuestos activos.
 - El usuario puede guardar un simulacro para continuarlo despues.
 - El usuario puede limpiar un simulacro y dejar la plantilla en blanco.
-- El usuario puede generar un presupuesto real a partir del simulacro.
+- Si el usuario genera un presupuesto mensual a partir del simulacro, queda en borrador (draft) y debe guardarlo manualmente.
 - La simulacion no permite cierre de presupuesto.
 
 ---
@@ -892,10 +1218,10 @@ Como usuario, quiero crear simulaciones de presupuesto para evaluar escenarios s
 Como usuario, quiero cerrar un presupuesto para dejarlo como historico y habilitar el presupuesto del siguiente mes.
 
 **Criterios de aceptacion**
-- Un presupuesto cerrado no puede editarse.
+- El cierre no bloquea la edición del presupuesto durante el mes activo.
 - Un presupuesto cerrado no puede eliminarse.
 - El estado de cerrado es visible claramente para el usuario.
-- Si el balance no es 0, el sistema muestra un label informativo (no bloquea).
+- Si el balance no es 0, el sistema muestra un toast de notificación informativo (no bloquea).
 - Si existe sobrante y el usuario da clic en cerrar, el sistema recomienda agregarlo a Ahorro o como rubro/arista en alguna subcategoria.
 - Al cerrar, el sistema crea el presupuesto del siguiente mes para el dashboard y el registro de gastos.
 - Aplica las mismas reglas de balanceo y alertas de ingresos vs gastos + ahorro.
@@ -912,4 +1238,32 @@ Como usuario, quiero ajustar mi ahorro real al cierre del mes para iniciar el nu
 - El sistema compara el saldo real con el ahorro registrado en la aplicacion y calcula la diferencia.
 - El ajuste se registra sin modificar transacciones historicas.
 - El nuevo mes inicia con el ahorro real ajustado.
+
+
+---
+
+## US-BP-12: Seleccionar perfil de presupuesto
+
+**Descripcion**  
+Como usuario, quiero seleccionar un perfil de presupuesto para recibir alertas y recomendaciones de ahorro, inversión o pago de deudas sin modificar la plantilla, y poder cambiarlo durante el año sin afectar la información histórica.
+
+**Criterios de aceptacion**
+- Se muestran perfiles con objetivo y porcentajes por defecto (editables).
+- El usuario puede ajustar porcentajes y el sistema valida que sumen 100%.
+- La selección de perfil no modifica la estructura de categorías/subcategorías.
+- El perfil activa alertas y recomendaciones según su mapeo.
+- El usuario puede cambiar de perfil durante el año; el histórico no se modifica.
+
+---
+
+## US-BP-13: Gestion de bancos y monedas
+
+**Descripcion**  
+Como usuario, quiero crear y gestionar bancos, tarjetas y monedas para usarlas en presupuesto y registro de gastos.
+
+**Criterios de aceptacion**
+- El usuario puede crear, editar y eliminar bancos.
+- El usuario puede asociar tarjetas a un banco.
+- El usuario puede seleccionar o agregar monedas disponibles.
+- Los catálogos quedan disponibles para presupuesto y gastos.
 
