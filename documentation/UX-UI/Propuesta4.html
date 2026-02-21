@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BudgetApp — Propuesta UX/UI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,600;1,400&display=swap');
+
+:root {
+  /* === GAMING PALETTE — LIGHT MODE === */
+  --bg:#F7F5FF; --bg2:#EFECFF; --surface:#FFFFFF; --surface2:#F2F0FF;
+  --border:#D8D2F8; --border2:#BFB8F0;
+  --text:#1A1530; --muted:#5E5785; --dim:#9B93C4;
+
+  /* Primary: Electric Violet */
+  --teal:#6C2FD9; --teal2:#8B4FF0; --teal-l:#E8DEFF; --teal-s:#F3EEFF;
+
+  /* XP / Gold: vivid amber-gold */
+  --amber:#D4820A; --amber2:#F09C10; --amber-l:#FFF3D0;
+
+  /* Danger: vivid coral-red */
+  --red:#E0294A; --red-l:#FFE8ED;
+
+  /* Positive: electric green */
+  --green:#1AA84E; --green-l:#D5F8E5;
+
+  /* Info / Auth: bright indigo-blue */
+  --blue:#2D5FD4; --blue-l:#DCE8FF;
+
+  /* Magenta accent (gamification highlights) */
+  --mg:#C0188E; --mg-l:#FFE0F4;
+
+  --sh:0 2px 20px rgba(108,47,217,.10); --sh2:0 8px 40px rgba(108,47,217,.18);
+}
+[data-theme=dark]{
+  /* === GAMING PALETTE — DARK MODE === */
+  --bg:#0D0B1A; --bg2:#110F22; --surface:#16132A; --surface2:#1E1A38;
+  --border:#2C2652; --border2:#3D3670;
+  --text:#EDE9FF; --muted:#8C85C0; --dim:#4E4880;
+
+  /* Primary: neon violet */
+  --teal:#9B5FFF; --teal2:#B580FF; --teal-l:#2A1A52; --teal-s:#1E1340;
+
+  /* XP / Gold: bright gold */
+  --amber:#F0B830; --amber2:#FFD040; --amber-l:#2E2200;
+
+  /* Danger: hot pink-red */
+  --red:#FF4D6A; --red-l:#2E0C14;
+
+  /* Positive: neon lime-green */
+  --green:#3DDF80; --green-l:#0A2A1A;
+
+  /* Info: sky blue */
+  --blue:#6BA0FF; --blue-l:#0C1A38;
+
+  /* Magenta accent */
+  --mg:#FF3DB8; --mg-l:#2E0A22;
+
+  --sh:0 2px 20px rgba(155,95,255,.20); --sh2:0 8px 48px rgba(155,95,255,.30);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;line-height:1.6;transition:background .3s,color .3s;}
+
+/* THEME TOGGLE */
+.toggle{position:fixed;top:20px;right:20px;z-index:999;background:var(--surface);border:1.5px solid var(--border);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;box-shadow:var(--sh);transition:all .2s;}
+.toggle:hover{border-color:var(--teal);color:var(--teal);}
+
+/* COVER */
+.cover{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;}
+.cover-l{background:linear-gradient(160deg,#6C2FD9 0%,#3A0E8A 60%,#1A0550 100%);padding:72px 56px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
+.cover-l::before{content:'';position:absolute;width:420px;height:420px;border-radius:50%;background:rgba(255,255,255,.04);top:-110px;right:-110px;}
+.cover-l::after{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.05);bottom:50px;left:-60px;}
+
+.cl-logo{display:flex;align-items:center;gap:11px;position:relative;z-index:1;}
+.lm{width:40px;height:40px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;}
+.lname{font-size:17px;font-weight:800;color:white;letter-spacing:-.02em;}
+.ltag{font-size:11px;color:rgba(255,255,255,.5);}
+
+.cl-hero{position:relative;z-index:1;}
+.cl-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:100px;padding:5px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.05em;text-transform:uppercase;margin-bottom:22px;}
+.cl-title{font-size:clamp(44px,5vw,68px);font-weight:900;color:white;line-height:.95;letter-spacing:-.03em;margin-bottom:22px;}
+.cl-sub{font-family:'Lora',serif;font-style:italic;font-size:17px;color:rgba(255,255,255,.6);line-height:1.65;max-width:380px;margin-bottom:36px;}
+
+.authors{display:flex;gap:12px;flex-wrap:wrap;}
+.ac{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:100px;padding:6px 14px;}
+.av{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;}
+.aname{font-size:12px;font-weight:700;color:rgba(255,255,255,.85);}
+.arole{font-size:10px;color:rgba(255,255,255,.5);}
+
+.cl-meta{display:flex;gap:22px;flex-wrap:wrap;position:relative;z-index:1;}
+.cm-label{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;font-weight:700;}
+.cm-value{font-size:13px;font-weight:700;color:rgba(255,255,255,.85);}
+
+.cover-r{background:var(--bg2);padding:56px 48px;display:flex;flex-direction:column;justify-content:center;gap:28px;}
+.cr-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--teal);margin-bottom:14px;}
+.rf-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.rf-item{background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;display:flex;align-items:center;gap:7px;}
+.rf-id{font-size:10px;font-weight:800;color:var(--teal);font-family:monospace;min-width:40px;}
+.rf-desc{font-size:11px;color:var(--muted);line-height:1.4;flex:1;}
+.rf-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.dot-a{background:var(--red);}
+.dot-m{background:var(--amber);}
+.dot-b{background:var(--dim);}
+.priority-legend{display:flex;gap:14px;font-size:11px;color:var(--muted);align-items:center;}
+
+/* SECTION */
+.sec{padding:72px 56px;border-bottom:1.5px solid var(--border);}
+.sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:9px;}
+.sec-title{font-size:clamp(26px,3.5vw,42px);font-weight:900;color:var(--text);letter-spacing:-.02em;line-height:1.1;margin-bottom:7px;}
+.sec-title em{font-family:'Lora',serif;font-style:italic;font-weight:400;color:var(--teal);}
+.sec-sub{font-size:14px;color:var(--muted);margin-bottom:44px;max-width:580px;}
+
+/* VIEWS LIST */
+.vlist{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;}
+.vmod{border-right:1.5px solid var(--border);}
+.vmod:last-child{border-right:none;}
+.vmod-header{padding:14px 18px;background:var(--surface2);border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:9px;}
+.vmod-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.vmod-title{font-size:12px;font-weight:800;color:var(--text);}
+.vmod-count{font-size:10px;color:var(--muted);}
+.vi{display:flex;align-items:flex-start;gap:9px;padding:10px 18px;border-bottom:1px solid var(--border);transition:background .15s;}
+.vi:last-child{border-bottom:none;}
+.vi:hover{background:var(--surface2);}
+.vi-num{font-size:10px;font-weight:800;font-family:monospace;color:var(--dim);min-width:22px;padding-top:2px;}
+.vi-name{font-size:12px;color:var(--text);font-weight:600;line-height:1.3;}
+.vi-en{font-size:10px;color:var(--dim);font-style:italic;margin-top:1px;}
+.vi-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;white-space:nowrap;margin-left:auto;flex-shrink:0;margin-top:2px;}
+
+/* DESIGN TOKENS */
+.tok-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:28px;}
+.tok{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px;box-shadow:var(--sh);}
+.swatch{height:48px;border-radius:8px;margin-bottom:9px;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+.tok-name{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.tok-use{font-size:10px;color:var(--muted);}
+.tok-hex{font-size:10px;color:var(--dim);font-family:monospace;margin-top:2px;}
+
+.type-box{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:32px;box-shadow:var(--sh);}
+.type-row{display:flex;align-items:baseline;gap:18px;padding:16px 0;border-bottom:1px solid var(--border);}
+.type-row:last-child{border-bottom:none;}
+.type-meta{min-width:160px;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-weight:700;}
+
+/* INFO ARCHITECTURE */
+.ia-wrap{display:grid;grid-template-columns:248px 1fr;gap:28px;}
+.sidenav{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--sh);position:sticky;top:16px;}
+.sn-logo{display:flex;align-items:center;gap:9px;margin-bottom:20px;padding-bottom:16px;border-bottom:1.5px solid var(--border);}
+.sn-mark{width:32px;height:32px;background:linear-gradient(135deg,#6C2FD9,#B040FF);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:white;}
+.sn-name{font-size:13px;font-weight:800;color:var(--text);}
+.sn-sub{font-size:10px;color:var(--muted);}
+.sn-glbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);padding-left:8px;margin:12px 0 4px;}
+.sn-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;font-size:12px;color:var(--muted);margin-bottom:1px;font-weight:500;}
+.sn-item.on{background:var(--teal-s);color:var(--teal);font-weight:700;border-left:3px solid var(--teal);padding-left:5px;}
+.sn-ico{font-size:13px;width:16px;text-align:center;}
+.sn-bdg{margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:100px;color:white;}
+.sn-user{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1.5px solid var(--border);}
+.sn-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6C2FD9,#C0188E);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;}
+.sn-uname{font-size:11px;font-weight:700;color:var(--text);}
+.sn-uplan{font-size:10px;color:var(--teal);font-weight:600;}
+
+.ia-pages{display:flex;flex-direction:column;gap:12px;}
+.ia-pg{background:var(--surface);border:1.5px solid var(--border);border-radius:13px;padding:18px 22px;box-shadow:var(--sh);transition:border-color .2s;}
+.ia-pg:hover{border-color:var(--teal);}
+.ia-pg-h{display:flex;align-items:center;gap:11px;margin-bottom:9px;}
+.ia-pg-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.ia-pg-title{font-size:14px;font-weight:800;color:var(--text);}
+.ia-pg-uc{font-size:10px;color:var(--dim);font-family:monospace;}
+.ia-pg-desc{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:10px;}
+.ia-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.ia-tag{font-size:10px;padding:2px 9px;border-radius:100px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-weight:500;}
+
+/* WIREFRAMES */
+.wf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.wf-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--sh);}
+.wf-hdr{padding:12px 18px;border-bottom:1.5px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between;}
+.wf-title{font-size:12px;font-weight:800;color:var(--text);}
+.wf-uc{font-size:10px;font-family:monospace;color:var(--dim);}
+.wf-body{padding:18px;}
+
+/* WF primitives */
+.wb{height:8px;border-radius:100px;background:var(--border2);margin-bottom:6px;}
+.wb.sm{width:35%;} .wb.md{width:60%;} .wb.lg{width:80%;} .wb.xl{width:95%;}
+.wb.tc{background:var(--teal-l);} .wb.ac{background:var(--amber-l);} .wb.rc{background:var(--red-l);}
+.wbox{background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;}
+.wfield{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:7px;}
+.wf-lbl{height:6px;width:28%;background:var(--border2);border-radius:4px;margin-bottom:5px;}
+.wf-val{height:9px;width:55%;background:var(--border);border-radius:4px;}
+.wbtn{height:34px;border-radius:8px;}
+.wbtn-p{background:var(--teal);}
+.wbtn-s{background:var(--surface2);border:1.5px solid var(--border);}
+.wrow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);}
+.wrow:last-child{border-bottom:none;}
+.wico{width:26px;height:26px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);flex-shrink:0;}
+.winfo{flex:1;}
+.wchart{background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;height:82px;display:flex;align-items:flex-end;padding:8px;gap:4px;margin-bottom:10px;}
+.wbv{border-radius:3px 3px 0 0;flex:1;}
+.wprog{height:6px;background:var(--border);border-radius:100px;overflow:hidden;margin:5px 0;}
+.wprog-f{height:100%;border-radius:100px;}
+.wtabs{display:flex;gap:3px;background:var(--surface2);border-radius:9px;padding:3px;border:1.5px solid var(--border);margin-bottom:12px;}
+.wtab{flex:1;height:24px;border-radius:7px;}
+.wtab-a{background:var(--teal);}
+.wstats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
+.wstat{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px;}
+.wstat-v{height:12px;background:var(--border2);border-radius:4px;margin-bottom:4px;}
+.wstat-l{height:6px;width:65%;background:var(--border);border-radius:4px;}
+.wg2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.wg4{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.wbadge{background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:9px;text-align:center;}
+.wbadge-ico{width:32px;height:32px;border-radius:50%;margin:0 auto 6px;}
+.whero{border-radius:11px;padding:14px;margin-bottom:12px;}
+
+/* DESKTOP MOCKUP */
+.mock-sec{padding:72px 56px;}
+.browser{background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;overflow:hidden;box-shadow:var(--sh2);margin-bottom:48px;}
+.bbar{background:var(--surface2);border-bottom:1.5px solid var(--border);padding:9px 16px;display:flex;align-items:center;gap:9px;}
+.bdot{width:10px;height:10px;border-radius:50%;}
+.bd-r{background:#E55;} .bd-y{background:#EA5;} .bd-g{background:#5A5;}
+.burl{flex:1;max-width:360px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 12px;font-size:11px;color:var(--muted);text-align:center;}
+
+.app-layout{display:grid;grid-template-columns:210px 1fr;height:590px;}
+.sidebar{background:var(--surface);border-right:1.5px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;}
+.sb-logo{display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:16px;border-bottom:1.5px solid var(--border);}
+.sb-lm{width:30px;height:30px;background:linear-gradient(135deg,#6C2FD9,#B040FF);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:white;}
+.sb-lname{font-size:13px;font-weight:800;color:var(--text);}
+.sb-lsub{font-size:9px;color:var(--muted);}
+.sb-glbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);padding-left:8px;margin:12px 0 3px;}
+.sb-it{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:8px;font-size:11px;color:var(--muted);margin-bottom:1px;font-weight:500;}
+.sb-it.on{background:var(--teal-s);color:var(--teal);font-weight:700;border-left:3px solid var(--teal);padding-left:5px;}
+.sb-ico{font-size:12px;width:14px;text-align:center;}
+.sb-bdg{margin-left:auto;font-size:9px;font-weight:700;padding:1px 5px;border-radius:100px;color:white;}
+.sb-sp{flex:1;}
+.sb-user{display:flex;align-items:center;gap:7px;padding:9px;background:var(--teal-s);border-radius:9px;border:1px solid var(--teal-l);}
+.sb-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#6C2FD9,#C0188E);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;}
+.sb-un{font-size:10px;font-weight:700;color:var(--text);}
+.sb-up{font-size:9px;color:var(--teal);font-weight:600;}
+
+.main{background:var(--bg);overflow:hidden;display:flex;flex-direction:column;}
+.mtop{padding:14px 22px 0;display:flex;align-items:center;justify-content:space-between;}
+.ppills{display:flex;gap:3px;background:var(--surface);border:1.5px solid var(--border);border-radius:100px;padding:3px;}
+.pp{padding:4px 12px;border-radius:100px;font-size:10px;font-weight:700;color:var(--muted);}
+.pp.on{background:var(--teal);color:white;}
+.mactions{display:flex;gap:6px;}
+.ico-btn{width:30px;height:30px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.add-btn{background:linear-gradient(135deg,#6C2FD9,#B040FF);border-color:transparent;color:white;width:auto;padding:0 12px;font-size:10px;font-weight:700;border-radius:8px;height:30px;display:flex;align-items:center;gap:3px;box-shadow:0 2px 8px rgba(108,47,217,.35);}
+
+.mcontent{padding:12px 22px;flex:1;overflow:hidden;}
+.mgreet{font-size:11px;color:var(--muted);margin-bottom:2px;font-weight:500;}
+.mpgtitle{font-size:18px;font-weight:900;color:var(--text);margin-bottom:14px;letter-spacing:-.02em;}
+.mpgtitle span{color:var(--teal);}
+
+.hcards{display:grid;grid-template-columns:2fr 1fr 1fr;gap:9px;margin-bottom:12px;}
+.hc{border-radius:13px;padding:15px;position:relative;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.15);}
+.hc-t{background:linear-gradient(135deg,#6C2FD9 0%,#3A0E8A 100%);}
+.hc-g{background:linear-gradient(135deg,#1AA84E 0%,#0E7038 100%);}
+.hc-a{background:linear-gradient(135deg,#C0188E 0%,#8A1066 100%);}
+.hc::after{content:'';position:absolute;right:-18px;top:-18px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.07);}
+.hc-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.6);font-weight:700;margin-bottom:5px;}
+.hc-val{font-size:20px;font-weight:900;color:white;letter-spacing:-.02em;line-height:1;margin-bottom:4px;}
+.hc-val.sm{font-size:16px;}
+.hc-sub{font-size:9px;color:rgba(255,255,255,.55);}
+.hc-prog{height:4px;background:rgba(255,255,255,.2);border-radius:100px;margin-top:9px;overflow:hidden;}
+.hc-pf{height:100%;border-radius:100px;background:rgba(255,255,255,.75);}
+
+.bcards{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.dc{background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:13px;}
+.dc-title{font-size:11px;font-weight:800;color:var(--text);margin-bottom:11px;display:flex;justify-content:space-between;align-items:center;}
+.dc-link{font-size:10px;color:var(--teal);font-weight:600;}
+
+.minichart{display:flex;align-items:flex-end;gap:4px;height:64px;}
+.mc-w{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.mc-b{width:100%;border-radius:3px 3px 0 0;}
+.mc-l{font-size:7px;color:var(--dim);}
+
+.txrow{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);}
+.txrow:last-child{border-bottom:none;}
+.txico{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.txname{font-size:11px;font-weight:600;color:var(--text);}
+.txcat{font-size:9px;color:var(--muted);}
+.txneg{color:var(--red);font-size:11px;font-weight:700;margin-left:auto;}
+.txpos{color:var(--green);font-size:11px;font-weight:700;margin-left:auto;}
+
+/* MOBILE */
+.mob-sec{padding:72px 56px;background:var(--bg2);}
+.mob-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.mob-wrap{text-align:center;}
+.mob-cap{font-size:11px;font-weight:700;color:var(--muted);margin-top:12px;}
+.mob-cap-en{font-size:10px;color:var(--dim);font-style:italic;}
+
+.phone{background:var(--surface);border:2px solid var(--border2);border-radius:34px;overflow:hidden;aspect-ratio:9/19.5;display:flex;flex-direction:column;box-shadow:var(--sh2);}
+.pnotch{width:68px;height:20px;background:var(--surface2);border-radius:0 0 12px 12px;margin:0 auto;flex-shrink:0;}
+.pscreen{flex:1;overflow:hidden;position:relative;background:var(--bg);}
+.pnav{position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-top:1.5px solid var(--border);padding:7px 0 12px;display:flex;justify-content:space-around;}
+.pni{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8px;font-weight:600;color:var(--dim);}
+.pni.on{color:var(--teal);}
+.pn-icon{font-size:14px;}
+.pfab{position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:40px;height:40px;background:linear-gradient(135deg,#6C2FD9,#C040FF);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;color:white;font-weight:900;border:3px solid var(--bg);box-shadow:0 4px 12px rgba(108,47,217,.5);}
+.pc{padding:11px 12px;padding-bottom:66px;overflow:hidden;}
+
+.p-greet{font-size:9px;color:var(--muted);font-weight:500;}
+.p-title{font-size:14px;font-weight:900;color:var(--text);letter-spacing:-.02em;}
+.p-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
+
+.phero{background:linear-gradient(135deg,#6C2FD9 0%,#3A0E8A 100%);border-radius:12px;padding:13px;margin-bottom:10px;position:relative;overflow:hidden;box-shadow:0 5px 18px rgba(108,47,217,.4);}
+.phero::after{content:'';position:absolute;right:-14px;top:-14px;width:60px;height:60px;background:rgba(255,255,255,.07);border-radius:50%;}
+.ph-lbl{font-size:9px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:3px;}
+.ph-val{font-size:19px;font-weight:900;color:white;letter-spacing:-.02em;margin-bottom:7px;}
+.ph-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.ph-stat{background:rgba(255,255,255,.12);border-radius:7px;padding:6px;}
+.ph-sl{font-size:8px;color:rgba(255,255,255,.55);font-weight:600;}
+.ph-sv{font-size:12px;font-weight:900;color:white;}
+
+.p-stitle{font-size:10px;font-weight:800;color:var(--text);margin-bottom:6px;display:flex;justify-content:space-between;}
+.p-slink{color:var(--teal);font-weight:600;}
+
+.ptx{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);}
+.ptx:last-child{border-bottom:none;}
+.ptxi{width:23px;height:23px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.ptxn{font-size:10px;font-weight:700;color:var(--text);}
+.ptxc{font-size:8px;color:var(--muted);}
+.ptxa{font-size:10px;font-weight:800;margin-left:auto;}
+.ptxa.neg{color:var(--red);}
+.ptxa.pos{color:var(--green);}
+
+.pff{background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:8px 10px;margin-bottom:6px;}
+.pfl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:2px;}
+.pfv{font-size:12px;font-weight:700;color:var(--text);}
+.pfv.ph{color:var(--dim);font-weight:400;}
+.pfv.big{font-size:22px;font-weight:900;color:var(--teal);}
+.pfv.sel{border-color:var(--teal);background:var(--teal-s);color:var(--teal);}
+
+.pcg{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px;}
+.pcb{padding:7px;border-radius:8px;border:1.5px solid var(--border);text-align:center;font-size:10px;font-weight:700;background:var(--surface);color:var(--muted);}
+.pcb.on{border-color:var(--teal);background:var(--teal-s);color:var(--teal);}
+
+.psub{background:linear-gradient(135deg,#6C2FD9,#B040FF);color:white;border-radius:10px;padding:11px;font-size:12px;font-weight:800;text-align:center;margin-top:7px;box-shadow:0 4px 12px rgba(108,47,217,.4);}
+
+/* Login phone */
+.plogin-logo{text-align:center;margin-bottom:16px;padding-top:14px;}
+.plogin-lm{width:44px;height:44px;background:linear-gradient(135deg,#6C2FD9,#C040FF);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;margin:0 auto 7px;}
+.plogin-t{font-size:14px;font-weight:900;color:var(--text);}
+.plogin-s{font-size:10px;color:var(--muted);}
+.poauth{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+.poauth-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:8px 11px;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:var(--text);}
+.pdiv{display:flex;align-items:center;gap:7px;margin-bottom:10px;}
+.pdiv-l{flex:1;height:1px;background:var(--border);}
+.pdiv-t{font-size:9px;color:var(--dim);font-weight:600;}
+
+/* Gamification phone */
+.plvl{background:linear-gradient(135deg,#D4820A 0%,#8A4A00 100%);border-radius:12px;padding:13px;margin-bottom:9px;position:relative;overflow:hidden;box-shadow:0 5px 18px rgba(212,130,10,.35);}
+.plvl::after{content:'';position:absolute;right:-14px;top:-14px;width:60px;height:60px;background:rgba(255,255,255,.07);border-radius:50%;}
+.plvl-lbl{font-size:9px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:2px;}
+.plvl-val{font-size:18px;font-weight:900;color:white;margin-bottom:3px;}
+.pxp-bar{height:5px;background:rgba(255,255,255,.2);border-radius:100px;overflow:hidden;}
+.pxp-fill{height:100%;background:rgba(255,255,255,.8);border-radius:100px;}
+.pstreak{background:linear-gradient(135deg,#C0188E,#8A0F64);border-radius:11px;padding:10px;display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.pse{font-size:20px;}
+.pst{font-size:12px;font-weight:900;color:white;}
+.pss{font-size:9px;color:rgba(255,255,255,.7);}
+.pbg{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.pb{background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:8px;text-align:center;}
+.pb.ul{border-color:var(--amber);background:var(--amber-l);}
+.pb.lk{opacity:.4;border-style:dashed;}
+.pb-e{font-size:18px;margin-bottom:2px;}
+.pb-n{font-size:8px;font-weight:800;color:var(--text);}
+.pb-d{font-size:8px;color:var(--muted);}
+
+/* Onboarding phone */
+.pdots{display:flex;gap:4px;justify-content:center;margin-bottom:14px;}
+.pdot{width:5px;height:5px;border-radius:50%;background:var(--border2);}
+.pdot.on{background:var(--teal);width:16px;border-radius:100px;}
+.ponq{font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;line-height:1.3;}
+.popt{background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:9px 11px;margin-bottom:5px;display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--text);}
+.popt.on{border-color:var(--teal);background:var(--teal-s);color:var(--teal);}
+.popt-i{font-size:14px;}
+
+/* GAMIFICATION SECTION */
+.gami-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:28px;}
+.gami-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px;text-align:center;box-shadow:var(--sh);transition:box-shadow .2s;}
+.gami-card:hover{box-shadow:var(--sh2);}
+.gami-e{font-size:32px;margin-bottom:10px;}
+.gami-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:7px;}
+.gami-desc{font-size:11px;color:var(--muted);line-height:1.6;}
+.rf-inline{display:inline-block;font-size:9px;font-weight:800;font-family:monospace;padding:2px 7px;border-radius:4px;margin-bottom:7px;}
+
+/* AUTH SECTION */
+.uc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:28px;}
+.uc-card{background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:14px;}
+.uc-id{font-size:10px;font-weight:800;font-family:monospace;color:var(--teal);margin-bottom:5px;}
+.uc-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.3;}
+.uc-desc{font-size:10px;color:var(--muted);line-height:1.5;}
+.uc-pri{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;margin-top:6px;}
+.pri-a{background:var(--red-l);color:var(--red);}
+.pri-m{background:var(--amber-l);color:var(--amber);}
+
+/* FOOTER */
+.footer{background:var(--surface);border-top:1.5px solid var(--border);padding:44px 56px;display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center;}
+.fb-brand{font-size:22px;font-weight:900;color:var(--text);letter-spacing:-.02em;margin-bottom:5px;}
+.fb-brand span{color:var(--teal);}
+.fb-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
+.stacks{display:flex;flex-wrap:wrap;gap:6px;}
+.stack{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted);font-family:monospace;}
+.fa-box{text-align:right;}
+.fa-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:12px;}
+.fa-name{font-size:15px;font-weight:800;color:var(--text);}
+.fa-role{font-size:11px;color:var(--teal);margin-bottom:8px;}
+
+hr.sep{border:none;border-top:1.5px solid var(--border);margin:32px 0;}
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<div class="toggle" id="themetoggle" onclick="(function(){var d=document.documentElement,t=d.getAttribute('data-theme');d.setAttribute('data-theme',t==='dark'?'':' dark');document.getElementById('themetoggle').textContent=t==='dark'?'🌙 Dark Mode':'☀️ Light Mode';})()">🌙 Dark Mode</div>
+
+<!-- ===================== COVER ===================== -->
+<div class="cover">
+  <div class="cover-l">
+    <div class="cl-logo">
+      <div class="lm">B</div>
+      <div>
+        <div class="lname">BudgetApp</div>
+        <div class="ltag">Smart budgeting for everyone / para todos</div>
+      </div>
+    </div>
+    <div class="cl-hero">
+      <div class="cl-badge">🎨 UX/UI Proposal · v1.0 · Feb 2026</div>
+      <div class="cl-title">Propuesta<br>UX / UI</div>
+      <div class="cl-sub">Arquitectura de información, wireframes y mockups basados íntegramente en los documentos funcionales del repositorio.</div>
+      <div class="authors">
+        <div class="ac"><div class="av">AC</div><div><div class="aname">Alexandra Castaño</div><div class="arole">Budget · Dashboard · Gastos</div></div></div>
+        <div class="ac"><div class="av">HG</div><div><div class="aname">Henry Gomez</div><div class="arole">Auth · Security · UC-10→19</div></div></div>
+      </div>
+    </div>
+    <div class="cl-meta">
+      <div><div class="cm-label">Plataformas</div><div class="cm-value">Web · Android · iOS</div></div>
+      <div><div class="cm-label">Idiomas / Languages</div><div class="cm-value">ES · EN</div></div>
+      <div><div class="cm-label">Vistas / Screens</div><div class="cm-value">29 pantallas</div></div>
+      <div><div class="cm-label">Modo / Mode</div><div class="cm-value">Light ↔ Dark</div></div>
+    </div>
+  </div>
+
+  <div class="cover-r">
+    <div>
+      <div class="cr-title">18 Requisitos Funcionales / Functional Requirements</div>
+      <div class="rf-grid">
+        <div class="rf-item"><span class="rf-id">RF-01</span><span class="rf-desc">Onboarding diagnóstico financiero</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-02</span><span class="rf-desc">Presupuestos mensuales/anuales</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-03</span><span class="rf-desc">Registro manual de transacciones</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-04</span><span class="rf-desc">Integración bancaria Colombia</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-05</span><span class="rf-desc">Categorización asistida</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-06</span><span class="rf-desc">Alertas en tiempo real</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-07</span><span class="rf-desc">Simulador ¿puedo permitírmelo?</span><span class="rf-dot dot-m"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-08</span><span class="rf-desc">Gestión tarjetas y cuentas</span><span class="rf-dot dot-m"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-09</span><span class="rf-desc">Funcionalidad familiar</span><span class="rf-dot dot-m"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-10</span><span class="rf-desc">Panel suscripciones recurrentes</span><span class="rf-dot dot-m"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-11</span><span class="rf-desc">Educación financiera</span><span class="rf-dot dot-b"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-12</span><span class="rf-desc">APIs y exports CSV/XLSX</span><span class="rf-dot dot-b"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-13</span><span class="rf-desc">Servicio country_config</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-14</span><span class="rf-desc">Gestión usuarios y auth</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-15</span><span class="rf-desc">Gamificación: mapa de metas</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-16</span><span class="rf-desc">Gamificación: monedas y avatar</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-17</span><span class="rf-desc">Cierre de mes y limpieza</span><span class="rf-dot dot-a"></span></div>
+        <div class="rf-item"><span class="rf-id">RF-18</span><span class="rf-desc">Importar CSV/XLS</span><span class="rf-dot dot-a"></span></div>
+      </div>
+    </div>
+    <div class="priority-legend">
+      <span style="display:flex;align-items:center;gap:4px;"><span class="rf-dot dot-a"></span>Alta / High</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span class="rf-dot dot-m"></span>Media / Medium</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span class="rf-dot dot-b"></span>Baja / Low</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 01 · SCREEN INVENTORY ===================== -->
+<div class="sec">
+  <div class="sec-lbl">01 — Listado de Vistas · Screen Inventory</div>
+  <h2 class="sec-title">29 pantallas <em>documentadas</em></h2>
+  <p class="sec-sub">Extraídas de <code>vistas_wireframes_mockups.md</code> y organizadas por módulo funcional con referencia directa a los casos de uso.</p>
+
+  <div class="vlist">
+    <!-- AUTH -->
+    <div class="vmod">
+      <div class="vmod-header">
+        <div class="vmod-icon" style="background:var(--blue-l);">🔐</div>
+        <div><div class="vmod-title">Autenticación &amp; Configuración / Auth &amp; Settings</div><div class="vmod-count">RF-14 · UC-10 a UC-19 · 9 vistas</div></div>
+      </div>
+      <div class="vi"><span class="vi-num">01</span><div><div class="vi-name">Onboarding — cuestionario salud financiera</div><div class="vi-en">Financial Health Onboarding Quiz</div></div><span class="vi-tag" style="background:var(--red-l);color:var(--red);">RF-01</span></div>
+      <div class="vi"><span class="vi-num">02</span><div><div class="vi-name">Login</div><div class="vi-en">Sign In</div></div><span class="vi-tag" style="background:var(--blue-l);color:var(--blue);">UC-11</span></div>
+      <div class="vi"><span class="vi-num">03</span><div><div class="vi-name">Registro</div><div class="vi-en">Sign Up</div></div><span class="vi-tag" style="background:var(--blue-l);color:var(--blue);">UC-10</span></div>
+      <div class="vi"><span class="vi-num">04</span><div><div class="vi-name">Selección de perfil financiero</div><div class="vi-en">Financial Profile Selection</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">RF-02</span></div>
+      <div class="vi"><span class="vi-num">05</span><div><div class="vi-name">Gestión de categorías y subcategorías</div><div class="vi-en">Category &amp; Subcategory Management</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">RF-02</span></div>
+      <div class="vi"><span class="vi-num">06</span><div><div class="vi-name">Gestión de aristas (rubros/subclasificaciones)</div><div class="vi-en">Subcategory Detail (Aristas) Management</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">RF-02</span></div>
+      <div class="vi"><span class="vi-num">07</span><div><div class="vi-name">Configuración de bancos</div><div class="vi-en">Bank Configuration</div></div><span class="vi-tag" style="background:var(--amber-l);color:var(--amber);">RF-04/08</span></div>
+      <div class="vi"><span class="vi-num">08</span><div><div class="vi-name">Configuración de tarjetas</div><div class="vi-en">Card Configuration</div></div><span class="vi-tag" style="background:var(--amber-l);color:var(--amber);">RF-08</span></div>
+      <div class="vi"><span class="vi-num">09</span><div><div class="vi-name">Configuración de monedas</div><div class="vi-en">Currency Configuration</div></div><span class="vi-tag" style="background:var(--amber-l);color:var(--amber);">RF-13</span></div>
+      <div class="vi"><span class="vi-num">10</span><div><div class="vi-name">Configuración de métodos de pago</div><div class="vi-en">Payment Method Configuration</div></div><span class="vi-tag" style="background:var(--amber-l);color:var(--amber);">RF-03</span></div>
+      <div class="vi"><span class="vi-num">11</span><div><div class="vi-name">Configuración de tags</div><div class="vi-en">Tag Configuration</div></div><span class="vi-tag" style="background:var(--amber-l);color:var(--amber);">RF-03</span></div>
+      <div class="vi"><span class="vi-num">12</span><div><div class="vi-name">Alertas y recomendaciones (perfil)</div><div class="vi-en">Alerts &amp; Profile Recommendations</div></div><span class="vi-tag" style="background:var(--red-l);color:var(--red);">RF-06</span></div>
+      <div class="vi"><span class="vi-num">13</span><div><div class="vi-name">Historial de cambios (presupuesto)</div><div class="vi-en">Budget Change History</div></div><span class="vi-tag" style="background:var(--blue-l);color:var(--blue);">RF-14</span></div>
+    </div>
+
+    <!-- BUDGET -->
+    <div class="vmod">
+      <div class="vmod-header">
+        <div class="vmod-icon" style="background:var(--teal-l);">📊</div>
+        <div><div class="vmod-title">Presupuesto &amp; Dashboard / Budget</div><div class="vmod-count">RF-02 RF-03 RF-07 RF-17 · UC-01 UC-DASH-01 · 10 vistas</div></div>
+      </div>
+      <div class="vi"><span class="vi-num">14</span><div><div class="vi-name">Dashboard de presupuesto</div><div class="vi-en">Budget Dashboard</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">UC-DASH-01</span></div>
+      <div class="vi"><span class="vi-num">15</span><div><div class="vi-name">Presupuesto mensual (vista edición)</div><div class="vi-en">Monthly Budget — Edit View</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">UC-01</span></div>
+      <div class="vi"><span class="vi-num">16</span><div><div class="vi-name">Presupuesto anual (vista edición)</div><div class="vi-en">Annual Budget — Edit View</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">UC-01</span></div>
+      <div class="vi"><span class="vi-num">17</span><div><div class="vi-name">Presupuesto anual ↔ mensual (sincronizado)</div><div class="vi-en">Annual ↔ Monthly Sync View</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">RF-02</span></div>
+      <div class="vi"><span class="vi-num">18</span><div><div class="vi-name">Crear presupuesto (wizard)</div><div class="vi-en">Budget Creation Wizard</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">UC-01</span></div>
+      <div class="vi"><span class="vi-num">19</span><div><div class="vi-name">Simulador de presupuesto</div><div class="vi-en">Budget Simulator</div></div><span class="vi-tag" style="background:var(--amber-l);color:var(--amber);">RF-07</span></div>
+      <div class="vi"><span class="vi-num">20</span><div><div class="vi-name">Simulador (resultado y acciones)</div><div class="vi-en">Simulator Results &amp; Actions</div></div><span class="vi-tag" style="background:var(--amber-l);color:var(--amber);">RF-07</span></div>
+      <div class="vi"><span class="vi-num">21</span><div><div class="vi-name">Cierre de presupuesto</div><div class="vi-en">Budget Monthly Close</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">RF-17</span></div>
+      <div class="vi"><span class="vi-num">22</span><div><div class="vi-name">Ajuste de cierre de ahorro</div><div class="vi-en">Savings Close Adjustment</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">RF-17</span></div>
+      <div class="vi"><span class="vi-num">23</span><div><div class="vi-name">Importación de presupuesto (CSV/XLS)</div><div class="vi-en">Budget Import CSV/XLS</div></div><span class="vi-tag" style="background:var(--green-l);color:var(--green);">RF-18</span></div>
+    </div>
+
+    <!-- GASTOS -->
+    <div class="vmod">
+      <div class="vmod-header">
+        <div class="vmod-icon" style="background:var(--red-l);">✏️</div>
+        <div><div class="vmod-title">Registro &amp; Movimientos / Expenses</div><div class="vmod-count">RF-03 · UC-BP-06 · 6 vistas</div></div>
+      </div>
+      <div class="vi"><span class="vi-num">24</span><div><div class="vi-name">Registro de gastos (log mensual)</div><div class="vi-en">Expense Log — Monthly</div></div><span class="vi-tag" style="background:var(--red-l);color:var(--red);">UC-BP-06</span></div>
+      <div class="vi"><span class="vi-num">25</span><div><div class="vi-name">Registro de gastos (detalle de movimiento)</div><div class="vi-en">Transaction Detail</div></div><span class="vi-tag" style="background:var(--red-l);color:var(--red);">RF-03</span></div>
+      <div class="vi"><span class="vi-num">26</span><div><div class="vi-name">Registro offline (sin conexión)</div><div class="vi-en">Offline Registration</div></div><span class="vi-tag" style="background:var(--red-l);color:var(--red);">UC-BP-06 FA-2</span></div>
+      <div class="vi"><span class="vi-num">27</span><div><div class="vi-name">Movimientos entre cuentas</div><div class="vi-en">Account Transfers</div></div><span class="vi-tag" style="background:var(--red-l);color:var(--red);">UC-BP-06</span></div>
+      <div class="vi"><span class="vi-num">28</span><div><div class="vi-name">Conciliación de saldo real (limpieza)</div><div class="vi-en">Balance Reconciliation</div></div><span class="vi-tag" style="background:var(--teal-l);color:var(--teal);">RF-17</span></div>
+      <div class="vi"><span class="vi-num">29</span><div><div class="vi-name">Importación de movimientos (CSV/XLS)</div><div class="vi-en">Transaction Import CSV/XLS</div></div><span class="vi-tag" style="background:var(--green-l);color:var(--green);">RF-18</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 02 · DESIGN TOKENS ===================== -->
+<div class="sec">
+  <div class="sec-lbl">02 — Sistema de Diseño · Design Tokens</div>
+  <h2 class="sec-title">Color, tipografía &amp; <em>escala visual</em></h2>
+  <p class="sec-sub">Paleta semántica: teal = disponible/positivo, ámbar = precaución/gamificación, rojo = alerta/gasto excedido, verde = ahorro/ingreso. Funciona en light y dark mode.</p>
+
+  <div class="tok-row">
+    <div class="tok"><div class="swatch" style="background:linear-gradient(135deg,#6C2FD9,#B040FF);"></div><div class="tok-name">Violet — Principal</div><div class="tok-use">Acciones, nivel, XP bar</div><div class="tok-hex">#6C2FD9 · #B040FF</div></div>
+    <div class="tok"><div class="swatch" style="background:linear-gradient(135deg,#D4820A,#F09C10);"></div><div class="tok-name">Gold — Monedas</div><div class="tok-use">XP, monedas, gamificación</div><div class="tok-hex">#D4820A · #F09C10</div></div>
+    <div class="tok"><div class="swatch" style="background:linear-gradient(135deg,#E0294A,#FF5070);"></div><div class="tok-name">Red — Peligro</div><div class="tok-use">Gasto excedido, alerta crítica</div><div class="tok-hex">#E0294A · #FF5070</div></div>
+    <div class="tok"><div class="swatch" style="background:linear-gradient(135deg,#1AA84E,#28D466);"></div><div class="tok-name">Green — Positivo</div><div class="tok-use">Ahorro, ingreso, logro</div><div class="tok-hex">#1AA84E · #28D466</div></div>
+    <div class="tok"><div class="swatch" style="background:linear-gradient(135deg,#C0188E,#FF3DB8);"></div><div class="tok-name">Magenta — Hitos</div><div class="tok-use">Badges, racha, eventos especiales</div><div class="tok-hex">#C0188E · #FF3DB8</div></div>
+    <div class="tok"><div class="swatch" style="background:linear-gradient(135deg,#F7F5FF,#EFECFF,#0D0B1A);"></div><div class="tok-name">Surfaces Light↔Dark</div><div class="tok-use">Fondos y superficies</div><div class="tok-hex">#F7F5FF ↔ #0D0B1A</div></div>
+  </div>
+
+  <div class="type-box">
+    <div class="type-row">
+      <div class="type-meta">Display · Outfit 900</div>
+      <div style="font-size:42px;font-weight:900;color:var(--text);letter-spacing:-.03em;line-height:1;">Tu finanza,<br><span style="color:var(--teal);">tu control.</span></div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Subheading · Lora Italic</div>
+      <div style="font-family:'Lora',serif;font-style:italic;font-size:20px;color:var(--muted);">Planifica, registra y alcanza tus metas.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Heading · Outfit 800</div>
+      <div style="font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.02em;">Dashboard — Febrero 2026</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Body · Outfit 400</div>
+      <div style="font-size:14px;color:var(--muted);max-width:480px;line-height:1.65;">Registra tus gastos, visualiza tu salud financiera y toma decisiones con información clara y actualizada en tiempo real. Register your expenses, visualize your financial health.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Valor · Outfit 900</div>
+      <div style="display:flex;align-items:baseline;gap:5px;"><span style="font-size:13px;color:var(--muted);font-weight:600;">COP</span><span style="font-size:40px;font-weight:900;color:var(--teal);letter-spacing:-.03em;">4.250.000</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 03 · ARCHITECTURE ===================== -->
+<div class="sec">
+  <div class="sec-lbl">03 — Arquitectura de Información · IA</div>
+  <h2 class="sec-title">Navegación y <em>estructura</em> de módulos</h2>
+  <p class="sec-sub">El FAB (+) siempre visible para el flujo más frecuente: registrar gasto (UC-BP-06, frecuencia diaria alta). XP y nivel del usuario siempre visibles (RF-15, RF-16).</p>
+
+  <div class="ia-wrap">
+    <div class="sidenav">
+      <div class="sn-logo"><div class="sn-mark">B</div><div><div class="sn-name">BudgetApp</div><div class="sn-sub">Smart budgeting</div></div></div>
+      <div class="sn-glbl">Principal · Main</div>
+      <div class="sn-item on"><span class="sn-ico">🏠</span>Dashboard</div>
+      <div class="sn-item"><span class="sn-ico">📊</span>Presupuesto<span class="sn-bdg" style="background:var(--teal);">Feb</span></div>
+      <div class="sn-item"><span class="sn-ico">✏️</span>Registro Gastos<span class="sn-bdg" style="background:var(--red);">3</span></div>
+      <div class="sn-item"><span class="sn-ico">🎯</span>Metas &amp; Logros<span class="sn-bdg" style="background:var(--amber);">🔥7</span></div>
+      <div class="sn-glbl">Análisis · Analysis</div>
+      <div class="sn-item"><span class="sn-ico">📈</span>Simulador</div>
+      <div class="sn-item"><span class="sn-ico">💳</span>Bancos / Cuentas</div>
+      <div class="sn-glbl">Configuración · Settings</div>
+      <div class="sn-item"><span class="sn-ico">🏷️</span>Categorías</div>
+      <div class="sn-item"><span class="sn-ico">🔔</span>Alertas</div>
+      <div class="sn-item"><span class="sn-ico">📤</span>Importar / Exportar</div>
+      <div class="sn-item"><span class="sn-ico">🔐</span>Seguridad / Security</div>
+      <div class="sn-user"><div class="sn-av">AC</div><div><div class="sn-uname">Alexandra C.</div><div class="sn-uplan">⭐ Nivel 7 · 2.340 XP</div></div></div>
+    </div>
+
+    <div class="ia-pages">
+      <div class="ia-pg">
+        <div class="ia-pg-h"><div class="ia-pg-ico" style="background:var(--teal-s);">🏠</div><div><div class="ia-pg-title">Dashboard de Presupuesto / Budget Dashboard</div><div class="ia-pg-uc">UC-DASH-01 · RF-02 · RF-03 · Autor: Alexandra Castaño</div></div></div>
+        <div class="ia-pg-desc">Vista central del estado financiero del período activo. Contiene: gráfica de barras horizontales Presupuesto vs Real por subcategoría, pastel por subcategorías (por categoría — default Gastos), indicador de disponible restante, pastel por aristas (default: Necesidades Básicas o primera por ID). Selector de periodo: mes activo, 12 meses, mismo mes últimos 3 años, años completos. (RN-DASH-01 a RN-DASH-05)</div>
+        <div class="ia-tags"><span class="ia-tag">Balance disponible</span><span class="ia-tag">Presupuesto vs Real</span><span class="ia-tag">Pastel subcategorías</span><span class="ia-tag">Pastel aristas</span><span class="ia-tag">Flujo de caja</span><span class="ia-tag">Selector período</span><span class="ia-tag">Rollover saldo</span></div>
+      </div>
+      <div class="ia-pg">
+        <div class="ia-pg-h"><div class="ia-pg-ico" style="background:var(--teal-s);">📊</div><div><div class="ia-pg-title">Presupuesto Mensual / Anual · Budget Planning</div><div class="ia-pg-uc">UC-01 · RF-02 · Autor: Alexandra Castaño</div></div></div>
+        <div class="ia-pg-desc">Tabla de planificación con categorías fijas (Gastos, Ingresos, Ahorro) y subcategorías/aristas editables según plantilla Mindful Budget. Wizard de creación, vista mensual ↔ anual sincronizada, balance dinámico en tiempo real, importación CSV/XLS (RF-18), cierre de mes con conciliación (RF-17). El usuario puede cambiar perfil financiero sin afectar historial.</div>
+        <div class="ia-tags"><span class="ia-tag">Wizard creación</span><span class="ia-tag">Vista mensual/anual</span><span class="ia-tag">Balance dinámico</span><span class="ia-tag">Cierre de mes</span><span class="ia-tag">Simulación</span><span class="ia-tag">Importar CSV/XLS</span><span class="ia-tag">Perfil financiero</span></div>
+      </div>
+      <div class="ia-pg">
+        <div class="ia-pg-h"><div class="ia-pg-ico" style="background:var(--red-l);">✏️</div><div><div class="ia-pg-title">Registro de Gastos / Expense Log</div><div class="ia-pg-uc">UC-BP-06 · RF-03 · Autor: Alexandra Castaño · v1.1 2026-02-21</div></div></div>
+        <div class="ia-pg-desc">Log mensual de movimientos. Solo Gastos y Ahorro (no ingresos — RN-RG-01). Selección guiada: Categoría → Subcategoría → Arista. Acciones: Gasto, Ahorro, Inversión (dentro Ahorros), Movimiento entre cuentas (informativo, no afecta balance). Campos: Fecha, Compra/Detalle, Valor, Arista, Método pago, Tags. Si tarjeta/transferencia → solicita Banco; si tarjeta → Tarjeta; siempre → Moneda. Offline en móvil con sync.</div>
+        <div class="ia-tags"><span class="ia-tag">FAB + Gasto</span><span class="ia-tag">Selección guiada</span><span class="ia-tag">Banco/Tarjeta/Moneda</span><span class="ia-tag">Offline + sync</span><span class="ia-tag">Tags</span><span class="ia-tag">Movimiento entre cuentas</span><span class="ia-tag">Ahorro/Inversión</span></div>
+      </div>
+      <div class="ia-pg">
+        <div class="ia-pg-h"><div class="ia-pg-ico" style="background:var(--amber-l);">🎯</div><div><div class="ia-pg-title">Metas &amp; Logros · Goals &amp; Gamification</div><div class="ia-pg-uc">RF-15 · RF-16</div></div></div>
+        <div class="ia-pg-desc">Centro de gamificación. RF-15: Mapa de avance de metas del año con conteo de pasos por día. RF-16: Contador de monedas por ingreso de gastos para personalizar avatar e íconos de hitos. Racha de días consecutivos registrando, insignias desbloqueables (bloqueadas visibles), retos semanales con XP.</div>
+        <div class="ia-tags"><span class="ia-tag">Mapa anual de metas</span><span class="ia-tag">Pasos diarios</span><span class="ia-tag">Monedas por gasto</span><span class="ia-tag">Avatar personalizable</span><span class="ia-tag">Racha diaria</span><span class="ia-tag">Insignias</span><span class="ia-tag">Retos semanales</span></div>
+      </div>
+      <div class="ia-pg">
+        <div class="ia-pg-h"><div class="ia-pg-ico" style="background:var(--blue-l);">🔐</div><div><div class="ia-pg-title">Autenticación &amp; Seguridad · Auth &amp; Security</div><div class="ia-pg-uc">UC-10 a UC-19 · RF-14 · Autor: Henry Gomez · 2026-02-02</div></div></div>
+        <div class="ia-pg-desc">Registro (UC-10) con email o Google/Apple OAuth, verificación de email 24h (UC-16), MFA TOTP RFC-6238 con Google Authenticator/Authy y 10 códigos respaldo (UC-12), dispositivos confiables 90 días máx 5 (UC-18), recuperación contraseña token 64 chars 1h (UC-14), cierre de sesión server-side (UC-15). Cumplimiento GDPR / Habeas Data Ley 1581/2012 Colombia, eliminación cuenta período gracia 30 días (UC-19).</div>
+        <div class="ia-tags"><span class="ia-tag">Email + OAuth Google/Apple</span><span class="ia-tag">MFA TOTP RFC-6238</span><span class="ia-tag">Verificar email</span><span class="ia-tag">Recuperar contraseña</span><span class="ia-tag">Dispositivos confiables</span><span class="ia-tag">GDPR / Habeas Data</span><span class="ia-tag">Eliminar cuenta 30d</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 04 · WIREFRAMES ===================== -->
+<div class="sec">
+  <div class="sec-lbl">04 — Wireframes · Low Fidelity Screen Structure</div>
+  <h2 class="sec-title">Estructura de <em>pantallas</em> clave</h2>
+  <p class="sec-sub">Estructura esquemática de 6 pantallas críticas. Cada bloque gris representa un componente UI real descrito en los casos de uso.</p>
+
+  <div class="wf-grid">
+    <!-- WF1 Login -->
+    <div class="wf-card">
+      <div class="wf-hdr"><span class="wf-title">🔐 Login / Sign In</span><span class="wf-uc">UC-11 · RF-14</span></div>
+      <div class="wf-body">
+        <div style="text-align:center;margin-bottom:18px;">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--teal);margin:0 auto 9px;opacity:.8;"></div>
+          <div class="wb md" style="margin:0 auto 5px;height:10px;"></div>
+          <div class="wb sm" style="margin:0 auto;height:7px;background:var(--border);"></div>
+        </div>
+        <div class="wbox" style="padding:8px 11px;margin-bottom:6px;display:flex;align-items:center;gap:7px;"><div style="width:16px;height:16px;border-radius:50%;background:var(--border2);"></div><div class="wb" style="flex:1;height:7px;margin:0;"></div></div>
+        <div class="wbox" style="padding:8px 11px;margin-bottom:10px;display:flex;align-items:center;gap:7px;"><div style="width:16px;height:16px;border-radius:50%;background:var(--border2);"></div><div class="wb" style="flex:1;height:7px;margin:0;"></div></div>
+        <div class="wbtn wbtn-p" style="margin-bottom:9px;"></div>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;"><div style="flex:1;height:1px;background:var(--border);"></div><div class="wb" style="width:24px;height:7px;margin:0;"></div><div style="flex:1;height:1px;background:var(--border);"></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:9px;"><div class="wbtn wbtn-s"></div><div class="wbtn wbtn-s"></div></div>
+        <div class="wb sm" style="margin:0 auto;height:6px;"></div>
+      </div>
+    </div>
+
+    <!-- WF2 Onboarding -->
+    <div class="wf-card">
+      <div class="wf-hdr"><span class="wf-title">🌱 Onboarding Salud Financiera</span><span class="wf-uc">RF-01 · UC-10</span></div>
+      <div class="wf-body">
+        <div style="display:flex;gap:4px;margin-bottom:14px;justify-content:center;">
+          <div style="width:16px;height:5px;border-radius:100px;background:var(--teal);"></div>
+          <div style="width:5px;height:5px;border-radius:50%;background:var(--border2);"></div>
+          <div style="width:5px;height:5px;border-radius:50%;background:var(--border2);"></div>
+          <div style="width:5px;height:5px;border-radius:50%;background:var(--border2);"></div>
+          <div style="width:5px;height:5px;border-radius:50%;background:var(--border2);"></div>
+        </div>
+        <div class="wb sm" style="height:7px;margin-bottom:5px;background:var(--teal-l);"></div>
+        <div class="wb lg" style="height:13px;margin-bottom:14px;background:var(--border2);"></div>
+        <div class="wfield" style="border-color:var(--teal);background:var(--teal-s);"><div class="wf-lbl" style="background:var(--teal-l);"></div><div class="wf-val" style="background:var(--teal-l);"></div></div>
+        <div class="wfield"><div class="wf-lbl"></div><div class="wf-val"></div></div>
+        <div class="wfield"><div class="wf-lbl"></div><div class="wf-val"></div></div>
+        <div class="wfield"><div class="wf-lbl"></div><div class="wf-val"></div></div>
+        <div style="margin-top:11px;display:flex;gap:7px;"><div class="wbtn wbtn-s" style="flex:1;"></div><div class="wbtn wbtn-p" style="flex:2;"></div></div>
+      </div>
+    </div>
+
+    <!-- WF3 Dashboard -->
+    <div class="wf-card">
+      <div class="wf-hdr"><span class="wf-title">🏠 Dashboard Presupuesto</span><span class="wf-uc">UC-DASH-01</span></div>
+      <div class="wf-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+          <div><div class="wb sm" style="height:7px;margin-bottom:4px;"></div><div class="wb md" style="height:12px;background:var(--border2);"></div></div>
+          <div style="display:flex;gap:4px;"><div style="width:22px;height:22px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);"></div><div style="width:54px;height:22px;border-radius:6px;background:var(--teal);opacity:.8;"></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px;margin-bottom:11px;">
+          <div style="height:62px;border-radius:9px;background:var(--teal);opacity:.75;"></div>
+          <div style="height:62px;border-radius:9px;background:var(--green-l);border:1.5px solid var(--green);opacity:.7;"></div>
+          <div style="height:62px;border-radius:9px;background:var(--amber-l);border:1.5px solid var(--amber);opacity:.7;"></div>
+        </div>
+        <div class="wchart">
+          <div class="wbv" style="height:62%;background:var(--teal);opacity:.5;"></div>
+          <div class="wbv" style="height:38%;background:var(--teal);opacity:.5;"></div>
+          <div class="wbv" style="height:82%;background:var(--teal);opacity:.65;"></div>
+          <div class="wbv" style="height:48%;background:var(--teal);opacity:.5;"></div>
+          <div class="wbv" style="height:68%;background:var(--amber);opacity:.5;"></div>
+          <div class="wbv" style="height:32%;background:var(--border2);border:1px dashed var(--border2);"></div>
+        </div>
+        <div class="wrow"><div class="wico" style="background:var(--red-l);"></div><div class="winfo"><div class="wb md" style="height:7px;margin-bottom:4px;"></div><div class="wb sm" style="height:5px;"></div></div><div style="width:36px;height:8px;background:var(--red-l);border-radius:4px;"></div></div>
+        <div class="wrow"><div class="wico" style="background:var(--green-l);"></div><div class="winfo"><div class="wb lg" style="height:7px;margin-bottom:4px;"></div><div class="wb sm" style="height:5px;"></div></div><div style="width:36px;height:8px;background:var(--green-l);border-radius:4px;"></div></div>
+      </div>
+    </div>
+
+    <!-- WF4 Registro Gastos -->
+    <div class="wf-card">
+      <div class="wf-hdr"><span class="wf-title">✏️ Registro de Gastos</span><span class="wf-uc">UC-BP-06 · RF-03</span></div>
+      <div class="wf-body">
+        <div style="display:flex;gap:5px;margin-bottom:11px;">
+          <div style="flex:1;height:24px;border-radius:6px;background:var(--teal);opacity:.85;"></div>
+          <div style="flex:1;height:24px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);"></div>
+          <div style="flex:1;height:24px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);"></div>
+          <div style="flex:1;height:24px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);"></div>
+        </div>
+        <div class="wfield" style="border-color:var(--teal);background:var(--teal-s);"><div class="wf-lbl" style="background:var(--teal-l);"></div><div style="height:16px;width:42%;background:var(--teal);opacity:.25;border-radius:4px;"></div></div>
+        <div class="wg2" style="margin-bottom:7px;"><div class="wfield" style="padding:8px;"><div class="wf-lbl"></div><div class="wf-val"></div></div><div class="wfield" style="padding:8px;"><div class="wf-lbl"></div><div class="wf-val"></div></div></div>
+        <div class="wfield"><div class="wf-lbl"></div><div class="wf-val"></div></div>
+        <div class="wg2" style="margin-bottom:7px;"><div class="wfield" style="padding:8px;"><div class="wf-lbl"></div><div class="wf-val"></div></div><div class="wfield" style="padding:8px;"><div class="wf-lbl"></div><div class="wf-val"></div></div></div>
+        <div class="wbtn wbtn-p" style="margin-bottom:9px;"></div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:10px 0;">
+        <div class="wb sm" style="height:9px;margin-bottom:9px;background:var(--border2);"></div>
+        <div class="wrow"><div class="wico"></div><div class="winfo"><div class="wb md" style="height:7px;margin-bottom:3px;"></div><div class="wb sm" style="height:5px;"></div></div><div style="width:34px;height:7px;background:var(--red-l);border-radius:4px;"></div></div>
+        <div class="wrow"><div class="wico"></div><div class="winfo"><div class="wb lg" style="height:7px;margin-bottom:3px;"></div><div class="wb sm" style="height:5px;"></div></div><div style="width:34px;height:7px;background:var(--green-l);border-radius:4px;"></div></div>
+      </div>
+    </div>
+
+    <!-- WF5 Presupuesto tabla -->
+    <div class="wf-card">
+      <div class="wf-hdr"><span class="wf-title">📊 Presupuesto — Tabla</span><span class="wf-uc">UC-01 · RF-02</span></div>
+      <div class="wf-body">
+        <div class="wtabs"><div class="wtab wtab-a"></div><div class="wtab"></div></div>
+        <div class="wstats"><div class="wstat"><div class="wstat-v"></div><div class="wstat-l"></div></div><div class="wstat"><div class="wstat-v" style="background:var(--teal-l);"></div><div class="wstat-l"></div></div><div class="wstat"><div class="wstat-v" style="background:var(--red-l);"></div><div class="wstat-l"></div></div></div>
+        <div style="border:1.5px solid var(--border);border-radius:9px;overflow:hidden;">
+          <div style="background:var(--surface2);padding:6px 11px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:7px;border-bottom:1px solid var(--border);"><div class="wb" style="height:7px;width:70%;margin:0;"></div><div class="wb" style="height:7px;margin:0;"></div><div class="wb" style="height:7px;margin:0;"></div><div class="wb" style="height:7px;margin:0;"></div></div>
+          <div style="padding:6px 11px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:7px;border-bottom:1px solid var(--border);background:#0D73770A;"><div class="wb" style="height:7px;width:85%;margin:0;"></div><div class="wb" style="height:7px;margin:0;"></div><div class="wb" style="height:7px;margin:0;background:var(--teal-l);"></div><div class="wb" style="height:7px;margin:0;"></div></div>
+          <div style="padding:6px 11px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:7px;border-bottom:1px solid var(--border);"><div class="wb" style="height:7px;width:65%;margin:0;"></div><div class="wb" style="height:7px;margin:0;"></div><div class="wb" style="height:7px;margin:0;background:var(--red-l);"></div><div class="wb" style="height:7px;margin:0;"></div></div>
+          <div style="padding:6px 11px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:7px;"><div class="wb" style="height:7px;width:75%;margin:0;"></div><div class="wb" style="height:7px;margin:0;"></div><div class="wb" style="height:7px;margin:0;background:var(--teal-l);"></div><div class="wb" style="height:7px;margin:0;"></div></div>
+        </div>
+        <div style="margin-top:11px;display:flex;justify-content:space-between;"><div style="width:80px;height:30px;border-radius:7px;background:var(--surface2);border:1.5px solid var(--border);"></div><div style="width:100px;height:30px;border-radius:7px;background:var(--teal);opacity:.85;"></div></div>
+      </div>
+    </div>
+
+    <!-- WF6 Gamification -->
+    <div class="wf-card">
+      <div class="wf-hdr"><span class="wf-title">🎯 Metas &amp; Logros / Gamification</span><span class="wf-uc">RF-15 · RF-16</span></div>
+      <div class="wf-body">
+        <div class="whero" style="background:linear-gradient(135deg,var(--amber-l),#FFF3E0);border:1.5px solid var(--amber);opacity:.9;">
+          <div class="wb sm" style="height:7px;margin-bottom:6px;background:var(--amber-l);"></div>
+          <div class="wb md" style="height:18px;margin-bottom:9px;background:var(--amber);opacity:.35;border-radius:6px;"></div>
+          <div class="wprog"><div class="wprog-f" style="width:72%;background:var(--amber);"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;"><div class="wb" style="width:38px;height:6px;margin:0;background:var(--amber-l);"></div><div class="wb" style="width:38px;height:6px;margin:0;background:var(--amber-l);"></div></div>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--amber-l),#FEF3DC);border:1.5px solid var(--amber);border-radius:11px;padding:11px;margin-bottom:11px;display:flex;align-items:center;gap:8px;opacity:.9;">
+          <div style="width:34px;height:34px;background:var(--amber);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;opacity:.8;">🔥</div>
+          <div class="winfo"><div class="wb md" style="height:8px;margin-bottom:4px;background:var(--amber-l);"></div><div class="wb sm" style="height:6px;background:var(--border);"></div></div>
+        </div>
+        <div class="wg4">
+          <div class="wbadge" style="border-color:var(--amber);background:var(--amber-l);"><div class="wbadge-ico" style="background:var(--amber);opacity:.4;"></div><div class="wb" style="width:60%;height:6px;margin:0 auto;"></div></div>
+          <div class="wbadge" style="border-color:var(--teal);background:var(--teal-l);"><div class="wbadge-ico" style="background:var(--teal);opacity:.4;"></div><div class="wb" style="width:60%;height:6px;margin:0 auto;"></div></div>
+          <div class="wbadge" style="opacity:.35;border-style:dashed;"><div class="wbadge-ico" style="background:var(--border2);"></div><div class="wb" style="width:55%;height:6px;margin:0 auto;"></div></div>
+          <div class="wbadge" style="opacity:.35;border-style:dashed;"><div class="wbadge-ico" style="background:var(--border2);"></div><div class="wb" style="width:55%;height:6px;margin:0 auto;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 05 · DESKTOP MOCKUP ===================== -->
+<div class="mock-sec">
+  <div class="sec-lbl">05 — Mockup Web Desktop</div>
+  <h2 class="sec-title" style="margin-bottom:7px;">Dashboard principal — <em>Web</em></h2>
+  <p class="sec-sub">Datos extraídos de UC-DASH-01. Período activo: Febrero 2026. Categorías y subcategorías del catálogo Mindful Budget según RF-02.</p>
+
+  <div class="browser">
+    <div class="bbar">
+      <div class="bdot bd-r"></div><div class="bdot bd-y"></div><div class="bdot bd-g"></div>
+      <div class="burl">app.budgetapp.co/dashboard</div>
+    </div>
+    <div class="app-layout">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sb-logo"><div class="sb-lm">B</div><div><div class="sb-lname">BudgetApp</div><div class="sb-lsub">Smart budgeting</div></div></div>
+        <div class="sb-glbl">Principal · Main</div>
+        <div class="sb-it on"><span class="sb-ico">🏠</span>Dashboard</div>
+        <div class="sb-it"><span class="sb-ico">📊</span>Presupuesto<span class="sb-bdg" style="background:var(--teal);">Feb</span></div>
+        <div class="sb-it"><span class="sb-ico">✏️</span>Gastos<span class="sb-bdg" style="background:var(--red);">3</span></div>
+        <div class="sb-it"><span class="sb-ico">🎯</span>Metas<span class="sb-bdg" style="background:var(--amber);">🔥7</span></div>
+        <div class="sb-glbl">Análisis</div>
+        <div class="sb-it"><span class="sb-ico">📈</span>Simulador</div>
+        <div class="sb-it"><span class="sb-ico">💳</span>Bancos/Cuentas</div>
+        <div class="sb-glbl">Configuración</div>
+        <div class="sb-it"><span class="sb-ico">🏷️</span>Categorías</div>
+        <div class="sb-it"><span class="sb-ico">🔔</span>Alertas</div>
+        <div class="sb-it"><span class="sb-ico">📤</span>Importar/Exportar</div>
+        <div class="sb-it"><span class="sb-ico">🔐</span>Seguridad</div>
+        <div class="sb-sp"></div>
+        <div class="sb-user"><div class="sb-av">AC</div><div><div class="sb-un">Alexandra C.</div><div class="sb-up" style="color:var(--amber);">⭐ Niv.7 · 2.340 XP</div></div></div>
+      </div>
+      <!-- MAIN -->
+      <div class="main">
+        <div class="mtop">
+          <div class="ppills"><span class="pp on">Mensual</span><span class="pp">12 meses</span><span class="pp">Anual</span></div>
+          <div class="mactions">
+            <div class="ico-btn">🔔</div>
+            <div class="add-btn">+ Gasto</div>
+          </div>
+        </div>
+        <div class="mcontent">
+          <div class="mgreet">Buenos días ✨ · Good morning</div>
+          <div class="mpgtitle">Feb 2026 — <span>$4.250.000</span> disponibles</div>
+          <div class="hcards">
+            <div class="hc hc-t">
+              <div style="position:absolute;right:-18px;top:-18px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.07);"></div>
+              <div class="hc-lbl">Saldo disponible / Available</div>
+              <div class="hc-val">$4.250.000</div>
+              <div class="hc-sub">de $9.500.000 presupuestados</div>
+              <div class="hc-prog"><div class="hc-pf" style="width:55%;"></div></div>
+            </div>
+            <div class="hc hc-g">
+              <div style="position:absolute;right:-18px;top:-18px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.07);"></div>
+              <div class="hc-lbl">Ahorro del mes / Savings</div>
+              <div class="hc-val sm">$890.000</div>
+              <div class="hc-sub">Meta: $1.000.000 🎯</div>
+              <div class="hc-prog"><div class="hc-pf" style="width:89%;"></div></div>
+            </div>
+            <div class="hc hc-a">
+              <div style="position:absolute;right:-18px;top:-18px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.07);"></div>
+              <div class="hc-lbl">Gastos reales / Actual</div>
+              <div class="hc-val sm">$4.360.000</div>
+              <div class="hc-sub">Presup.: $5.000.000</div>
+              <div class="hc-prog"><div class="hc-pf" style="width:87%;"></div></div>
+            </div>
+          </div>
+          <div class="bcards">
+            <div class="dc">
+              <div class="dc-title">Flujo de Caja · Feb <span class="dc-link">Ver detalle →</span></div>
+              <div class="minichart">
+                <div class="mc-w"><div class="mc-b" style="height:65%;background:var(--teal);opacity:.6;"></div><div class="mc-l">1</div></div>
+                <div class="mc-w"><div class="mc-b" style="height:40%;background:var(--teal);opacity:.6;"></div><div class="mc-l">5</div></div>
+                <div class="mc-w"><div class="mc-b" style="height:82%;background:var(--teal);opacity:.75;"></div><div class="mc-l">10</div></div>
+                <div class="mc-w"><div class="mc-b" style="height:50%;background:var(--teal);opacity:.6;"></div><div class="mc-l">15</div></div>
+                <div class="mc-w"><div class="mc-b" style="height:68%;background:var(--amber);opacity:.65;"></div><div class="mc-l">18</div></div>
+                <div class="mc-w"><div class="mc-b" style="height:30%;background:var(--border2);border:1px dashed var(--border2);"></div><div class="mc-l">25</div></div>
+              </div>
+            </div>
+            <div class="dc">
+              <div class="dc-title">Últimos movimientos <span class="dc-link">Ver todos →</span></div>
+              <div class="txrow"><div class="txico" style="background:var(--red-l);">🍕</div><div><div class="txname">Papa John's</div><div class="txcat">Alimentación · Domicilios</div></div><div class="txneg">−$42.000</div></div>
+              <div class="txrow"><div class="txico" style="background:var(--red-l);">⛽</div><div><div class="txname">Gasolina</div><div class="txcat">Necesidades Básicas · Gasolina</div></div><div class="txneg">−$95.000</div></div>
+              <div class="txrow"><div class="txico" style="background:var(--green-l);">🏦</div><div><div class="txname">Fondo Emergencia</div><div class="txcat">Ahorro · Ahorros</div></div><div class="txpos">+$200.000</div></div>
+              <div class="txrow"><div class="txico" style="background:var(--red-l);">🎬</div><div><div class="txname">Netflix</div><div class="txcat">Entretenimiento · Plataformas</div></div><div class="txneg">−$21.900</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 06 · MOBILE ===================== -->
+<div class="mob-sec">
+  <div class="sec-lbl" style="padding:0 0 10px;">06 — Mockup Mobile · Android &amp; iOS</div>
+  <h2 class="sec-title" style="margin-bottom:7px;">4 pantallas <em>móviles</em> clave</h2>
+  <p class="sec-sub">FAB central (+) para registrar gasto. Offline disponible según UC-BP-06 FA-2.</p>
+
+  <div class="mob-grid">
+    <!-- PHONE 1: Login -->
+    <div class="mob-wrap">
+      <div class="phone">
+        <div class="pnotch"></div>
+        <div class="pscreen">
+          <div class="pc" style="padding-bottom:20px;">
+            <div class="plogin-logo">
+              <div class="plogin-lm">B</div>
+              <div class="plogin-t">BudgetApp</div>
+              <div class="plogin-s">Inicia sesión · Sign in</div>
+            </div>
+            <div class="poauth">
+              <div class="poauth-btn">🌐 <span>Continuar con Google</span></div>
+              <div class="poauth-btn">🍎 <span>Continuar con Apple</span></div>
+            </div>
+            <div class="pdiv"><div class="pdiv-l"></div><div class="pdiv-t">o con email</div><div class="pdiv-l"></div></div>
+            <div class="pff"><div class="pfl">Email</div><div class="pfv ph"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0b7e787e6a7962644b6e666a626725686466">[email&#160;protected]</a></div></div>
+            <div class="pff"><div class="pfl">Contraseña · Password</div><div class="pfv ph">••••••••</div></div>
+            <div class="psub">Iniciar sesión · Sign in</div>
+            <div style="text-align:center;margin-top:9px;font-size:9px;color:var(--dim);">¿Olvidaste tu contraseña? · Forgot password?</div>
+          </div>
+        </div>
+      </div>
+      <div class="mob-cap">Login / Sign In</div>
+      <div class="mob-cap-en">UC-11 · OAuth Google/Apple</div>
+    </div>
+
+    <!-- PHONE 2: Dashboard -->
+    <div class="mob-wrap">
+      <div class="phone">
+        <div class="pnotch"></div>
+        <div class="pscreen">
+          <div class="pc">
+            <div class="p-hdr">
+              <div><div class="p-greet">Buenos días ✨</div><div class="p-title">Alexandra C.</div></div>
+              <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6C2FD9,#C0188E);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white;">AC</div>
+            </div>
+            <div class="phero">
+              <div class="ph-lbl">Disponible este mes / Available</div>
+              <div class="ph-val">$4.250.000</div>
+              <div class="ph-row">
+                <div class="ph-stat"><div class="ph-sl">Ahorro 🎯</div><div class="ph-sv">$890K</div></div>
+                <div class="ph-stat"><div class="ph-sl">Gastos 📊</div><div class="ph-sv">$4.36M</div></div>
+              </div>
+            </div>
+            <div class="p-stitle">Recientes · Recent <span class="p-slink">Ver todo</span></div>
+            <div class="ptx"><div class="ptxi" style="background:var(--red-l);">🍕</div><div><div class="ptxn">Papa John's</div><div class="ptxc">Alimentación</div></div><div class="ptxa neg">−$42K</div></div>
+            <div class="ptx"><div class="ptxi" style="background:var(--red-l);">⛽</div><div><div class="ptxn">Gasolina</div><div class="ptxc">Nec. Básicas</div></div><div class="ptxa neg">−$95K</div></div>
+            <div class="ptx"><div class="ptxi" style="background:var(--green-l);">🏦</div><div><div class="ptxn">Fondo Emerg.</div><div class="ptxc">Ahorro</div></div><div class="ptxa pos">+$200K</div></div>
+          </div>
+          <div class="pnav">
+            <div class="pni on"><span class="pn-icon">🏠</span><span>Inicio</span></div>
+            <div class="pni"><span class="pn-icon">📊</span><span>Budget</span></div>
+            <div class="pni" style="position:relative;"><div class="pfab">+</div><span class="pn-icon" style="opacity:0;">+</span><span>Reg.</span></div>
+            <div class="pni"><span class="pn-icon">🎯</span><span>Metas</span></div>
+            <div class="pni"><span class="pn-icon">⚙️</span><span>Config</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="mob-cap">Dashboard</div>
+      <div class="mob-cap-en">UC-DASH-01</div>
+    </div>
+
+    <!-- PHONE 3: Registro Gastos -->
+    <div class="mob-wrap">
+      <div class="phone">
+        <div class="pnotch"></div>
+        <div class="pscreen">
+          <div class="pc">
+            <div class="p-hdr">
+              <div class="p-title">Registrar Gasto</div>
+              <div style="font-size:16px;color:var(--muted);">✕</div>
+            </div>
+            <div class="pff" style="border-color:var(--teal);background:var(--teal-s);">
+              <div class="pfl" style="color:var(--teal);">Valor / Amount</div>
+              <div class="pfv big">$42.000</div>
+            </div>
+            <div class="pfl" style="padding:0 0 6px;">Categoría · Category</div>
+            <div class="pcg">
+              <div class="pcb on">💸 Gastos</div>
+              <div class="pcb">🏦 Ahorro</div>
+            </div>
+            <div class="pff"><div class="pfl">Subcategoría</div><div class="pfv">🍽️ Alimentación</div></div>
+            <div class="pff"><div class="pfl">Arista / Rubro</div><div class="pfv">Domicilios</div></div>
+            <div class="pff"><div class="pfl">Detalle</div><div class="pfv ph">Papa John's...</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+              <div class="pff"><div class="pfl">Método pago</div><div class="pfv" style="font-size:11px;">💳 Tarjeta</div></div>
+              <div class="pff"><div class="pfl">Banco</div><div class="pfv" style="font-size:11px;">Bancolombia</div></div>
+            </div>
+            <div class="psub">Guardar gasto ✓</div>
+          </div>
+          <div class="pnav">
+            <div class="pni"><span class="pn-icon">🏠</span><span>Inicio</span></div>
+            <div class="pni"><span class="pn-icon">📊</span><span>Budget</span></div>
+            <div class="pni on" style="position:relative;"><div class="pfab">+</div><span class="pn-icon" style="opacity:0;">+</span><span>Reg.</span></div>
+            <div class="pni"><span class="pn-icon">🎯</span><span>Metas</span></div>
+            <div class="pni"><span class="pn-icon">⚙️</span><span>Config</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="mob-cap">Registro de Gastos</div>
+      <div class="mob-cap-en">UC-BP-06 · RN-RG-01 a RG-10</div>
+    </div>
+
+    <!-- PHONE 4: Gamification -->
+    <div class="mob-wrap">
+      <div class="phone">
+        <div class="pnotch"></div>
+        <div class="pscreen">
+          <div class="pc">
+            <div class="p-hdr">
+              <div class="p-title">Mis Logros 🏆</div>
+            </div>
+            <div class="plvl">
+              <div style="position:absolute;right:-14px;top:-14px;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.07);"></div>
+              <div class="plvl-lbl">Nivel actual · Current Level</div>
+              <div class="plvl-val">⭐ Nivel 7</div>
+              <div style="font-size:10px;color:rgba(255,255,255,.65);margin-bottom:8px;">2.340 / 3.000 XP · 33 monedas 🪙</div>
+              <div class="pxp-bar"><div class="pxp-fill" style="width:78%;"></div></div>
+            </div>
+            <div class="pstreak">
+              <div class="pse">🔥</div>
+              <div><div class="pst">¡7 días seguidos!</div><div class="pss">Registrando tus gastos · Keep it up!</div></div>
+            </div>
+            <div class="p-stitle">Insignias · Badges</div>
+            <div class="pbg">
+              <div class="pb ul"><div class="pb-e">💎</div><div class="pb-n">Primer Ahorro</div><div class="pb-d">First Savings</div></div>
+              <div class="pb ul"><div class="pb-e">📊</div><div class="pb-n">Planificador</div><div class="pb-d">Budget Created</div></div>
+              <div class="pb lk"><div class="pb-e">🎯</div><div class="pb-n">Meta Cumplida</div><div class="pb-d">Locked</div></div>
+              <div class="pb lk"><div class="pb-e">🏆</div><div class="pb-n">Maestro Mes</div><div class="pb-d">Locked</div></div>
+            </div>
+          </div>
+          <div class="pnav">
+            <div class="pni"><span class="pn-icon">🏠</span><span>Inicio</span></div>
+            <div class="pni"><span class="pn-icon">📊</span><span>Budget</span></div>
+            <div class="pni" style="position:relative;"><div class="pfab">+</div><span class="pn-icon" style="opacity:0;">+</span><span>Reg.</span></div>
+            <div class="pni on"><span class="pn-icon">🎯</span><span>Metas</span></div>
+            <div class="pni"><span class="pn-icon">⚙️</span><span>Config</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="mob-cap">Metas &amp; Gamificación</div>
+      <div class="mob-cap-en">RF-15 · RF-16</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 07 · AUTH CASES ===================== -->
+<div class="sec">
+  <div class="sec-lbl">07 — Módulo de Autenticación · Authentication Module</div>
+  <h2 class="sec-title">10 casos de uso de <em>seguridad</em></h2>
+  <p class="sec-sub">Documentados por Henry Gomez. Estándares RFC 6238 (TOTP), OAuth 2.0, GDPR Art.17, Ley 1581/2012 Colombia.</p>
+
+  <div class="uc-grid">
+    <div class="uc-card"><div class="uc-id">UC-10</div><div class="uc-name">Registrar Cuenta</div><div class="uc-desc">Email + contraseña. Google/Apple OAuth. bcrypt cost 12. Verificación email 24h.</div><span class="uc-pri pri-a">Alta</span></div>
+    <div class="uc-card"><div class="uc-id">UC-11</div><div class="uc-name">Iniciar Sesión</div><div class="uc-desc">JWT 1h + Refresh 7d. Bloqueo 5 intentos. MFA extend. Dispositivos confiables.</div><span class="uc-pri pri-a">Alta</span></div>
+    <div class="uc-card"><div class="uc-id">UC-12</div><div class="uc-name">Configurar MFA</div><div class="uc-desc">TOTP RFC 6238. QR code + clave manual. 10 códigos respaldo bcrypt. ±1 ventana.</div><span class="uc-pri pri-a">Alta</span></div>
+    <div class="uc-card"><div class="uc-id">UC-13</div><div class="uc-name">Gestionar Perfil</div><div class="uc-desc">Nombre, email*, teléfono, país, idioma, moneda, zona horaria. Foto 5MB JPG/PNG.</div><span class="uc-pri pri-m">Media</span></div>
+    <div class="uc-card"><div class="uc-id">UC-14</div><div class="uc-name">Recuperar Contraseña</div><div class="uc-desc">Token 64 chars hasheado. Expira 1h. Un solo uso. Rate limit 3/hora. Invalida sesiones.</div><span class="uc-pri pri-a">Alta</span></div>
+    <div class="uc-card"><div class="uc-id">UC-15</div><div class="uc-name">Cerrar Sesión</div><div class="uc-desc">Server-side invalidation. Limpia cookies + localStorage. Logout por inactividad 30min.</div><span class="uc-pri pri-a">Alta</span></div>
+    <div class="uc-card"><div class="uc-id">UC-16</div><div class="uc-name">Verificar Email</div><div class="uc-desc">Token 64 chars, 24h. SMS 6 dígitos, 5min. Rate limit 3 reenvíos/hora. Deep link móvil.</div><span class="uc-pri pri-a">Alta</span></div>
+    <div class="uc-card"><div class="uc-id">UC-17</div><div class="uc-name">Cambiar Contraseña</div><div class="uc-desc">Requiere contraseña actual + MFA si activo. No históricas (últimas 3). Email notificación.</div><span class="uc-pri pri-a">Alta</span></div>
+    <div class="uc-card"><div class="uc-id">UC-18</div><div class="uc-name">Dispositivos Confiables</div><div class="uc-desc">Fingerprint sin IP. Expira 90 días. Máx 5 dispositivos. Se revocan al cambiar contraseña.</div><span class="uc-pri pri-m">Media</span></div>
+    <div class="uc-card"><div class="uc-id">UC-19</div><div class="uc-name">Eliminar Cuenta</div><div class="uc-desc">Gracia 30 días. Requiere "ELIMINAR" + contraseña. GDPR Art.17. Logs 5 años anon.</div><span class="uc-pri pri-a">Alta</span></div>
+  </div>
+</div>
+
+<!-- ===================== 08 · GAMIFICATION ===================== -->
+<div class="sec">
+  <div class="sec-lbl">08 — Sistema de Gamificación · Gamification System</div>
+  <h2 class="sec-title">Mecánicas de <em>juego</em> planificadas</h2>
+  <p class="sec-sub">RF-15 y RF-16 definen dos pilares de gamificación listos desde el día uno.</p>
+  <div class="gami-grid">
+    <div class="gami-card"><div class="gami-e">🗺️</div><div class="rf-inline" style="background:var(--teal-l);color:var(--teal);">RF-15</div><div class="gami-title">Mapa de Avance / Goal Map</div><div class="gami-desc">Mapa visual del avance de metas anuales con conteo de pasos por día. El usuario ve su progreso hacia los hitos del año de forma visual e intuitiva.</div></div>
+    <div class="gami-card"><div class="gami-e">🪙</div><div class="rf-inline" style="background:var(--amber-l);color:var(--amber);">RF-16</div><div class="gami-title">Monedas y Avatar / Coins &amp; Avatar</div><div class="gami-desc">Contador de monedas ganadas por cada ingreso de gasto registrado. Las monedas se usan para personalizar el avatar y los íconos de hitos en el mapa.</div></div>
+    <div class="gami-card"><div class="gami-e">🔥</div><div class="rf-inline" style="background:var(--red-l);color:var(--red);">RF-15/16</div><div class="gami-title">Racha Diaria / Daily Streak</div><div class="gami-desc">Contador de días consecutivos registrando gastos. Visible en sidebar y metas. Romper la racha implica reiniciar el contador. Visible siempre en barra de usuario.</div></div>
+    <div class="gami-card"><div class="gami-e">🏅</div><div class="rf-inline" style="background:var(--teal-l);color:var(--teal);">RF-15</div><div class="gami-title">Insignias / Badges</div><div class="gami-desc">Logros desbloqueables por hitos: primer ahorro, primer presupuesto cerrado, 30 días racha, meta cumplida. Bloqueadas visibles para motivar (técnica de anticipación).</div></div>
+  </div>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<div class="footer">
+  <div>
+    <div class="fb-brand">Budget<span>App</span></div>
+    <div class="fb-sub">Propuesta UX/UI v1.0 · Basada en documentación funcional del repositorio · Bilingual ES/EN</div>
+    <div class="stacks">
+      <span class="stack">Next.js 14+</span><span class="stack">React Native + Expo</span><span class="stack">shadcn/ui</span><span class="stack">Tailwind CSS</span><span class="stack">Framer Motion</span><span class="stack">Recharts</span><span class="stack">Zustand</span><span class="stack">React Query</span><span class="stack">Supabase Auth</span><span class="stack">Outfit</span><span class="stack">Lora</span>
+    </div>
+  </div>
+  <div class="fa-box">
+    <div class="fa-lbl">Autores / Authors</div>
+    <div class="fa-name">Alexandra Castaño</div>
+    <div class="fa-role">Budget · Dashboard · Registro de Gastos · Gamificación</div>
+    <div class="fa-name">Henry Gomez</div>
+    <div class="fa-role">Autenticación · Seguridad · UC-10 a UC-19 · Infraestructura</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:10px;">Febrero 2026 · BudgetApp v1.0</div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+document.getElementById('themetoggle').addEventListener('click',function(){
+  var d=document.documentElement;
+  var t
