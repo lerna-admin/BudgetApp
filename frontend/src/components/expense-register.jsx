@@ -482,6 +482,19 @@ export default function ExpenseRegister() {
     setForm((current) => normalizeForm({ ...current, ...patch }));
   }
 
+  function addTag(tag) {
+    const tagsSet = new Set(
+      form.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+    );
+    if (tag && !tagsSet.has(tag)) {
+      tagsSet.add(tag);
+      updateForm({ tags: Array.from(tagsSet).join(", ") });
+    }
+  }
+
   function validateForm() {
     const issues = [];
     const amount = Number(form.amount);
@@ -1244,6 +1257,20 @@ export default function ExpenseRegister() {
                 <option key={tag} value={tag} />
               ))}
             </datalist>
+            {tagSuggestions.length > 0 && (
+              <div className="tag-row" style={{ marginTop: 6, gap: 6, flexWrap: "wrap" }}>
+                {tagSuggestions.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    className="chip"
+                    onClick={() => addTag(tag)}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="form-field">
