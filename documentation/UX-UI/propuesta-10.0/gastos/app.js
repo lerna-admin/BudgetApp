@@ -307,10 +307,10 @@ function createEl(tag, className, text) {
 }
 
 function parseTags(raw) {
-  return String(raw || "")
+  return Array.from(new Set(String(raw || "")
     .split(",")
     .map((t) => t.trim())
-    .filter(Boolean);
+    .filter(Boolean)));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
