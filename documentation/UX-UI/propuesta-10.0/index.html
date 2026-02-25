@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Propuesta 10.0</title>
+    <link rel="stylesheet" href="./shared/globals.css" />
+    <link rel="stylesheet" href="./shared/propuesta.css" />
+    <script src="./shared/propuesta.js" defer></script>
+  </head>
+  <body>
+    <main class="p10-doc">
+      <section class="p10-section soft" id="inicio">
+        <p class="eyebrow">Documento maestro · Feb 2026</p>
+        <div class="brand-lockup">
+          <img
+            src="./assets/images/logo_9_transparent.png"
+            alt="BudgetApp"
+            class="brand-logo"
+            width="80"
+            height="80"
+          />
+          <div>
+            <p class="brand-name">BudgetApp</p>
+            <p class="brand-sub">Propuesta 10.0 · Pantallas finales (HTML + CSS + JS)</p>
+          </div>
+        </div>
+
+        <h1 class="p10-title">Disenos finales para implementacion (web + mobile)</h1>
+	        <p class="p10-sub">
+	          Esta propuesta separa cada pantalla en su propio directorio con un <span class="p10-kbd">index.html</span>.
+	          El documento principal carga cada pantalla dentro de un <span class="p10-kbd">iframe</span> para verla como se veria en el navegador.
+	          Todas las pantallas internas son responsive: la vista cambia segun el ancho del viewport (Desktop/Mobile).
+	        </p>
+	        <p class="p10-sub" style="margin-top:10px;">
+	          Recomendado: abrir por <span class="p10-kbd">http://localhost</span> (no <span class="p10-kbd">file://</span>) para evitar restricciones de iframes.
+	          Ej: <span class="p10-kbd">python3 -m http.server 8000</span> y abrir <span class="p10-kbd">/documentation/UX-UI/propuesta-10.0/index.html</span>.
+	        </p>
+
+	        <div class="chip-row" style="margin-top: 6px;">
+	          <span class="chip chip-live">Paleta oficial</span>
+	          <span class="chip">Syne + DM Sans</span>
+	          <span class="chip">Menu: sidebar (Desktop) / drawer (Mobile)</span>
+	          <span class="chip">Gastos: filtros + drawer overlay</span>
+	          <span class="chip">Herramientas: dividir cuentas</span>
+	        </div>
+
+        <div class="p10-divider"></div>
+
+        <div class="module-grid">
+          <a class="module-link module-live" href="#marca">Manual de marca</a>
+          <a class="module-link" href="#login">Login</a>
+          <a class="module-link" href="#register">Registro</a>
+          <a class="module-link" href="#dashboard">Dashboard</a>
+          <a class="module-link" href="#gastos">Registro de movimientos</a>
+          <a class="module-link" href="#perfil">Perfil</a>
+          <a class="module-link" href="#herramientas">Herramientas</a>
+          <a class="module-link" href="#config">Config.</a>
+          <a class="module-link" href="#estados">Estados</a>
+        </div>
+      </section>
+
+      <section class="p10-section" id="marca">
+        <p class="eyebrow">Manual de marca</p>
+        <h2 class="dashboard-title" style="margin:0;">Paleta, tipografia y logos</h2>
+        <p class="lead">Tokens alineados con la implementacion actual del frontend (CSS compartido).</p>
+
+        <div class="p10-palette-grid">
+          <div class="p10-swatch">
+            <div class="p10-swatch-bar" style="background: var(--violet);"></div>
+            <p>Primario</p>
+            <b>Violet</b>
+            <div class="p10-muted">#7C3AED</div>
+          </div>
+          <div class="p10-swatch">
+            <div class="p10-swatch-bar" style="background: var(--mint);"></div>
+            <p>Exito</p>
+            <b>Mint</b>
+            <div class="p10-muted">#10B981</div>
+          </div>
+          <div class="p10-swatch">
+            <div class="p10-swatch-bar" style="background: var(--amber);"></div>
+            <p>Alerta</p>
+            <b>Amber</b>
+            <div class="p10-muted">#F97316</div>
+          </div>
+          <div class="p10-swatch">
+            <div class="p10-swatch-bar" style="background: var(--red);"></div>
+            <p>Error</p>
+            <b>Red</b>
+            <div class="p10-muted">#F43F5E</div>
+          </div>
+          <div class="p10-swatch">
+            <div class="p10-swatch-bar" style="background: var(--paper2);"></div>
+            <p>Surface</p>
+            <b>Paper 2</b>
+            <div class="p10-muted">#F3F4FF</div>
+          </div>
+          <div class="p10-swatch">
+            <div class="p10-swatch-bar" style="background: var(--paper3);"></div>
+            <p>Border</p>
+            <b>Paper 3</b>
+            <div class="p10-muted">#E4E6F5</div>
+          </div>
+        </div>
+
+        <div class="p10-divider"></div>
+
+	        <div style="display:grid;gap:14px;grid-template-columns:1fr 1fr;">
+	          <article class="panel" style="padding:14px;">
+	            <h3 class="section-title">Tipografia</h3>
+	            <div class="lead">Syne para titulares y DM Sans para UI.</div>
+            <div class="tag-row" style="margin-top:10px;">
+              <span class="tag tag-live">Syne 600-800</span>
+              <span class="tag tag-soft">DM Sans 400-700</span>
+            </div>
+          </article>
+          <article class="panel" style="padding:14px;">
+            <h3 class="section-title">Logos</h3>
+            <div class="brand-lockup" style="margin-top:6px;">
+              <img src="./assets/images/logo_9_transparent.png" alt="Logo 9" style="width:54px;height:54px;object-fit:contain;" />
+              <div>
+                <p style="margin:0;font-weight:800;color:var(--ink2);">Logo 9 (oficial)</p>
+                <p style="margin:2px 0 0;color:var(--ink4);font-size:12px;">Usar en header, docs y favicon.</p>
+              </div>
+            </div>
+            <div class="brand-lockup" style="margin-top:10px;">
+              <img src="./assets/images/logo_4_transparent.png" alt="Logo 4" style="width:42px;height:42px;object-fit:contain;opacity:.9" />
+              <div>
+                <p style="margin:0;font-weight:800;color:var(--ink2);">Logo 4 (alterno)</p>
+                <p style="margin:2px 0 0;color:var(--ink4);font-size:12px;">Solo material comercial.</p>
+              </div>
+	            </div>
+	          </article>
+	        </div>
+
+	        <div class="p10-divider"></div>
+
+	        <article class="panel" style="padding:14px;">
+	          <h3 class="section-title">Navegacion responsive</h3>
+	          <ul style="margin: 8px 0 0; padding-left: 18px; color: var(--ink3);">
+	            <li><b>Desktop:</b> sidebar fijo (con Perfil + Cerrar sesion).</li>
+	            <li><b>Mobile:</b> menu tipo drawer (boton <span class="p10-kbd">☰</span>) que se despliega sobre el contenido y se cierra con <span class="p10-kbd">✕</span>, click en el fondo o <span class="p10-kbd">ESC</span>.</li>
+	            <li><b>Excepcion:</b> login y registro no muestran menu.</li>
+	          </ul>
+	        </article>
+	      </section>
+
+	      <!-- LOGIN -->
+	      <section class="p10-section" id="login">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Login</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/login</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./login/index.html" name="p10-login-desktop" title="Login (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="p10-notes">
+          <h3>Notas</h3>
+          <ul>
+            <li><b>Regla:</b> en login no se muestra sidebar (excepcion de pantallas publicas).</li>
+            <li><b>CTA:</b> enlace a registro y recuperacion de acceso.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Login</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/login</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./login/index.html" name="p10-login-mobile" title="Login (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- REGISTER -->
+      <section class="p10-section" id="register">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Registro</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/register</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./register/index.html" name="p10-register-desktop" title="Registro (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="p10-notes">
+          <h3>Notas</h3>
+          <ul>
+            <li><b>Regla:</b> en registro no se muestra sidebar (excepcion de pantallas publicas).</li>
+            <li><b>Perfil sugerido:</b> selector + caja informativa (sin tecnicismos UC/RN en UI).</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Registro</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/register</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./register/index.html" name="p10-register-mobile" title="Registro (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="p10-section" id="dashboard">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Dashboard</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./dashboard/index.html" name="p10-dashboard-desktop" title="Dashboard (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="p10-notes">
+          <h3>Notas</h3>
+          <ul>
+            <li><b>Menu:</b> Desktop con sidebar fijo; Mobile con drawer (☰) que se despliega sobre el contenido. Incluye perfil y "Cerrar sesion".</li>
+            <li><b>Accion:</b> CTA "+ Nuevo movimiento" navega al registro de gastos.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Dashboard</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./dashboard/index.html" name="p10-dashboard-mobile" title="Dashboard (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- GASTOS -->
+      <section class="p10-section" id="gastos">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Registro de movimientos</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/gastos</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./gastos/index.html" name="p10-gastos-desktop" title="Gastos (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="p10-notes">
+          <h3>Notas</h3>
+          <ul>
+            <li><b>Historial:</b> tabla + resumen (gastos/ahorro/movimientos/disponible).</li>
+            <li><b>Filtros:</b> chips por tipo, busqueda y filtros avanzados (fecha, subcategoria, metodo, banco, adjuntos).</li>
+            <li><b>Registro:</b> "+ Nuevo movimiento" abre un drawer overlay (no arrincona el historial). Se cierra con X, click en fondo o <span class="p10-kbd">ESC</span>.</li>
+            <li><b>Mobile:</b> el drawer se convierte en bottom sheet.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Registro de movimientos</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/gastos</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./gastos/index.html" name="p10-gastos-mobile" title="Gastos (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- PERFIL -->
+      <section class="p10-section" id="perfil">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Perfil</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/profile</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./profile/index.html" name="p10-profile-desktop" title="Perfil (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+	        <div class="p10-notes">
+	          <h3>Notas</h3>
+	          <ul>
+	            <li><b>Menu:</b> en pantallas privadas siempre existe navegacion (sidebar Desktop / drawer Mobile) con perfil y "Cerrar sesion".</li>
+	            <li><b>Desktop:</b> grid 3 columnas; bancos conectados queda debajo de datos basicos.</li>
+	            <li><b>Mobile:</b> datos basicos siempre visible; el resto funciona como acordeon (expandir/colapsar).</li>
+	          </ul>
+	        </div>
+	      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Perfil</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/profile</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./profile/index.html" name="p10-profile-mobile" title="Perfil (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- HERRAMIENTAS -->
+      <section class="p10-section" id="herramientas">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Herramientas · Dividir cuentas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/herramientas/dividir-cuentas</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./herramientas-dividir-cuentas/index.html" name="p10-tools-split-desktop" title="Dividir cuentas (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="p10-notes">
+          <h3>Notas</h3>
+          <ul>
+            <li><b>Nuevo menu:</b> seccion "Herramientas" en la navegacion lateral (Desktop) / drawer (Mobile).</li>
+            <li><b>Cobertura:</b> crear division, agregar participantes y calcular reparto por item.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Herramientas · Dividir cuentas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/herramientas/dividir-cuentas</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./herramientas-dividir-cuentas/index.html" name="p10-tools-split-mobile" title="Dividir cuentas (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONFIG -->
+      <section class="p10-section" id="config">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Bancos</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/bancos</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./bancos/index.html" name="p10-bancos-desktop" title="Bancos (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Bancos</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/bancos</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./bancos/index.html" name="p10-bancos-mobile" title="Bancos (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Categorias</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/categorias</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./categorias/index.html" name="p10-categorias-desktop" title="Categorias (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Categorias</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/categorias</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./categorias/index.html" name="p10-categorias-mobile" title="Categorias (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Aristas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/aristas</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./aristas/index.html" name="p10-aristas-desktop" title="Aristas (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Aristas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/aristas</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./aristas/index.html" name="p10-aristas-mobile" title="Aristas (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Reglas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/reglas</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./categorizacion/index.html" name="p10-reglas-desktop" title="Reglas (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Reglas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/reglas</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./categorizacion/index.html" name="p10-reglas-mobile" title="Reglas (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Alertas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/alertas</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./alertas/index.html" name="p10-alertas-desktop" title="Alertas (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Alertas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/alertas</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./alertas/index.html" name="p10-alertas-mobile" title="Alertas (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Movimientos · Importar</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/importar</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./importar/index.html" name="p10-importar-desktop" title="Importar (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Movimientos · Importar</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/importar</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./importar/index.html" name="p10-importar-mobile" title="Importar (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Tema</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/tema</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./tema/index.html" name="p10-tema-desktop" title="Tema (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Config. · Tema</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/config/tema</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./tema/index.html" name="p10-tema-mobile" title="Tema (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- ESTADOS -->
+      <section class="p10-section" id="estados">
+        <p class="eyebrow">Estado · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">404</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/no-existe</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./404/index.html" name="p10-404-desktop" title="404 (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="p10-notes">
+          <h3>Notas</h3>
+          <ul>
+            <li><b>Estado:</b> pantalla de error generica (sin sidebar).</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Estado · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">404</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/no-existe</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./404/index.html" name="p10-404-mobile" title="404 (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section soft">
+        <p class="eyebrow">Cierre</p>
+        <h2 class="dashboard-title" style="margin:0;">Listo para implementacion</h2>
+        <p class="lead">
+          Si necesitas que agreguemos mas pantallas por casos de uso, se crean nuevos directorios y se referencian aqui por iframe.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-secondary" href="#inicio">Volver arriba</a>
+          <a class="btn btn-primary" href="./gastos/index.html">Abrir gastos</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

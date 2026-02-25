@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Aristas</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de gastos</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Config.</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+              <a class="menu-item active" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+              <a class="menu-item" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+              <a class="menu-item" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Configuracion / Catalogos</p>
+              <h1 class="dashboard-title">Aristas (rubros)</h1>
+            </div>
+            <div class="dashboard-actions">
+              <button class="btn btn-secondary" type="button">Publicar</button>
+              <button class="btn btn-primary" type="button">Nueva arista</button>
+            </div>
+          </header>
+
+          <section class="panel-soft" style="padding:14px;">
+            <p class="expense-intro-title">Granularidad por subcategoria</p>
+            <p class="expense-intro-copy">
+              Las aristas refinan el detalle dentro de una subcategoria (ej: Alimentacion &gt; Domicilios).
+              Se usan al registrar movimientos y en el presupuesto (plan vs real).
+            </p>
+          </section>
+
+          <section class="dashboard-grid" style="margin-top: 12px;">
+            <article class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Listado</h2>
+                <a href="../categorias/index.html">Volver a categorias</a>
+              </div>
+
+              <div class="expense-form-grid" style="margin-bottom: 10px;">
+                <div class="form-field">
+                  <label class="form-label" for="edge-category">Categoria</label>
+                  <select id="edge-category" class="input">
+                    <option>Gastos</option>
+                    <option>Ahorro</option>
+                    <option>Ingresos</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-label" for="edge-subcategory">Subcategoria</label>
+                  <select id="edge-subcategory" class="input">
+                    <option>Alimentacion</option>
+                    <option>Transporte</option>
+                    <option>Necesidades Basicas</option>
+                    <option>Mascota</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="expense-table-wrap" style="min-height: 0;">
+                <table class="expense-table" style="min-width: 860px;">
+                  <thead>
+                    <tr>
+                      <th>Arista</th>
+                      <th>Uso</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p class="expense-row-title">Restaurantes</p>
+                        <p class="expense-row-meta">Alimentacion</p>
+                      </td>
+                      <td>
+                        <span class="tag tag-soft">Registro de gastos</span>
+                        <span class="tag tag-soft">Presupuesto</span>
+                      </td>
+                      <td><span class="tag tag-live">Activa</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p class="expense-row-title">Domicilios</p>
+                        <p class="expense-row-meta">Alimentacion</p>
+                      </td>
+                      <td>
+                        <span class="tag tag-soft">Registro de gastos</span>
+                        <span class="tag tag-soft">Presupuesto</span>
+                      </td>
+                      <td><span class="tag tag-soft">Activa</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p class="expense-row-title">Sin aristas base</p>
+                        <p class="expense-row-meta">Ej: Mascota</p>
+                      </td>
+                      <td>
+                        <span class="tag tag-soft" style="border-color: rgba(249,115,22,.35);">Detalle libre</span>
+                      </td>
+                      <td><span class="tag tag-soft" style="border-color: rgba(249,115,22,.35);">Opcional</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p class="message" style="color: var(--ink4);">
+                Tip: si una subcategoria no tiene aristas, el registro se guarda con detalle libre (sin seleccionar rubro).
+              </p>
+            </article>
+
+            <aside class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Editar arista</h2>
+                <a href="#">Ayuda</a>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="edge-name">Nombre</label>
+                <input id="edge-name" class="input" value="Domicilios" />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="edge-status">Estado</label>
+                <select id="edge-status" class="input">
+                  <option>Activa</option>
+                  <option>Pausada</option>
+                  <option>Archivada</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="edge-hint">Notas (opcional)</label>
+                <textarea id="edge-hint" class="input" rows="3">Compras por apps / domicilios / delivery.</textarea>
+              </div>
+
+              <div class="cta-row" style="margin-top: 12px;">
+                <button class="btn btn-secondary" type="button">Eliminar</button>
+                <button class="btn btn-primary" type="button">Guardar</button>
+              </div>
+
+              <div style="height:1px; background: var(--paper3); margin: 14px 0;"></div>
+
+              <div class="info-list">
+                <div class="info-item"><span>Subcategoria</span><strong>Alimentacion</strong></div>
+                <div class="info-item"><span>Movimientos asociados</span><strong>128</strong></div>
+                <div class="info-item"><span>Recomendacion</span><strong>No renombrar</strong></div>
+              </div>
+            </aside>
+          </section>
+        </main>
+      </section>
+    </main>
+  </body>
+</html>

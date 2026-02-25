@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Dividir Cuentas</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de gastos</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item active" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+	          <div class="menu-section">
+	            <p class="menu-title">Config.</p>
+	            <div class="menu-list">
+	              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+	              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+	              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+	              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+	              <a class="menu-item" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+	              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+	              <a class="menu-item" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+	            </div>
+	          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Herramientas / Dividir cuentas</p>
+              <h1 class="dashboard-title">Dividir cuenta compartida</h1>
+            </div>
+            <div class="dashboard-actions">
+              <a href="#" class="btn btn-secondary">Ver historial</a>
+              <a href="#" class="btn btn-primary">+ Nueva division</a>
+            </div>
+          </header>
+
+          <section class="expense-intro panel-soft">
+            <p class="expense-intro-title">Herramienta</p>
+            <p class="expense-intro-copy">
+              Registra compras compartidas, agrega participantes (con o sin app) y define el reparto por item.
+              El resumen calcula cuanto debe pagar cada persona.
+            </p>
+          </section>
+
+          <section class="dashboard-grid">
+            <article class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Divisiones recientes</h2>
+                <a href="#">Exportar</a>
+              </div>
+              <div class="dashboard-empty">
+                Aun no hay divisiones registradas. Crea una nueva para comenzar.
+              </div>
+            </article>
+
+            <aside class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Reglas</h2>
+                <a href="#">Ver detalle</a>
+              </div>
+              <div class="bar-listing">
+                <div class="info-item"><span>Reparto por item segun participantes.</span></div>
+                <div class="info-item"><span>Invitar con o sin app.</span></div>
+                <div class="info-item"><span>Alerta si total no cuadra (no bloquea).</span></div>
+              </div>
+            </aside>
+          </section>
+        </main>
+      </section>
+    </main>
+  </body>
+</html>

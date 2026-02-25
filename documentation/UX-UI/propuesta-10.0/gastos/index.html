@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Registro de Gastos</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item active" href="../gastos/index.html"><span>✏️</span><span>Registro de movimientos</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+	          <div class="menu-section">
+	            <p class="menu-title">Config.</p>
+	            <div class="menu-list">
+	              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+	              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+	              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+	              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+	              <a class="menu-item" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+	              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+	              <a class="menu-item" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+	            </div>
+	          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Registro de Gastos / Febrero 2026</p>
+              <h1 class="dashboard-title">Historial mensual + registro</h1>
+            </div>
+            <div class="dashboard-actions">
+              <a href="#" class="btn btn-secondary">Exportar</a>
+              <a href="../importar/index.html" class="btn btn-primary">Importar movimientos</a>
+            </div>
+          </header>
+
+          <section class="expense-intro panel-soft">
+            <p class="expense-intro-title">Registro de movimientos</p>
+            <p class="expense-intro-copy">
+              Esta vista permite registrar gastos, ahorro, inversion y movimientos entre cuentas
+              con flujo guiado por categoria, subcategoria y arista (rubro).
+            </p>
+          </section>
+
+          <section class="expense-workspace">
+            <article class="panel expense-log">
+              <div class="expense-summary-strip">
+                <div class="expense-summary-card">
+                  <p>Ingresos</p>
+                  <strong id="sum-income" class="pos">$ 0</strong>
+                </div>
+                <div class="expense-summary-card">
+                  <p>Ingresos</p>
+                  <strong id="sum-income" class="pos">$ 0</strong>
+                </div>
+                <div class="expense-summary-card">
+                  <p>Total Gastos</p>
+                  <strong id="sum-expenses" class="neg">$ 0</strong>
+                </div>
+                <div class="expense-summary-card">
+                  <p>Total Ahorro</p>
+                  <strong id="sum-savings" class="pos">$ 0</strong>
+                </div>
+                <div class="expense-summary-card">
+                  <p>Movimientos</p>
+                  <strong id="sum-count">0</strong>
+                </div>
+                <div class="expense-summary-card expense-summary-card-live">
+                  <p>Disponible</p>
+                  <strong id="sum-available">$ 0</strong>
+                </div>
+              </div>
+
+              <div class="expense-toolbar">
+                <div class="expense-filter-row" id="filter-chips">
+                  <button type="button" class="chip expense-filter-chip expense-filter-chip-active" data-filter="all">Todos</button>
+                  <button type="button" class="chip expense-filter-chip" data-filter="income">💰 Ingresos</button>
+                  <button type="button" class="chip expense-filter-chip" data-filter="expense">💸 Gastos</button>
+                  <button type="button" class="chip expense-filter-chip" data-filter="saving">🏦 Ahorro</button>
+                  <button type="button" class="chip expense-filter-chip" data-filter="transfer">↔️ Entre cuentas</button>
+                </div>
+
+                <div class="expense-toolbar-row">
+                  <input
+                    id="expense-search"
+                    class="input expense-search-input"
+                    value=""
+                    placeholder="Buscar: detalle, tags, banco, notas..."
+                  />
+                  <div class="expense-toolbar-actions">
+                    <button id="toggle-filters" type="button" class="btn btn-secondary">Filtros</button>
+                    <button id="open-drawer" type="button" class="btn btn-primary expense-open-drawer">+ Nuevo movimiento</button>
+                  </div>
+                </div>
+
+                <div id="advanced-filters" class="expense-advanced-filters" hidden>
+                  <div class="form-field">
+                    <label class="form-label" for="filter-date-from">Desde</label>
+                    <input id="filter-date-from" type="date" class="input" value="" />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="filter-date-to">Hasta</label>
+                    <input id="filter-date-to" type="date" class="input" value="" />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="filter-subcategory">Subcategoria</label>
+                    <select id="filter-subcategory" class="input">
+                      <option value="">Todas</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="filter-method">Metodo</label>
+                    <select id="filter-method" class="input">
+                      <option value="">Todos</option>
+                      <option value="cash">Efectivo</option>
+                      <option value="card">Tarjeta</option>
+                      <option value="bank_transfer">Transferencia</option>
+                      <option value="loan">Prestamo</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="filter-bank">Banco</label>
+                    <select id="filter-bank" class="input">
+                      <option value="">Todos</option>
+                      <option value="__none__">Sin banco</option>
+                      <option value="Bancolombia">Bancolombia</option>
+                      <option value="Davivienda">Davivienda</option>
+                      <option value="Lulo">Lulo</option>
+                      <option value="Nequi">Nequi</option>
+                    </select>
+                  </div>
+
+                  <div class="expense-advanced-actions">
+                    <label class="inline-check">
+                      <input id="filter-attachments-only" type="checkbox" />
+                      <span>Solo con adjuntos</span>
+                    </label>
+                    <button id="filter-clear" type="button" class="btn btn-ghost expense-clear-filters">Limpiar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="expense-table-wrap">
+                <table class="expense-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Detalle / Compra</th>
+                      <th>Categoria › Subcategoria › Arista</th>
+                      <th>Metodo</th>
+                      <th class="amount-col">Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody id="movements-body">
+                    <!-- Renderizado por JS -->
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+        </main>
+      </section>
+
+      <button
+        id="drawer-backdrop"
+        type="button"
+        class="expense-drawer-backdrop"
+        aria-label="Cerrar registro de movimiento"
+        hidden
+      ></button>
+
+      <aside
+        id="drawer"
+        class="expense-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+      >
+        <div class="expense-drawer-head">
+          <div>
+            <h2>Nuevo movimiento</h2>
+            <p>Completa los campos y guarda el registro.</p>
+          </div>
+          <button id="drawer-close" type="button" class="expense-drawer-close" aria-label="Cerrar">
+            ✕
+          </button>
+        </div>
+
+        <div class="expense-drawer-body">
+          <form id="movement-form" autocomplete="off" novalidate>
+            <div class="expense-type-grid" id="movement-types">
+              <button type="button" class="expense-type-btn" data-type="income"><span>💰</span><span>Ingreso</span></button>
+              <button type="button" class="expense-type-btn active" data-type="expense"><span>💸</span><span>Gasto</span></button>
+              <button type="button" class="expense-type-btn" data-type="saving"><span>🏦</span><span>Ahorro</span></button>
+              <button type="button" class="expense-type-btn" data-type="investment"><span>📈</span><span>Inversion</span></button>
+              <button type="button" class="expense-type-btn" data-type="transfer"><span>↔️</span><span>Entre cuentas</span></button>
+            </div>
+
+            <p class="expense-field-mini">Categoria › Subcategoria › Arista</p>
+            <div class="expense-breadcrumb">
+              <span id="crumb-category" class="expense-breadcrumb-item done">Gastos</span>
+              <span>›</span>
+              <span id="crumb-subcategory" class="expense-breadcrumb-item active">Alimentacion</span>
+              <span>›</span>
+              <span id="crumb-edge" class="expense-breadcrumb-item">Domicilios</span>
+            </div>
+
+            <p id="edge-helper" class="message" hidden>Esta subcategoria no tiene aristas base y se guarda con detalle libre.</p>
+
+            <div class="form-field">
+              <label class="form-label" for="form-amount">Valor / Amount</label>
+              <input id="form-amount" type="number" class="input expense-amount-input" min="0" step="0.01" placeholder="0" />
+            </div>
+
+            <div class="expense-form-grid">
+              <div class="form-field">
+                <label class="form-label" for="form-date">Fecha</label>
+                <input id="form-date" type="date" class="input" />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="form-currency">Moneda</label>
+                <select id="form-currency" class="input">
+                  <option value="COP">COP</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="category-block">
+              <div class="form-field">
+                <label class="form-label">Categoria</label>
+                <input id="form-category" type="text" class="input" value="Gastos" readonly />
+              </div>
+
+              <div class="expense-form-grid">
+                <div class="form-field">
+                  <label class="form-label" for="form-subcategory">Subcategoria</label>
+                  <select id="form-subcategory" class="input"></select>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label" for="form-edge">Arista / Rubro</label>
+                  <select id="form-edge" class="input"></select>
+                </div>
+              </div>
+            </div>
+
+            <div id="transfer-block" class="expense-form-grid" hidden>
+              <div class="form-field">
+                <label class="form-label" for="form-transfer-from">Cuenta origen</label>
+                <select id="form-transfer-from" class="input">
+                  <option value="">Seleccionar origen</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="form-transfer-to">Cuenta destino</label>
+                <select id="form-transfer-to" class="input">
+                  <option value="">Seleccionar destino</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="form-detail">Detalle / Compra</label>
+              <input id="form-detail" type="text" class="input" placeholder="Ej: Mercado semanal" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="form-notes">Notas (opcional)</label>
+              <textarea id="form-notes" class="input" rows="3" placeholder="Ej: pagado con promo, incluir propina, etc."></textarea>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Metodo de pago</label>
+              <div class="expense-method-row" id="payment-methods">
+                <button type="button" class="expense-method-chip active" data-method="cash"><span>💵</span><span>Efectivo</span></button>
+                <button type="button" class="expense-method-chip" data-method="card"><span>💳</span><span>Tarjeta</span></button>
+                <button type="button" class="expense-method-chip" data-method="bank_transfer"><span>🏦</span><span>Transferencia</span></button>
+                <button type="button" class="expense-method-chip" data-method="loan"><span>🤝</span><span>Prestamo</span></button>
+              </div>
+            </div>
+
+            <div id="bank-card-block" class="expense-form-grid" hidden>
+              <div class="form-field">
+                <label class="form-label" for="form-bank">Banco</label>
+                <select id="form-bank" class="input">
+                  <option value="">Seleccionar banco</option>
+                  <option value="Bancolombia">Bancolombia</option>
+                  <option value="Davivienda">Davivienda</option>
+                  <option value="Lulo">Lulo</option>
+                  <option value="Nequi">Nequi</option>
+                </select>
+              </div>
+
+              <div class="form-field" id="card-block">
+                <label class="form-label" for="form-card">Tarjeta</label>
+                <select id="form-card" class="input" disabled>
+                  <option value="">Seleccionar tarjeta</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="form-tags">Tags (opcional)</label>
+              <input id="form-tags" type="text" class="input" placeholder="Ej: comida, febrero" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="form-attachments">Adjuntos (opcional)</label>
+              <input id="form-attachments" type="file" class="input" multiple />
+              <p id="attachments-hint" class="expense-hint" hidden></p>
+            </div>
+
+            <p id="form-feedback" class="message" hidden></p>
+
+            <button type="submit" class="btn btn-primary expense-submit-btn">Guardar movimiento</button>
+            <p class="expense-xp-note">+10 monedas al registrar movimiento</p>
+          </form>
+        </div>
+      </aside>
+    </main>
+  </body>
+</html>

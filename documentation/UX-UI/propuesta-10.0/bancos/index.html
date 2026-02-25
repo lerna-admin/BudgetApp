@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Bancos</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de gastos</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+	          <div class="menu-section">
+	            <p class="menu-title">Config.</p>
+	            <div class="menu-list">
+	              <a class="menu-item active" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+	              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+	              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+	              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+	              <a class="menu-item" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+	              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+	              <a class="menu-item" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+	            </div>
+	          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Configuracion / Bancos</p>
+              <h1 class="dashboard-title">Conexiones</h1>
+            </div>
+            <div class="dashboard-actions">
+              <a href="#" class="btn btn-primary">+ Conectar banco</a>
+            </div>
+          </header>
+
+          <section class="dashboard-grid">
+            <article class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Conectados</h2>
+                <a href="#">Ver actividad</a>
+              </div>
+              <div class="bank-list">
+                <article class="bank-item">
+                  <h3>Bancolombia</h3>
+                  <p>Sync cada 6h · Ultima: 10:32</p>
+                  <span class="tag tag-soft">Activo</span>
+                </article>
+                <article class="bank-item">
+                  <h3>Nequi</h3>
+                  <p>Sync manual · Ultima: ayer</p>
+                  <span class="tag tag-soft">Activo</span>
+                </article>
+              </div>
+            </article>
+
+            <aside class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Permisos</h2>
+                <a href="#">Ayuda</a>
+              </div>
+              <div class="bar-listing">
+                <div class="info-item"><span>Lectura de movimientos</span><strong>OK</strong></div>
+                <div class="info-item"><span>Identificacion de comercios</span><strong>OK</strong></div>
+                <div class="info-item"><span>Reautorizacion</span><strong>Cada 90 dias</strong></div>
+              </div>
+              <div class="dashboard-empty" style="margin-top: 10px;">
+                Si una conexion expira, se solicita reautorizacion sin perder historico.
+              </div>
+            </aside>
+          </section>
+        </main>
+      </section>
+    </main>
+  </body>
+</html>

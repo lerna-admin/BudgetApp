@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Alertas</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de gastos</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+	          <div class="menu-section">
+	            <p class="menu-title">Config.</p>
+	            <div class="menu-list">
+	              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+	              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+	              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+	              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+	              <a class="menu-item active" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+	              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+	              <a class="menu-item" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+	            </div>
+	          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Configuracion / Alertas</p>
+              <h1 class="dashboard-title">Canales</h1>
+            </div>
+            <div class="dashboard-actions">
+              <button class="btn btn-primary" type="button">Guardar cambios</button>
+            </div>
+          </header>
+
+          <section class="dashboard-grid">
+            <article class="panel dashboard-card">
+              <div class="dashboard-card-head"><h2>Preferencias</h2><a href="#">Ayuda</a></div>
+              <div class="movement-list">
+                <div class="movement-item">
+                  <div>
+                    <p class="movement-name">Email</p>
+                    <p class="movement-meta">Alertas por exceder presupuesto</p>
+                  </div>
+                  <span class="tag tag-live">Activo</span>
+                </div>
+                <div class="movement-item">
+                  <div>
+                    <p class="movement-name">Push</p>
+                    <p class="movement-meta">Movimientos relevantes</p>
+                  </div>
+                  <span class="tag tag-soft">Activo</span>
+                </div>
+                <div class="movement-item">
+                  <div>
+                    <p class="movement-name">WhatsApp</p>
+                    <p class="movement-meta">Opcional</p>
+                  </div>
+                  <span class="tag tag-soft" style="border-color:rgba(244,63,94,.35);">Off</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="panel dashboard-card">
+              <div class="dashboard-card-head"><h2>Reglas</h2><a href="#">Detalle</a></div>
+              <div class="dashboard-empty">
+                Configura umbrales: 80% (warning), 100% (error), cargos inusuales, y meta de ahorro.
+              </div>
+              <div class="cta-row" style="margin-top: 12px;">
+                <button class="btn btn-secondary" type="button">Probar alerta</button>
+                <button class="btn btn-primary" type="button">Crear regla</button>
+              </div>
+            </article>
+          </section>
+        </main>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Perfil</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de gastos</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+	          <div class="menu-section">
+	            <p class="menu-title">Config.</p>
+	            <div class="menu-list">
+	              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+	              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+	              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+	              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+	              <a class="menu-item" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+	              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+	              <a class="menu-item" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+	            </div>
+	          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item active" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Cuenta / Perfil</p>
+              <h1 class="dashboard-title">Perfil</h1>
+            </div>
+            <div class="dashboard-actions">
+              <a href="#" class="btn btn-secondary">Editar perfil</a>
+            </div>
+          </header>
+
+	          <section class="profile-grid">
+	            <aside class="panel profile-card profile-card-basic">
+	              <div class="avatar">AC</div>
+	              <p class="user-name">Alex Castano</p>
+	              <p class="user-mail">alex@budgetapp.co</p>
+
+	              <div class="tag-row">
+	                <span class="tag tag-soft">Rol: user</span>
+	                <span class="tag tag-live">Estado: active</span>
+	              </div>
+
+	              <div class="info-list">
+	                <div class="info-item"><span>Pais</span><strong>CO</strong></div>
+	                <div class="info-item"><span>Preferencia tema</span><strong>Light</strong></div>
+	                <div class="info-item"><span>Idioma</span><strong>Espanol</strong></div>
+	              </div>
+	            </aside>
+
+	            <details class="panel profile-accordion profile-card-security">
+	              <summary>
+	                <h2 class="section-title">Seguridad</h2>
+	                <span class="tag tag-soft">Revision reciente</span>
+	              </summary>
+	              <div class="accordion-body">
+	                <div class="tag-row" style="margin-bottom: 10px;">
+	                  <span class="tag tag-soft">Contrasena actualizada</span>
+	                  <span class="tag tag-soft">Sesiones web activas</span>
+	                </div>
+
+	                <div class="status status-ok">Alertas de inicio de sesion activas</div>
+	                <div class="status status-warn">Hay sesiones abiertas en mas de un dispositivo</div>
+
+	                <div class="cta-row" style="margin-top: 12px;">
+	                  <a href="#" class="btn btn-primary">Cambiar contrasena</a>
+	                  <a href="#" class="btn btn-secondary">Gestionar sesiones</a>
+	                </div>
+	              </div>
+	            </details>
+
+	            <details class="panel profile-accordion profile-card-preferences">
+	              <summary>
+	                <h2 class="section-title">Preferencias</h2>
+	                <span class="tag tag-soft">4</span>
+	              </summary>
+	              <div class="accordion-body">
+	                <div class="pref-grid" style="margin-top: 0;">
+	                  <article class="pref-item"><h3>Tema</h3><p>Light activo</p><a href="#" class="tag tag-soft">Cambiar</a></article>
+	                  <article class="pref-item"><h3>Idioma</h3><p>Espanol (ES)</p><a href="#" class="tag tag-soft">ES / EN</a></article>
+	                  <article class="pref-item"><h3>Notificaciones</h3><p>Email activado</p><a href="#" class="tag tag-soft">Configurar</a></article>
+	                  <article class="pref-item"><h3>Exportaciones</h3><p>CSV semanal</p><a href="#" class="tag tag-soft">Editar</a></article>
+	                </div>
+	              </div>
+	            </details>
+
+	            <details class="panel profile-accordion profile-card-banks">
+	              <summary>
+	                <h2 class="section-title">Bancos conectados</h2>
+	                <span class="tag tag-soft">3</span>
+	              </summary>
+	              <div class="accordion-body">
+	                <div class="bank-list">
+	                  <article class="bank-item"><h3>Bancolombia</h3><p>Sincronizacion cada 6h</p><span class="tag tag-soft">Activo</span></article>
+	                  <article class="bank-item"><h3>Nequi</h3><p>Pendiente primer sincronizado</p><span class="tag tag-soft">Pendiente</span></article>
+	                  <article class="bank-item"><h3>Davivienda</h3><p>Disponible para conectar</p><span class="tag tag-soft">Nuevo</span></article>
+	                </div>
+	              </div>
+	            </details>
+	          </section>
+	        </main>
+	      </section>
+	    </main>
+  </body>
+</html>

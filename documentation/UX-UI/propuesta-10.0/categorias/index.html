@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Categorias</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de gastos</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Config.</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+              <a class="menu-item active" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+              <a class="menu-item" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+              <a class="menu-item" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Configuracion / Catalogos</p>
+              <h1 class="dashboard-title">Categorias y subcategorias</h1>
+            </div>
+            <div class="dashboard-actions">
+              <button class="btn btn-secondary" type="button">Nueva categoria</button>
+              <button class="btn btn-primary" type="button">Nueva subcategoria</button>
+            </div>
+          </header>
+
+          <section class="panel-soft" style="padding:14px;">
+            <p class="expense-intro-title">Catalogo base</p>
+            <p class="expense-intro-copy">
+              Define la estructura que se usa en Presupuesto y Registro de gastos (Categoria &gt; Subcategoria).
+              Las categorias principales suelen ser fijas (Gastos/Ahorro/Ingresos) y las subcategorias son editables.
+            </p>
+          </section>
+
+          <section class="dashboard-grid" style="margin-top: 12px;">
+            <article class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Subcategorias</h2>
+                <a href="#">Exportar</a>
+              </div>
+
+              <div class="expense-toolbar" style="padding:0; border:none; margin-bottom:10px;">
+                <div class="expense-toolbar-row" style="grid-template-columns:1fr;">
+                  <input class="input" placeholder="Buscar subcategoria (ej: Alimentacion, Transporte...)" />
+                </div>
+              </div>
+
+              <div class="expense-table-wrap" style="min-height: 0;">
+                <table class="expense-table" style="min-width: 860px;">
+                  <thead>
+                    <tr>
+                      <th>Categoria</th>
+                      <th>Subcategoria</th>
+                      <th>Aristas</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="expense-kind-pill expense-kind-expense">Gastos</span></td>
+                      <td>
+                        <p class="expense-row-title">Alimentacion</p>
+                        <p class="expense-row-meta">Usada en movimientos y presupuesto mensual</p>
+                      </td>
+                      <td>2</td>
+                      <td><span class="tag tag-live">Activa</span></td>
+                    </tr>
+                    <tr>
+                      <td><span class="expense-kind-pill expense-kind-expense">Gastos</span></td>
+                      <td>
+                        <p class="expense-row-title">Transporte</p>
+                        <p class="expense-row-meta">Incluye gasolina, parqueadero, apps</p>
+                      </td>
+                      <td>5</td>
+                      <td><span class="tag tag-soft">Activa</span></td>
+                    </tr>
+                    <tr>
+                      <td><span class="expense-kind-pill expense-kind-saving">Ahorro</span></td>
+                      <td>
+                        <p class="expense-row-title">Ahorros</p>
+                        <p class="expense-row-meta">Fondos y metas base</p>
+                      </td>
+                      <td>4</td>
+                      <td><span class="tag tag-soft">Activa</span></td>
+                    </tr>
+                    <tr>
+                      <td><span class="expense-kind-pill expense-kind-expense">Gastos</span></td>
+                      <td>
+                        <p class="expense-row-title">Mascota</p>
+                        <p class="expense-row-meta">Comida, veterinario, medicinas</p>
+                      </td>
+                      <td>0</td>
+                      <td>
+                        <span class="tag tag-soft" style="border-color: rgba(249,115,22,.35);">Sin aristas</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <aside class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Detalle</h2>
+                <a href="../aristas/index.html">Ir a aristas</a>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="cat-parent">Categoria</label>
+                <select id="cat-parent" class="input">
+                  <option>Gastos</option>
+                  <option>Ahorro</option>
+                  <option>Ingresos</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="cat-name">Subcategoria</label>
+                <input id="cat-name" class="input" value="Alimentacion" />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="cat-status">Estado</label>
+                <select id="cat-status" class="input">
+                  <option>Activa</option>
+                  <option>Pausada</option>
+                  <option>Archivada</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="cat-notes">Descripcion (opcional)</label>
+                <textarea id="cat-notes" class="input" rows="3">Gastos de comida dentro y fuera de casa.</textarea>
+              </div>
+
+              <p class="message" style="color: var(--amber);">
+                Si esta subcategoria ya tiene transacciones historicas, cambiar nombre o fusionar requiere confirmacion.
+              </p>
+
+              <div class="cta-row" style="margin-top: 12px;">
+                <button class="btn btn-secondary" type="button">Archivar</button>
+                <button class="btn btn-primary" type="button">Guardar cambios</button>
+              </div>
+
+              <div style="height: 1px; background: var(--paper3); margin: 14px 0;"></div>
+
+              <div class="info-list">
+                <div class="info-item"><span>Impacto en registro de gastos</span><strong>Inmediato</strong></div>
+                <div class="info-item"><span>Impacto en presupuesto</span><strong>Proximo periodo</strong></div>
+              </div>
+            </aside>
+          </section>
+        </main>
+      </section>
+    </main>
+  </body>
+</html>

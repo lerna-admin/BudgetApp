@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Reglas</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de gastos</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Config.</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+              <a class="menu-item active" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+              <a class="menu-item" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+              <a class="menu-item" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Configuracion / Reglas</p>
+              <h1 class="dashboard-title">Reglas automaticas</h1>
+            </div>
+            <div class="dashboard-actions">
+              <button class="btn btn-secondary" type="button">Importar reglas</button>
+              <button class="btn btn-primary" type="button">Nueva regla</button>
+            </div>
+          </header>
+
+          <section class="panel" style="padding:14px;">
+            <div class="dashboard-card-head">
+              <h2>Reglas activas</h2>
+              <a href="#">Historial</a>
+            </div>
+
+            <div class="expense-table-wrap" style="min-height: 0;">
+              <table class="expense-table" style="min-width: 760px;">
+                <thead>
+                  <tr>
+                    <th>Si contiene</th>
+                    <th>Asignar</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <p class="expense-row-title">"Terpel"</p>
+                      <p class="expense-row-meta">Detalle / Compra</p>
+                    </td>
+                    <td>
+                      <span class="expense-kind-pill expense-kind-expense">Gastos</span>
+                      <span class="expense-path">Transporte › Gasolina</span>
+                    </td>
+                    <td>Alta</td>
+                    <td><span class="tag tag-live">Activa</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <p class="expense-row-title">"Netflix"</p>
+                      <p class="expense-row-meta">Detalle / Compra</p>
+                    </td>
+                    <td>
+                      <span class="expense-kind-pill expense-kind-expense">Gastos</span>
+                      <span class="expense-path">Entretenimiento › Plataformas</span>
+                    </td>
+                    <td>Media</td>
+                    <td><span class="tag tag-soft">Activa</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <p class="expense-row-title">"Nomina"</p>
+                      <p class="expense-row-meta">Movimiento bancario</p>
+                    </td>
+                    <td>
+                      <span class="expense-kind-pill expense-kind-saving">Ingreso</span>
+                      <span class="expense-path">Salario</span>
+                    </td>
+                    <td>Alta</td>
+                    <td><span class="tag tag-soft" style="border-color:rgba(249,115,22,.35);">Revisar</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel-soft" style="padding: 14px; margin-top: 12px;">
+            <p class="expense-intro-title">Bandeja de sugerencias</p>
+            <p class="expense-intro-copy">
+              Movimientos sin categoria o con baja confianza aparecen aqui para confirmacion rapida.
+            </p>
+          </section>
+        </main>
+      </section>
+    </main>
+  </body>
+</html>
