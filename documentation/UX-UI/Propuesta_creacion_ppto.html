@@ -191,7 +191,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
   color:var(--teal);display:flex;align-items:center;justify-content:center;
   font-size:11px;box-shadow:var(--shadow-sm);
 }
+.detail-edit svg{width:12px;height:12px;display:block;}
 .detail-edit.sm{width:20px;height:20px;font-size:10px;}
+.detail-edit.sm svg{width:10px;height:10px;}
 .detail-add{
   width:28px;height:28px;border-radius:50%;
   background:linear-gradient(135deg,var(--teal),var(--teal2));
@@ -467,6 +469,52 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
 .bt-sub td{padding:7px 10px;}
 .bt-sub-name{font-size:11px;font-weight:600;color:var(--ink2);}
 .bt-detalle{font-size:10px;color:var(--ink4);}
+.bt-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.bt-cat-title{flex:1;display:block;}
+.bt-group-actions{display:flex;align-items:center;gap:8px;}
+.bt-group-hint{font-size:10px;color:var(--ink4);font-weight:600;}
+.bt-sub-row{border-bottom:1px solid var(--paper3);background:var(--paper2);}
+.bt-sub-row td{padding:8px 10px;}
+.bt-tree-node{display:flex;align-items:center;gap:8px;}
+.bt-node-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);font-weight:700;background:var(--paper2);padding:2px 6px;border-radius:6px;}
+.bt-toggle{
+  width:18px;height:18px;border-radius:6px;border:1.5px solid var(--paper3);
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink4);
+  background:white;flex-shrink:0;
+}
+.bt-toggle::before{content:'▾';line-height:1;}
+.bt-sub-block.collapsed .bt-toggle::before{content:'▸';}
+.bt-tree-branch{width:10px;height:10px;border-left:1.5px solid var(--paper3);border-bottom:1.5px solid var(--paper3);border-radius:0 0 0 3px;display:inline-block;margin-right:4px;}
+.bt-detail-row{background:#fbfbfb;}
+.bt-detail-row td{padding:6px 10px 6px 26px;}
+.bt-detail-name{font-size:10px;font-weight:600;color:var(--ink3);}
+.bt-detail-note{font-size:10px;color:var(--ink4);}
+.bt-detail-value{background:white;border:1.5px solid var(--paper3);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;color:var(--ink3);text-align:right;width:90px;}
+.bt-rec-col{width:100px;}
+.bt-detail-add-row td{padding:6px 10px 10px 26px;}
+.bt-add-row{display:flex;align-items:center;gap:8px;color:var(--ink4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+.bt-sub-add-row td{padding:10px;}
+.bt-add-sub{display:flex;align-items:center;gap:10px;justify-content:center;font-size:11px;font-weight:700;color:var(--ink3);}
+.bt-name-input{background:white;border:1.5px solid var(--paper3);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;color:var(--ink2);width:100%;text-align:left;}
+.bt-name-input.new{border-style:dashed;color:var(--ink4);}
+.bt-detail-input{background:white;border:1.5px solid var(--paper3);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:600;color:var(--ink3);width:100%;}
+.bt-detail-input.new{border-style:dashed;color:var(--ink4);}
+.bt-edit-pill{font-size:9px;font-weight:700;color:var(--teal);background:var(--teal3);padding:2px 6px;border-radius:100px;}
+.bt-row-warn{background:#FEF4F4;}
+.bt-detail-add-row{display:none;}
+.bt-edit-mode .bt-detail-add-row{display:table-row;}
+.bt-sub-block.collapsed .bt-detail-row,
+.bt-sub-block.collapsed .bt-detail-add-row{display:none;}
+tbody.bt-sub-add-row{display:none;}
+tr.bt-sub-add-row{display:none;}
+.bt-edit-mode tbody.bt-sub-add-row{display:table-row-group;}
+.bt-edit-mode tr.bt-sub-add-row{display:table-row;}
+.bt-remove{
+  width:18px;height:18px;border-radius:6px;border:1.5px solid var(--red2);
+  color:var(--red);display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;background:white;flex-shrink:0;
+}
+.bt-remove.sm{width:16px;height:16px;font-size:11px;}
 .bt-plan{background:white;border:1.5px solid var(--paper3);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;color:var(--ink);text-align:right;width:100px;}
 .bt-real{font-size:12px;font-weight:600;color:var(--ink3);}
 .bt-diff{font-size:11px;font-weight:700;}
@@ -551,7 +599,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
 .mob-cat-name{font-size:12px;font-weight:800;color:var(--ink);}
 .mob-cat-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;}
 .mob-cat-items{}
-.mob-cat-row{display:flex;align-items:center;gap:8px;padding:9px 13px;border-top:1px solid var(--paper3);}
+.mob-cat-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 13px;border-top:1px solid var(--paper3);}
 .mob-cat-sub{flex:1;font-size:11px;color:var(--ink2);font-weight:600;}
 .mob-cat-detalle{font-size:9px;color:var(--ink4);}
 .mob-cat-input{
@@ -560,6 +608,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
   text-align:right;font-family:'DM Sans',sans-serif;
 }
 .mob-cat-input.active{border-color:var(--teal);background:var(--teal4);}
+.mob-detail-wrap{padding-bottom:6px;}
+.mob-cat-toggle{
+  width:18px;height:18px;border-radius:6px;border:1.5px solid var(--paper3);
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink4);background:white;
+}
+.mob-cat-toggle::before{content:'▾';line-height:1;}
+.mob-budget-cat.collapsed .mob-cat-toggle::before{content:'▸';}
+.mob-budget-cat.collapsed .mob-detail-wrap{display:none;}
+.mob-add-row{display:none;}
+.mob-budget-cat.editing .mob-add-row{display:flex;}
 
 .mob-income-card{background:linear-gradient(135deg,var(--sage),#2E6040);border-radius:var(--r2);padding:14px;margin-bottom:10px;}
 .mic-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.6);font-weight:700;margin-bottom:4px;}
@@ -672,7 +730,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
           <!-- KPIs -->
           <div class="kpi-row">
             <div class="kpi kpi-teal">
-              <div class="kpi-label">Disponible restante / RN-DASH</div>
+              <div class="kpi-label">Disponible restante</div>
               <div class="kpi-val teal">$4.250.000</div>
               <div class="kpi-meta">de $9.500.000 presupuestados · 55% restante</div>
               <div class="kpi-prog"><div class="kpi-pf" style="width:55%;background:var(--teal);"></div></div>
@@ -699,12 +757,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
 
           <!-- Main charts grid -->
           <div class="dash-grid">
-            <!-- Barras horizontales Presupuesto vs Real (RN-DASH-01) -->
+            <!-- Barras horizontales Presupuesto vs Real -->
             <div class="card" style="grid-column:1/-1;">
               <div class="card-title">
                 Presupuesto vs Real — Todas las categorías <span class="card-link">Ver detalle completo →</span>
               </div>
-              <div class="card-sub">Subcategorías del período activo · Gastos + Ahorro · RN-DASH-01</div>
+              <div class="card-sub">Subcategorías del período activo · Gastos + Ahorro</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;">
                 <div class="bar-list">
                   <!-- Gastos -->
@@ -767,7 +825,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               </div>
             </div>
 
-            <!-- Pastel subcategorías Gastos (RN-DASH-02) -->
+            <!-- Pastel subcategorías Gastos -->
             <div class="card">
               <div class="card-title">Distribución Gastos por subcategoría<span class="card-link">Cambiar →</span></div>
               <div class="card-sub">Categoría activa: Gastos · Período: Feb 2026</div>
@@ -1043,7 +1101,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
         <!-- FORM PANEL -->
         <div style="padding:18px 20px;background:var(--paper2);overflow:hidden;">
           <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px;">Nuevo movimiento</div>
-          <div style="font-size:10px;color:var(--ink4);margin-bottom:14px;">UC-BP-06 · RN-RG-01 a RG-10</div>
+          <div style="font-size:10px;color:var(--ink4);margin-bottom:14px;">UC-BP-06</div>
 
           <!-- Type selector -->
           <div class="type-sel" style="grid-template-columns:1fr 1fr;gap:6px;">
@@ -1053,7 +1111,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
             <div class="ts-btn"><span class="ts-emoji">↔️</span><span class="ts-label">Entre cuentas</span></div>
           </div>
 
-          <!-- Breadcrumb selección guiada RN-RG-02,03,04 -->
+          <!-- Breadcrumb selección guiada -->
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:5px;">Categoría › Subcategoría › Detalle</div>
           <div class="bc-sel" style="margin-bottom:10px;">
             <span class="bc-item done">Gastos</span>
@@ -1078,23 +1136,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               <input class="f-input" value="21/02/2026" readonly>
             </div>
             <div class="form-field">
-              <label class="f-label">Moneda · RN-RG-08</label>
+              <label class="f-label">Moneda</label>
               <select class="f-select active"><option>🇨🇴 COP</option></select>
             </div>
           </div>
 
-          <!-- Conditional: método de pago RN-RG-07,08 -->
+          <!-- Conditional: método de pago -->
           <div style="margin-top:8px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:5px;">Método de pago · RN-RG-07</div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:5px;">Método de pago</div>
             <div style="display:flex;gap:5px;margin-bottom:8px;">
               <span class="chip">💵 Efectivo</span>
               <span class="chip on">💳 Tarjeta</span>
               <span class="chip">🏦 Transf.</span>
               <span class="chip">🤝 Préstamo</span>
             </div>
-            <!-- Conditional: si tarjeta → banco + tarjeta (RN-RG-08) -->
+            <!-- Conditional: si tarjeta → banco + tarjeta -->
             <div class="cond-row" style="grid-template-columns:1fr 1fr;gap:7px;">
-              <div class="form-field"><label class="f-label">Banco · RN-RG-08</label><select class="f-select active"><option>Bancolombia</option><option>Davivienda</option><option>Lulo</option></select></div>
+              <div class="form-field"><label class="f-label">Banco</label><select class="f-select active"><option>Bancolombia</option><option>Davivienda</option><option>Lulo</option></select></div>
               <div class="form-field"><label class="f-label">Tarjeta</label><select class="f-select active"><option>Visa Clásica</option><option>MC Débito</option></select></div>
             </div>
           </div>
@@ -1137,7 +1195,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
           <div class="mob-form" style="padding-top:8px;">
             <div class="mob-form-header">
               <div class="mob-back">←</div>
-              <div><div class="mob-form-title">Registrar Gasto</div><div class="mob-form-sub">UC-BP-06 · RN-RG-01 a RG-10</div></div>
+              <div><div class="mob-form-title">Registrar Gasto</div><div class="mob-form-sub">UC-BP-06</div></div>
             </div>
 
             <!-- Amount display -->
@@ -1154,17 +1212,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               <div class="mob-type-btn"><div class="mob-type-ico">↔️</div><div class="mob-type-lbl">Entre cuentas</div></div>
             </div>
 
-            <!-- Selección guiada RN-RG-02,03 -->
+            <!-- Selección guiada -->
             <div class="mob-field">
-              <div class="mob-field-label">Categoría · RN-RG-02</div>
+              <div class="mob-field-label">Categoría</div>
               <div class="mob-field-val active">💸 Gastos <span class="mob-field-arrow">›</span></div>
             </div>
             <div class="mob-field">
-              <div class="mob-field-label">Subcategoría · RN-RG-02</div>
+              <div class="mob-field-label">Subcategoría</div>
               <div class="mob-field-val active">🍽️ Alimentación <span class="mob-field-arrow">›</span></div>
             </div>
             <div class="mob-field">
-              <div class="mob-field-label">Detalle / Rubro · RN-RG-03,04</div>
+              <div class="mob-field-label">Detalle / Rubro</div>
               <div class="mob-field-val active">Domicilios <span class="mob-field-arrow">›</span></div>
             </div>
             <div class="mob-field">
@@ -1179,8 +1237,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               <span class="chip" style="font-size:10px;">🏦 Transf.</span>
             </div>
 
-            <!-- Conditional: RN-RG-08 -->
-            <div class="mob-cond">⚠️ Tarjeta seleccionada → debes indicar banco y tarjeta (RN-RG-08)</div>
+            <!-- Conditional -->
+            <div class="mob-cond">⚠️ Tarjeta seleccionada → debes indicar banco y tarjeta</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
               <div class="mob-field" style="margin:0;"><div class="mob-field-label">Banco</div><div class="mob-field-val active" style="font-size:12px;">Bancolombia</div></div>
               <div class="mob-field" style="margin:0;"><div class="mob-field-label">Tarjeta</div><div class="mob-field-val active" style="font-size:12px;">Visa Clásica</div></div>
@@ -1409,7 +1467,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
             </div>
             <div class="wiz-step active">
               <div class="ws-circle active-c">2</div>
-              <div><div class="ws-label active-l" style="font-size:11px;font-weight:700;">Perfil financiero</div><div style="font-size:10px;color:var(--ink4);">Editable</div></div>
+              <div><div class="ws-label active-l" style="font-size:11px;font-weight:700;">Perfil financiero</div><div style="font-size:10px;color:var(--ink4);"></div></div>
             </div>
             <div class="wiz-step">
               <div class="ws-circle idle-c">3</div>
@@ -1487,6 +1545,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
                   </tbody>
                 </table>
                 <div class="text-xs text-muted mt8">Los porcentajes son editables; si cambias el perfil, la distribución se ajusta.</div>
+                <div class="text-xs text-muted mt4">El perfil solo generará sugerencias y alertas, pero los valores podrán ser modificados por ti.</div>
               </div>
             </div>
           </div>
@@ -1541,13 +1600,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
           <!-- Profile reminder -->
           <div style="margin-top:16px;background:var(--teal4);border:1.5px solid var(--teal);border-radius:var(--r);padding:11px;">
             <div style="font-size:10px;font-weight:800;color:var(--teal);margin-bottom:6px;">Perfil Tilbury (1%) activo</div>
-            <div style="display:flex;flex-direction:column;gap:4px;">
+                        <div style="display:flex;flex-direction:column;gap:4px;">
               <div style="font-size:10px;color:var(--ink3);display:flex;justify-content:space-between;"><span>Esenciales</span><span style="font-weight:700;">50%</span></div>
               <div style="font-size:10px;color:var(--ink3);display:flex;justify-content:space-between;"><span>Crecimiento/Inv.</span><span style="font-weight:700;">25%</span></div>
               <div style="font-size:10px;color:var(--ink3);display:flex;justify-content:space-between;"><span>Estabilidad</span><span style="font-weight:700;">15%</span></div>
               <div style="font-size:10px;color:var(--ink3);display:flex;justify-content:space-between;"><span>Recompensas</span><span style="font-weight:700;">10%</span></div>
             </div>
           </div>
+          <div style="margin-top:8px;font-size:10px;color:var(--ink4);font-weight:600;">Moneda: COP $</div>
         </div>
         <!-- WIZ MAIN -->
         <div class="wiz-main" style="overflow:hidden;">
@@ -1577,19 +1637,37 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
                 <th style="text-align:right;width:130px;">Valor Plan</th>
               </tr>
             </thead>
-            <tbody>
-              <tr class="bt-cat"><td colspan="4"><span style="font-size:12px;font-weight:800;color:var(--sage);">↑ Ingresos</span><span class="bt-cat-badge" style="background:var(--sage2);color:var(--sage);">Rubros directos</span></td></tr>
+            <tbody class="bt-income-block">
+              <tr class="bt-cat">
+                <td colspan="4">
+                  <div class="bt-group-head">
+                    <span style="font-size:12px;font-weight:800;color:var(--sage);" class="bt-cat-title">↑ Ingresos</span>
+                    <div class="bt-group-actions">
+                      <span class="bt-group-hint">Editar rubros</span>
+                      <div class="detail-edit" title="Editar ingresos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
               <tr class="bt-sub">
-                <td><div class="bt-sub-name">Salario</div><div class="bt-detalle">Rubro directo</div></td>
+                <td><div class="bt-sub-name">Salario</div><div class="bt-detalle">Ingreso base</div></td>
                 <td style="font-size:11px;color:var(--ink4);">Pago mensual empresa</td>
                 <td style="font-size:11px;color:var(--ink3);">🏦 Transf. · Bancolombia</td>
                 <td style="text-align:right;"><input class="bt-plan" value="$8.500.000"></td>
               </tr>
               <tr class="bt-sub">
-                <td><div class="bt-sub-name">Saldo mes anterior</div><div class="bt-detalle">Rubro directo</div></td>
+                <td><div class="bt-sub-name">Saldo mes anterior</div><div class="bt-detalle">Ingreso base</div></td>
                 <td style="font-size:11px;color:var(--ink4);">Saldo enero</td>
                 <td style="font-size:11px;color:var(--ink3);">🏦 Bancolombia</td>
                 <td style="text-align:right;"><input class="bt-plan" value="$1.390.000"></td>
+              </tr>
+              <tr class="bt-sub-add-row">
+                <td colspan="4">
+                  <div class="bt-add-sub">
+                    <div class="detail-add">＋</div>
+                    <span>Agregar subcategoría</span>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -1598,55 +1676,222 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
           <table class="budget-table">
             <thead>
               <tr>
-                <th style="width:200px;">Detalle</th>
+                <th style="width:240px;">Gastos y Ahorro</th>
                 <th style="text-align:right;width:150px;">Plan (este mes)</th>
-                <th>Notas</th>
+                <th class="bt-rec-col">Recomendaciones del perfil</th>
               </tr>
             </thead>
-            <tbody>
-              <tr class="bt-cat"><td colspan="3"><span style="font-size:12px;font-weight:800;color:var(--red);">↓ Gastos</span><span class="bt-cat-badge" style="background:var(--red3);color:var(--red);">No editable</span></td></tr>
-              <tr class="bt-sub">
-                <td><div class="bt-sub-name">Necesidades Básicas</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Arriendo, Servicios, Gas, Gasolina…</div><div class="detail-edit">✏️</div></div></td>
-                <td style="text-align:right;"><input class="bt-plan" value="$1.400.000"></td>
-                <td style="font-size:11px;color:var(--ink3);">Recomendado 50% · Perfil Tilbury</td>
-              </tr>
-              <tr class="bt-sub">
-                <td><div class="bt-sub-name">Alimentación</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Restaurantes, Domicilios</div><div class="detail-edit">✏️</div></div></td>
-                <td style="text-align:right;"><input class="bt-plan" value="$500.000"></td>
-                <td style="font-size:11px;color:var(--ink3);">Máx 12% del ingreso · recordatorio semanal</td>
-              </tr>
-              <tr class="bt-sub" style="background:#FEF4F4;">
-                <td><div class="bt-sub-name">Transporte</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">App taxis, Gasolina, Peaje</div><div class="detail-edit">✏️</div></div></td>
-                <td style="text-align:right;"><input class="bt-plan" value="$400.000" style="border-color:var(--red);"></td>
-                <td style="font-size:11px;color:var(--red);font-weight:700;">Define tope semanal · alerta si se supera</td>
-              </tr>
-              <tr class="bt-sub">
-                <td><div class="bt-sub-name">Entretenimiento</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Vacaciones, Cine, Plataformas…</div><div class="detail-edit">✏️</div></div></td>
-                <td style="text-align:right;"><input class="bt-plan" value="$300.000"></td>
-                <td style="font-size:11px;color:var(--ink3);">Límite semanal $75K · flexible viernes-domingo</td>
-              </tr>
-              <tr class="bt-sub">
-                <td><div class="bt-sub-name">Deudas</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Tarjeta 1, Carro, Estudio</div><div class="detail-edit">✏️</div></div></td>
-                <td style="text-align:right;"><input class="bt-plan" value="$650.000"></td>
-                <td style="font-size:11px;color:var(--ink3);">Fecha de corte: 28 feb · pago mínimo auto</td>
-              </tr>
-              <tr class="bt-sub">
-                <td colspan="3" style="padding:8px 0;">
-                  <div style="display:flex;justify-content:center;">
-                    <div class="detail-add">＋</div>
+            <tbody class="bt-group-head">
+              <tr class="bt-cat">
+                <td colspan="3">
+                  <div class="bt-group-head">
+                    <span style="font-size:12px;font-weight:800;color:var(--red);" class="bt-cat-title">↓ Gastos</span>
+                    <div class="bt-group-actions">
+                      <span class="bt-group-hint">Editar rubros</span>
+                      <div class="detail-edit" title="Editar rubros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
+                    </div>
                   </div>
                 </td>
               </tr>
-              <tr class="bt-cat"><td colspan="3"><span style="font-size:12px;font-weight:800;color:var(--sage);">💰 Ahorro</span><span class="bt-cat-badge" style="background:var(--sage2);color:var(--sage);">Ahorros</span></td></tr>
-              <tr class="bt-sub">
-                <td><div class="bt-sub-name">Fondo de Emergencia</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle" style="color:var(--teal);">Ahorro programado</div><div class="detail-edit">✏️</div></div></td>
-                <td style="text-align:right;"><input class="bt-plan" value="$400.000" style="border-color:var(--sage);background:var(--sage2)50;"></td>
-                <td style="font-size:11px;color:var(--sage);font-weight:700;">Débito automático el 5 de cada mes</td>
+            </tbody>
+
+            <tbody class="bt-sub-block">
+              <tr class="bt-sub-row">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <span class="bt-sub-name">Necesidades Básicas</span>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" value="$1.400.000"></td>
+                <td class="bt-rec-col" style="font-size:11px;color:var(--ink3);">Recomendado 50% · Perfil Tilbury</td>
               </tr>
-              <tr class="bt-sub">
-                <td colspan="3" style="padding:8px 0;">
-                  <div style="display:flex;justify-content:center;">
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Arriendo</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$800.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Servicios públicos</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$250.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Gasolina</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$350.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-sub-block">
+              <tr class="bt-sub-row">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <span class="bt-sub-name">Alimentación</span>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" value="$500.000"></td>
+                <td style="font-size:11px;color:var(--ink3);"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Mercado</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$320.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Restaurantes</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$180.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-sub-block collapsed">
+              <tr class="bt-sub-row bt-row-warn">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <span class="bt-sub-name">Transporte</span>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" value="$400.000" style="border-color:var(--red);"></td>
+                <td style="font-size:11px;color:var(--red);font-weight:700;"></td>
+              </tr>
+              <tr class="bt-detail-row bt-row-warn">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">App taxis</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$200.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row bt-row-warn">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Peajes</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$50.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row bt-row-warn bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-sub-block">
+              <tr class="bt-sub-row">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <span class="bt-sub-name">Entretenimiento</span>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" value="$300.000"></td>
+                <td style="font-size:11px;color:var(--ink3);"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Cine</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$120.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Plataformas</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$180.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-sub-block">
+              <tr class="bt-sub-row">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <span class="bt-sub-name">Deudas</span>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" value="$650.000"></td>
+                <td style="font-size:11px;color:var(--ink3);"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Tarjeta 1</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$400.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name">Carro</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$250.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-sub-add-row">
+              <tr class="bt-sub-add-row">
+                <td colspan="3">
+                  <div class="bt-add-sub">
                     <div class="detail-add">＋</div>
+                    <span>Agregar subcategoría</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-group-head">
+              <tr class="bt-cat">
+                <td colspan="3">
+                  <div class="bt-group-head">
+                    <span style="font-size:12px;font-weight:800;color:var(--sage);" class="bt-cat-title">💰 Ahorro</span>
+                    <div class="bt-group-actions">
+                      <span class="bt-group-hint">Editar rubros</span>
+                      <div class="detail-edit" title="Editar rubros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tbody class="bt-sub-block">
+              <tr class="bt-sub-row">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <span class="bt-sub-name">Fondo de Emergencia</span>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" value="$400.000" style="border-color:var(--sage);background:var(--sage2)50;"></td>
+                <td style="font-size:11px;color:var(--sage);font-weight:700;"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><span class="bt-detail-name" style="color:var(--teal);">Ahorro programado</span></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$400.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+            <tbody class="bt-sub-add-row">
+              <tr class="bt-sub-add-row">
+                <td colspan="3">
+                  <div class="bt-add-sub">
+                    <div class="detail-add">＋</div>
+                    <span>Agregar subcategoría</span>
                   </div>
                 </td>
               </tr>
@@ -1662,6 +1907,315 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="font-size:11px;color:var(--amber);font-weight:600;">⚠️ Diferencia: $390.000 · no bloquea</div>
               <button class="confirm-btn" style="margin:0;width:auto;padding:0 20px;height:38px;">Continuar → Revisión</button>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="screen-wrap">
+  <div class="screen-label">Web Desktop — Asistente de creación · Paso 3 (modo edición)</div>
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="bdots"><div class="bd bd-r"></div><div class="bd bd-y"></div><div class="bd bd-g"></div></div>
+      <div class="burl">app.budgetapp.co/presupuesto/nuevo</div>
+      <div class="bactions"><div class="bact">↺</div><div class="bact">⋮</div></div>
+    </div>
+    <div style="min-height:620px;">
+      <div class="wiz-shell">
+        <!-- WIZ SIDEBAR -->
+        <div class="wiz-sidebar">
+          <div class="wiz-brand"><div class="wiz-mark">B</div><div><div class="wiz-name">Crear presupuesto</div></div></div>
+          <div class="wiz-steps">
+            <div class="wiz-step done">
+              <div class="ws-circle done-c">✓</div>
+              <div><div class="ws-label" style="color:var(--teal);font-size:11px;font-weight:700;">Período &amp; nombre</div><div style="font-size:10px;color:var(--ink4);">1 feb – 28 feb 2026</div></div>
+            </div>
+            <div class="wiz-step done">
+              <div class="ws-circle done-c">✓</div>
+              <div><div class="ws-label" style="color:var(--teal);font-size:11px;font-weight:700;">Perfil financiero</div><div style="font-size:10px;color:var(--ink4);">Tilbury (1%)</div></div>
+            </div>
+            <div class="wiz-step active">
+              <div class="ws-circle active-c">3</div>
+              <div><div class="ws-label active-l" style="font-size:11px;font-weight:700;">Ingresos y valores planificados</div><div style="font-size:10px;color:var(--ink4);">Categorías y detalles</div></div>
+            </div>
+            <div class="wiz-step">
+              <div class="ws-circle idle-c">4</div>
+              <div><div class="ws-label idle-l" style="font-size:11px;">Revisión &amp; balance</div></div>
+            </div>
+            <div class="wiz-step">
+              <div class="ws-circle idle-c">5</div>
+              <div><div class="ws-label idle-l" style="font-size:11px;">Confirmar &amp; activar</div></div>
+            </div>
+          </div>
+          <div class="wiz-progress">
+            <div class="wiz-prog-lbl"><span>Progreso</span><span style="color:var(--teal);font-weight:700;">3 / 5</span></div>
+            <div class="wiz-prog-bar"><div class="wiz-prog-fill" style="width:60%;"></div></div>
+          </div>
+          <!-- Profile reminder -->
+          <div style="margin-top:16px;background:var(--teal4);border:1.5px solid var(--teal);border-radius:var(--r);padding:11px;">
+            <div style="font-size:10px;font-weight:800;color:var(--teal);margin-bottom:6px;">Perfil Tilbury (1%) activo</div>
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:10px;color:var(--ink3);display:flex;justify-content:space-between;"><span>Esenciales</span><span style="font-weight:700;">50%</span></div>
+              <div style="font-size:10px;color:var(--ink3);display:flex;justify-content:space-between;"><span>Crecimiento/Inv.</span><span style="font-weight:700;">25%</span></div>
+              <div style="font-size:10px;color:var(--ink3);display:flex;justify-content:space-between;"><span>Estabilidad</span><span style="font-weight:700;">15%</span></div>
+              <div style="font-size:10px;color:var(--ink3);display:flex;justify-content:space-between;"><span>Recompensas</span><span style="font-weight:700;">10%</span></div>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:10px;color:var(--ink4);font-weight:600;">Moneda: COP $</div>
+        </div>
+        <!-- WIZ MAIN -->
+        <div class="wiz-main" style="overflow:hidden;">
+          <div class="wiz-header">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <div class="wiz-step-badge">Paso 3 de 5</div>
+              <div class="bt-edit-pill">Modo edición</div>
+            </div>
+            <div class="wiz-title">Ajusta subcategorías y detalles</div>
+            <div class="wiz-subtitle">Edita nombres, agrega nuevos detalles y ajusta la estructura sin salir del paso.</div>
+            <div style="font-size:10px;color:var(--red);font-weight:600;margin-top:6px;">Eliminar subcategoría requiere confirmación y borra todos sus detalles.</div>
+          </div>
+
+          <!-- Balance meter -->
+          <div class="balance-meter">
+            <div class="bm-row">
+              <div class="bm-col"><div class="bm-label">Ingresos totales</div><div class="bm-val teal">$9.890.000</div></div>
+              <div class="bm-col"><div class="bm-label">Total planificado</div><div class="bm-val">$9.500.000</div></div>
+              <div class="bm-col"><div class="bm-label">Diferencia (debe ser 0)</div><div class="bm-val warn">$390.000</div></div>
+            </div>
+            <div class="toast">⚠️ La diferencia no es $0. Puedes continuar o asignar $390.000 a Ahorro.</div>
+          </div>
+
+          <!-- Ingresos (sin subcategoría, usa rubro/detalle) -->
+          <table class="budget-table bt-edit-mode" style="margin-bottom:16px;">
+            <thead>
+              <tr>
+                <th style="width:200px;">Categoría / Rubro</th>
+                <th>Descripción</th>
+                <th>Método / Banco</th>
+                <th style="text-align:right;width:130px;">Valor Plan</th>
+              </tr>
+            </thead>
+            <tbody class="bt-income-block editing">
+              <tr class="bt-cat">
+                <td colspan="4">
+                  <div class="bt-group-head">
+                    <span style="font-size:12px;font-weight:800;color:var(--sage);" class="bt-cat-title">↑ Ingresos</span>
+                    <div class="bt-group-actions">
+                      <span class="bt-group-hint">Editar rubros</span>
+                      <div class="detail-edit" style="background:var(--teal);border-color:var(--teal);color:white;" title="Editar rubros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="bt-sub">
+                <td><div style="display:flex;align-items:center;gap:8px;"><input class="bt-name-input" value="Salario"><div class="bt-remove sm" title="Eliminar subcategoría (se solicitará confirmación)">×</div></div><div class="bt-detalle">Ingreso base</div></td>
+                <td style="font-size:11px;color:var(--ink4);">Pago mensual empresa</td>
+                <td style="font-size:11px;color:var(--ink3);">🏦 Transf. · Bancolombia</td>
+                <td style="text-align:right;"><input class="bt-plan" value="$8.500.000"></td>
+              </tr>
+              <tr class="bt-sub">
+                <td><div style="display:flex;align-items:center;gap:8px;"><input class="bt-name-input" value="Saldo mes anterior"><div class="bt-remove sm" title="Eliminar subcategoría (se solicitará confirmación)">×</div></div><div class="bt-detalle">Ingreso base</div></td>
+                <td style="font-size:11px;color:var(--ink4);">Saldo enero</td>
+                <td style="font-size:11px;color:var(--ink3);">🏦 Bancolombia</td>
+                <td style="text-align:right;"><input class="bt-plan" value="$1.390.000"></td>
+              </tr>
+              <tr class="bt-sub">
+                <td><div style="display:flex;align-items:center;gap:8px;"><input class="bt-name-input new" placeholder="Nueva subcategoría"><div class="bt-remove sm" title="Eliminar subcategoría (se solicitará confirmación)">×</div></div><div class="bt-detalle">Ingreso adicional</div></td>
+                <td style="font-size:11px;color:var(--ink4);">Opcional</td>
+                <td style="font-size:11px;color:var(--ink3);">🏦 Selecciona banco</td>
+                <td style="text-align:right;"><input class="bt-plan" placeholder="$0"></td>
+              </tr>
+              <tr class="bt-sub-add-row">
+                <td colspan="4">
+                  <div class="bt-add-sub">
+                    <div class="detail-add">＋</div>
+                    <span>Agregar subcategoría</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Gastos table (modo edición) -->
+          <table class="budget-table bt-edit-mode">
+            <thead>
+              <tr>
+                <th style="width:240px;">Gastos y Ahorro</th>
+                <th style="text-align:right;width:150px;">Plan (este mes)</th>
+                <th class="bt-rec-col">Recomendaciones del perfil</th>
+              </tr>
+            </thead>
+            <tbody class="bt-group-head">
+              <tr class="bt-cat">
+                <td colspan="3">
+                  <div class="bt-group-head">
+                    <span style="font-size:12px;font-weight:800;color:var(--red);" class="bt-cat-title">↓ Gastos</span>
+                    <div class="bt-group-actions">
+                      <span class="bt-group-hint">Editar rubros</span>
+                      <div class="detail-edit" style="background:var(--teal);border-color:var(--teal);color:white;" title="Editar rubros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-sub-block editing">
+              <tr class="bt-sub-row">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <input class="bt-name-input" value="Necesidades Básicas" style="border-color:var(--teal);">
+                    <div class="bt-remove" title="Eliminar subcategoría (se solicitará confirmación y se eliminarán los detalles)">×</div>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" value="$1.400.000"></td>
+                <td class="bt-rec-col" style="font-size:11px;color:var(--ink3);">Recomendado 50% · Perfil Tilbury</td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><input class="bt-detail-input" value="Arriendo" style="border-color:var(--teal);"><div class="bt-remove sm" title="Eliminar detalle (se solicitará confirmación)">×</div></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$800.000" style="border-color:var(--teal);"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><input class="bt-detail-input" value="Servicios públicos"><div class="bt-remove sm" title="Eliminar detalle (se solicitará confirmación)">×</div></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$250.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><input class="bt-detail-input new" placeholder="Nuevo detalle"><div class="bt-remove sm" title="Eliminar detalle (se solicitará confirmación)">×</div></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" placeholder="$0"></td>
+                <td></td>
+              </tr>
+              <tr class="bt-detail-row bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-sub-block editing">
+              <tr class="bt-sub-row">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <input class="bt-name-input" value="Alimentación">
+                    <div class="bt-remove" title="Eliminar subcategoría (se solicitará confirmación y se eliminarán los detalles)">×</div>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" value="$500.000"></td>
+                <td style="font-size:11px;color:var(--ink3);"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><input class="bt-detail-input" value="Mercado"><div class="bt-remove sm" title="Eliminar detalle (se solicitará confirmación)">×</div></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$320.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-sub-block editing">
+              <tr class="bt-sub-row">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <input class="bt-name-input new" placeholder="Nueva subcategoría">
+                    <div class="bt-remove" title="Eliminar subcategoría (se solicitará confirmación y se eliminarán los detalles)">×</div>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" placeholder="$0"></td>
+                <td style="font-size:11px;color:var(--ink4);"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><input class="bt-detail-input new" placeholder="Nuevo detalle"><div class="bt-remove sm" title="Eliminar detalle (se solicitará confirmación)">×</div></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" placeholder="$0"></td>
+                <td></td>
+              </tr>
+              <tr class="bt-detail-row bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-sub-add-row">
+              <tr class="bt-sub-add-row">
+                <td colspan="3">
+                  <div class="bt-add-sub">
+                    <div class="detail-add">＋</div>
+                    <span>Agregar subcategoría</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+
+            <tbody class="bt-group-head">
+              <tr class="bt-cat">
+                <td colspan="3">
+                  <div class="bt-group-head">
+                    <span style="font-size:12px;font-weight:800;color:var(--sage);" class="bt-cat-title">💰 Ahorro</span>
+                    <div class="bt-group-actions">
+                      <span class="bt-group-hint">Editar rubros</span>
+                      <div class="detail-edit" style="background:var(--teal);border-color:var(--teal);color:white;" title="Editar rubros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tbody class="bt-sub-block editing">
+              <tr class="bt-sub-row">
+                <td>
+                  <div class="bt-tree-node">
+                    <div class="bt-toggle" title="Expandir/colapsar"></div>
+                    <input class="bt-name-input" value="Fondo de Emergencia">
+                    <div class="bt-remove" title="Eliminar subcategoría (se solicitará confirmación y se eliminarán los detalles)">×</div>
+                  </div>
+                </td>
+                <td style="text-align:right;"><input class="bt-plan" value="$400.000" style="border-color:var(--sage);background:var(--sage2)50;"></td>
+                <td style="font-size:11px;color:var(--sage);font-weight:700;"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><input class="bt-detail-input" value="Ahorro programado"><div class="bt-remove sm" title="Eliminar detalle (se solicitará confirmación)">×</div></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" value="$400.000"></td>
+                <td class="bt-detail-note"></td>
+              </tr>
+              <tr class="bt-detail-row">
+                <td><div class="bt-tree-node"><span class="bt-tree-branch"></span><input class="bt-detail-input new" placeholder="Nuevo detalle"><div class="bt-remove sm" title="Eliminar detalle (se solicitará confirmación)">×</div></div></td>
+                <td style="text-align:right;"><input class="bt-detail-value" placeholder="$0"></td>
+                <td></td>
+              </tr>
+              <tr class="bt-detail-row bt-detail-add-row">
+                <td><div class="bt-add-row"><div class="detail-add sm">＋</div><span>Agregar detalle</span></div></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+            <tbody class="bt-sub-add-row">
+              <tr class="bt-sub-add-row">
+                <td colspan="3">
+                  <div class="bt-add-sub">
+                    <div class="detail-add">＋</div>
+                    <span>Agregar subcategoría</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Actions -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:14px;border-top:1.5px solid var(--paper3);">
+            <div style="display:flex;gap:8px;">
+              <div style="background:var(--paper2);border:1.5px solid var(--paper3);border-radius:var(--r);padding:9px 16px;font-size:12px;font-weight:600;color:var(--ink3);">← Atrás</div>
+              <div style="background:var(--paper2);border:1.5px solid var(--paper3);border-radius:var(--r);padding:9px 16px;font-size:12px;font-weight:600;color:var(--ink3);">Cancelar edición</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="font-size:11px;color:var(--amber);font-weight:600;">⚠️ Diferencia: $390.000 · no bloquea</div>
+              <button class="confirm-btn" style="margin:0;width:auto;padding:0 20px;height:38px;">Guardar cambios</button>
             </div>
           </div>
         </div>
@@ -1762,6 +2316,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
             </div>
           </div>
           <div class="text-xs text-muted mt8">Los porcentajes son editables; deben sumar 100%.</div>
+          <div class="text-xs text-muted mt4">El perfil solo generará sugerencias y alertas, pero los valores podrán ser modificados por ti.</div>
           <div class="mob-submit" style="margin-top:10px;">Continuar → Valores</div>
         </div>
         <div class="phone-home-bar"></div>
@@ -1804,112 +2359,160 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
           <!-- Balance toast -->
           <div class="toast" style="margin-bottom:13px;font-size:10px;">⚠️ Diferencia: $390.000 — asigna a Ahorro o continúa</div>
 
-          <!-- Section: Gastos -->
+          <!-- Section: Ingresos -->
           <div class="mob-wiz-section">
-            <div class="mob-wiz-sec-title"><span class="mob-wiz-sec-icon">💸</span>Gastos</div>
-            <div class="mob-budget-cat">
-              <div class="mob-cat-header">
-                <div class="mob-cat-name">Necesidades Básicas</div>
-                <span class="mob-cat-badge" style="background:var(--teal3);color:var(--teal);">$1.400.000</span>
-              </div>
-              <div class="mob-cat-items">
-                <div class="mob-cat-row">
-                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
-                    <div><div class="mob-cat-sub">Arriendo</div></div>
-                    <div class="detail-edit sm">✏️</div>
-                  </div>
-                  <input class="mob-cat-input active" value="$800.000">
-                </div>
-                <div class="mob-cat-row">
-                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
-                    <div><div class="mob-cat-sub">Servicios públicos</div></div>
-                    <div class="detail-edit sm">✏️</div>
-                  </div>
-                  <input class="mob-cat-input" value="$200.000">
-                </div>
-                <div class="mob-cat-row">
-                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
-                    <div><div class="mob-cat-sub">Gasolina</div></div>
-                    <div class="detail-edit sm">✏️</div>
-                  </div>
-                  <input class="mob-cat-input" value="$200.000">
-                </div>
-                <div class="mob-cat-row">
-                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
-                    <div><div class="mob-cat-sub">Mercado</div></div>
-                    <div class="detail-edit sm">✏️</div>
-                  </div>
-                  <input class="mob-cat-input" value="$200.000">
-                </div>
-                <div class="mob-cat-row" style="justify-content:center;">
-                  <div class="detail-add sm">＋</div>
-                </div>
-              </div>
+            <div class="mob-wiz-sec-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:6px;"><span class="mob-wiz-sec-icon">💵</span>Ingresos</div>
+              <div class="detail-edit sm" title="Editar ingresos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
             </div>
-
             <div class="mob-budget-cat">
               <div class="mob-cat-header">
-                <div class="mob-cat-name">Transporte ⚠️</div>
-                <span class="mob-cat-badge" style="background:var(--red3);color:var(--red);">$400.000</span>
+                <div class="mob-cat-name">Ingresos del mes</div>
+                <span class="mob-cat-badge" style="background:var(--sage2);color:var(--sage);">$9.890.000</span>
               </div>
               <div class="mob-cat-items">
                 <div class="mob-cat-row">
-                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
-                    <div><div class="mob-cat-sub">App taxis/taxi</div></div>
-                    <div class="detail-edit sm">✏️</div>
+                  <div>
+                    <div class="mob-cat-sub">Salario</div>
+                    <div class="mob-cat-detalle">Ingreso base</div>
                   </div>
-                  <input class="mob-cat-input" value="$200.000">
+                  <input class="mob-cat-input" value="$8.500.000">
                 </div>
                 <div class="mob-cat-row">
-                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
-                    <div><div class="mob-cat-sub">Mantenimiento</div></div>
-                    <div class="detail-edit sm">✏️</div>
+                  <div>
+                    <div class="mob-cat-sub">Saldo mes anterior</div>
+                    <div class="mob-cat-detalle">Ingreso base</div>
                   </div>
-                  <input class="mob-cat-input" value="$150.000">
+                  <input class="mob-cat-input" value="$1.390.000">
                 </div>
-                <div class="mob-cat-row">
-                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
-                    <div><div class="mob-cat-sub">Peaje/colpass</div></div>
-                    <div class="icon-btn" style="width:22px;height:22px;font-size:10px;">✏️</div>
-                  </div>
-                  <input class="mob-cat-input" value="$50.000">
-                </div>
-                <div class="mob-cat-row" style="justify-content:center;">
+                <div class="mob-cat-row mob-add-row" style="justify-content:center;">
                   <div class="detail-add sm">＋</div>
                 </div>
               </div>
             </div>
           </div>
 
+          <!-- Section: Gastos -->
+          <div class="mob-wiz-section">
+            <div class="mob-wiz-sec-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:6px;"><span class="mob-wiz-sec-icon">💸</span>Gastos</div>
+              <div class="detail-edit sm" title="Editar subcategorías y detalles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
+            </div>
+            <div class="mob-budget-cat editing">
+              <div class="mob-cat-header">
+                <div class="mob-cat-name">Necesidades Básicas</div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span class="mob-cat-badge" style="background:var(--teal3);color:var(--teal);">$1.400.000</span>
+                  <div class="mob-cat-toggle" title="Expandir/colapsar"></div>
+                </div>
+              </div>
+              <div class="mob-detail-wrap">
+                <div style="font-size:9px;color:var(--ink4);margin:6px 0 4px 12px;text-transform:uppercase;letter-spacing:.07em;">Detalles</div>
+                <div class="mob-cat-items" style="margin-left:10px;border-left:1.5px solid var(--paper3);padding-left:10px;">
+                <div class="mob-cat-row">
+                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
+                    <div><div class="mob-cat-sub">Arriendo</div></div>
+                  </div>
+                  <input class="mob-cat-input active" value="$800.000">
+                </div>
+                <div class="mob-cat-row">
+                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
+                    <div><div class="mob-cat-sub">Servicios públicos</div></div>
+                  </div>
+                  <input class="mob-cat-input" value="$200.000">
+                </div>
+                <div class="mob-cat-row">
+                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
+                    <div><div class="mob-cat-sub">Gasolina</div></div>
+                  </div>
+                  <input class="mob-cat-input" value="$200.000">
+                </div>
+                <div class="mob-cat-row">
+                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
+                    <div><div class="mob-cat-sub">Mercado</div></div>
+                  </div>
+                  <input class="mob-cat-input" value="$200.000">
+                </div>
+                <div class="mob-cat-row mob-add-row" style="justify-content:center;">
+                  <div class="detail-add sm">＋</div>
+                </div>
+              </div>
+              </div>
+            </div>
+
+            <div class="mob-budget-cat collapsed">
+              <div class="mob-cat-header">
+                <div class="mob-cat-name">Transporte ⚠️</div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span class="mob-cat-badge" style="background:var(--red3);color:var(--red);">$400.000</span>
+                  <div class="mob-cat-toggle" title="Expandir/colapsar"></div>
+                </div>
+              </div>
+              <div class="mob-detail-wrap">
+                <div style="font-size:9px;color:var(--ink4);margin:6px 0 4px 12px;text-transform:uppercase;letter-spacing:.07em;">Detalles</div>
+                <div class="mob-cat-items" style="margin-left:10px;border-left:1.5px solid var(--paper3);padding-left:10px;">
+                <div class="mob-cat-row">
+                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
+                    <div><div class="mob-cat-sub">App taxis/taxi</div></div>
+                  </div>
+                  <input class="mob-cat-input" value="$200.000">
+                </div>
+                <div class="mob-cat-row">
+                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
+                    <div><div class="mob-cat-sub">Mantenimiento</div></div>
+                  </div>
+                  <input class="mob-cat-input" value="$150.000">
+                </div>
+                <div class="mob-cat-row">
+                  <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
+                    <div><div class="mob-cat-sub">Peaje/colpass</div></div>
+                  </div>
+                  <input class="mob-cat-input" value="$50.000">
+                </div>
+                <div class="mob-cat-row mob-add-row" style="justify-content:center;">
+                  <div class="detail-add sm">＋</div>
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Section: Ahorro -->
           <div class="mob-wiz-section">
-            <div class="mob-wiz-sec-title"><span class="mob-wiz-sec-icon">💰</span>Ahorro</div>
+            <div class="mob-wiz-sec-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:6px;"><span class="mob-wiz-sec-icon">💰</span>Ahorro</div>
+              <div class="detail-edit sm" title="Editar subcategorías y detalles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
+            </div>
             <div class="mob-budget-cat">
               <div class="mob-cat-header">
                 <div class="mob-cat-name">Ahorros</div>
-                <span class="mob-cat-badge" style="background:var(--sage2);color:var(--sage);">$650.000</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span class="mob-cat-badge" style="background:var(--sage2);color:var(--sage);">$650.000</span>
+                  <div class="mob-cat-toggle" title="Expandir/colapsar"></div>
+                </div>
               </div>
-              <div class="mob-cat-items">
+              <div class="mob-detail-wrap">
+                <div style="font-size:9px;color:var(--ink4);margin:6px 0 4px 12px;text-transform:uppercase;letter-spacing:.07em;">Detalles</div>
+                <div class="mob-cat-items" style="margin-left:10px;border-left:1.5px solid var(--paper3);padding-left:10px;">
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div>
                       <div class="mob-cat-sub">Fondo Emergencia</div>
                       <div class="mob-cat-detalle" style="color:var(--teal);">📌 Ahorro programado</div>
                     </div>
-                    <div class="detail-edit sm">✏️</div>
                   </div>
                   <input class="mob-cat-input active" value="$400.000">
                 </div>
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div><div class="mob-cat-sub">Fondo Pensión</div></div>
-                    <div class="detail-edit sm">✏️</div>
                   </div>
                   <input class="mob-cat-input" value="$250.000">
                 </div>
-                <div class="mob-cat-row" style="justify-content:center;">
+                <div class="mob-cat-row mob-add-row" style="justify-content:center;">
                   <div class="detail-add sm">＋</div>
                 </div>
+              </div>
               </div>
             </div>
           </div>

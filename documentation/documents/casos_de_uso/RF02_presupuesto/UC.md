@@ -51,7 +51,8 @@ Permite al usuario crear un presupuesto para un mes especifico.
 | 3 | Usuario selecciona plantilla base: vacia. | - |
 | 4 | - | Carga categorias fijas (Gastos, Ingresos, Ahorro) y subcategorias base de Mindful Budget. |
 | 5 | Usuario registra ingreso estimado y saldo del mes anterior. | - |
-| 6 | Usuario registra valores planificados por subcategoria (Gastos/Ahorro) y rubro/arista (Ingresos), incluyendo medio de pago (tarjeta, efectivo, transferencia, prestamo), banco/tarjeta y moneda cuando aplique. | - |
+| 5.1 | - | Preasigna valores planificados por subcategoria según los porcentajes del perfil activo (editable). |
+| 6 | Usuario registra valores planificados por subcategoria (Gastos/Ahorro) y sus detalles (aristas); en Ingresos registra rubro/detalle directamente, incluyendo medio de pago (tarjeta, efectivo, transferencia, prestamo), banco/tarjeta y moneda cuando aplique. | - |
 | 6.1 | - | Calcula balance ingreso vs presupuesto y muestra un toast de notificación si no es 0 (no bloquea). |
 | 7 | Usuario guarda como borrador. | - |
 | 8 | Usuario cierra el presupuesto (si aplica). | - |
@@ -66,9 +67,9 @@ Permite al usuario crear un presupuesto para un mes especifico.
 | 2a | Define fecha inicio y fin (dd-mm-yyyy). |
 | 3a | Selecciona plantilla base: vacia. |
 | 4a | El sistema carga categorias y subcategorias por defecto. |
-| 5a | El usuario ajusta subcategorias y aristas permitidas (no modifica categorias). |
+| 5a | El usuario ajusta subcategorias y detalles (aristas) permitidas (no modifica categorias). |
 | 6a | El usuario registra los ingresos iniciales para el presupuesto. |
-| 7a | Usuario registra los valores estimados a gastar y a ahorrar en las subcategorias en la columna "Plan" y su descripcion en "Descripcion", incluyendo medio de pago, banco/tarjeta y moneda cuando aplique. |
+| 7a | Usuario registra los valores estimados a gastar y a ahorrar en las subcategorias en la columna "Plan" y sus detalles (aristas) en "Descripcion", incluyendo medio de pago, banco/tarjeta y moneda cuando aplique. |
 | 8a | El sistema calcula balance dinamicamente. |
 | 9a | Usuario guarda como borrador o cierra el presupuesto. |
 
@@ -82,7 +83,7 @@ No hay.
 - La interfaz muestra un log mensual por mes.
 - La base de datos almacena todas las transacciones en una sola tabla; el log mensual se obtiene por filtro de fechas.
 - Campos mínimos: id, user_id/household_id, fecha, monto, moneda, categoria (Gastos/Ingresos/Ahorro), subcategoria_id, rubro, subclasificacion, medio_pago (tarjeta/efectivo/transferencia/prestamo), banco_id, tarjeta_id, origen (manual/importado), notas, created_at.
-- Catálogos: subcategorías editables ligadas a categoría; aristas editables por subcategoría; Ingresos usa rubro/arista directamente (sin subcategoría).
+- Catálogos: subcategorías editables ligadas a categoría; detalles (aristas) editables por subcategoría; Ingresos usa rubro/detalle (arista) directamente (sin subcategoría).
 - Si medio de pago es tarjeta o transferencia, se selecciona banco; si es tarjeta, se selecciona tarjeta; siempre se selecciona moneda.
 - En presupuesto mensual solo se permite presupuestar el mes actual.
 - Si un rubro corresponde a ahorro programado anual, en la vista mensual se muestra el valor mensual y un indicador de "ahorro programado"; la definición de fecha fin y valor objetivo se registra en el presupuesto anual (UC-02).
@@ -95,6 +96,10 @@ No hay.
 
 #### Usabilidad
 - Si el balance no es 0, se muestra un toast de notificación informativo sin bloquear al usuario.
+- En el paso 3, la jerarquia se visualiza como arbol: Categoria > Subcategoria > Detalle (arista).
+- Las subcategorias pueden expandirse/colapsarse para mostrar u ocultar detalles.
+- El boton para agregar detalle aparece al pasar el mouse o en modo edicion.
+- Si el usuario cambia el valor total de una subcategoria y la suma de sus detalles no coincide, los detalles se resaltan en rojo y se muestra un error indicando la diferencia.
 
 #### Cumplimiento
 - No aplica.
@@ -121,6 +126,10 @@ No hay.
 | RN-BP-08 | En presupuesto mensual solo se presupuestan valores del mes actual. |
 | RN-BP-09 | Rubros marcados como ahorro programado se reflejan con indicador en el mes; cuando llega el mes de gasto real, el usuario puede desmarcar el ahorro y registrar el valor real, y el saldo restante queda como ahorro. |
 | RN-BP-10 | Si el usuario modifica un valor desde la vista mensual un rubro marcado como ahorro programado, se mostrar un mensaje diciendo "Se está modificando un ahorro programado y se ajustarán los demás valores para cumple el objetivo en la fecha indicada". |
+| RN-BP-11 | El valor de cada subcategoria es la sumatoria de sus detalles (aristas). |
+| RN-BP-12 | Si el usuario modifica el valor de una subcategoria, el sistema valida que la suma de detalles coincida; si no coincide, marca detalles en rojo y muestra un error. |
+| RN-BP-13 | Al ingresar ingresos, el sistema preasigna valores de subcategorias segun los porcentajes definidos en el perfil activo (valores editables). |
+| RN-BP-14 | Eliminar una subcategoria requiere confirmacion y elimina todos sus detalles asociados. |
 
 #### Catalogo base de aristas
 
