@@ -16,7 +16,7 @@ export function hasPool() {
 
 export async function query(text, params = []) {
   if (!pool) {
-    throw new Error("DATABASE_URL no configurada en frontend/.env");
+    throw new Error("DATABASE_URL no configurada en app/.env");
   }
 
   return pool.query(text, params);

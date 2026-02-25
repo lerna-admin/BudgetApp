@@ -1,11 +1,11 @@
-# Frontend Next.js
+# App Next.js
 
 Este proyecto es la nueva capa de presentación web enfocada en consumir el backend Mongo (MVC) de BudgetApp.
 Se ejecuta independientemente y puede convivir con futuras apps móviles que reutilicen los mismos contratos.
 
 ## Instalación y arranque
 ```bash
-cd frontend
+cd app
 npm install
 npm run dev   # levanta Next.js en http://localhost:3000
 ```

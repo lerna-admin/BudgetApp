@@ -1,4 +1,4 @@
-# BudgetApp (frontend + API Next.js)
+# BudgetApp (app + API Next.js)
 
 Implementación unificada en Next.js 15 (App Router) que expone:
 - Frontend (React 19) con vistas Dashboard, Registro de movimientos, Bancos, Perfil.
@@ -8,7 +8,7 @@ Implementación unificada en Next.js 15 (App Router) que expone:
 - Node.js >= 20
 - npm >= 10
 - PostgreSQL >= 13
-- Archivo `.env` en `frontend/.env` (ya existe en repo de ejemplo):
+- Archivo `.env` en `app/.env` (ya existe en repo de ejemplo):
   ```env
   DATABASE_URL=postgresql://user:pass@localhost:5432/budgetapp_dev
   DB_SSL=false
@@ -18,28 +18,28 @@ Implementación unificada en Next.js 15 (App Router) que expone:
 
 ## Instalación
 ```bash
-cd frontend
+cd app
 npm install
 ```
 
 ## Migraciones
-Las migraciones viven en `frontend/migrations`. Incluyen esquema base, gastos, catálogo Tilbury, custom subcategorías, ingresos y destinos de ingresos, cuentas/tarjetas.
+Las migraciones viven en `app/migrations`. Incluyen esquema base, gastos, catálogo Tilbury, custom subcategorías, ingresos y destinos de ingresos, cuentas/tarjetas.
 
 Ejecutar todas:
 ```bash
-cd frontend
+cd app
 npm run migrate
 ```
 
 ## Correr en desarrollo
 ```bash
-cd frontend
+cd app
 npm run dev   # levanta Next en http://localhost:3000
 ```
 
 ## Build de producción
 ```bash
-cd frontend
+cd app
 npm run build
 npm start
 ```
@@ -83,11 +83,10 @@ npm start
 - Variables de entorno configuradas antes de `npm run migrate` y `npm run dev`.
 
 ## Notas operativas
-- El backend Express previo fue removido; todo vive en Next (frontend + API). Las migraciones se ejecutan con `npm run migrate` desde `frontend/`.
+- El backend Express previo fue removido; todo vive en Next (app + API). Las migraciones se ejecutan con `npm run migrate` desde `app/`.
 - Disponible se calcula con: suma de balances de cuentas + ingresos – gastos – ahorro.
 
 ## Comandos útiles
 - Ejecutar migraciones: `npm run migrate`
 - Levantar dev: `npm run dev`
 - Build/start: `npm run build && npm start`
-

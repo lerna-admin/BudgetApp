@@ -1,19 +1,8 @@
 module.exports = {
   apps: [
     {
-      name: "budgetapp-backend",
-      cwd: "./backend",
-      script: "npm",
-      args: "run dev",
-      watch: ["src"],
-      env: {
-        NODE_ENV: "development",
-        PORT: 4000,
-      },
-    },
-    {
-      name: "budgetapp-frontend",
-      cwd: "./frontend",
+      name: "budgetapp-app",
+      cwd: "./app",
       script: "npm",
       args: "run dev",
       watch: ["src"],
