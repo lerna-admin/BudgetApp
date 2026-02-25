@@ -131,7 +131,7 @@ export async function createExpense(data) {
       attachments,
       transferFrom,
       transferTo,
-      destinationAccountId,
+      destinationAccountId || null,
       destinationNote,
     ],
   );
@@ -192,7 +192,7 @@ export async function updateExpense(id, patch, { userId = null } = {}) {
       merged.attachments,
       merged.transferFrom,
       merged.transferTo,
-      merged.destinationAccountId,
+      merged.destinationAccountId || null,
       merged.destinationNote,
     ],
   );

@@ -116,20 +116,36 @@ function methodNeedsCard(method) {
 }
 
 const startingBalance = 0;
-const incomeId = 'income';
-const bankOptions = ["Bancolombia", "Davivienda", "Lulo", "Nequi"];
-const cardOptionsByBank = {
-  Bancolombia: ["Visa Clasica", "Mastercard Debito"],
-  Davivienda: ["Debito Dinamica", "Mastercard Gold"],
-  Lulo: ["Tarjeta Lulo Debito"],
-  Nequi: ["Tarjeta Nequi"],
-};
-const accountOptions = [
-  "Bancolombia - Cuenta Ahorros",
-  "Lulo - Cuenta Digital",
-  "Bolsillo Diario",
-  "Nequi Principal",
+const incomeId = "income";
+const CASH_LABEL = "Efectivo";
+
+const accountsMock = [
+  { id: "acc-1", bankName: "Bancolombia", accountName: "Bancolombia - Cuenta Ahorros", accountNumber: "1234", accountType: "savings", currency: "COP", balance: 500000 },
+  { id: "acc-2", bankName: "Nequi", accountName: "Nequi Principal", accountNumber: "5678", accountType: "cash", currency: "COP", balance: 200000 },
 ];
+
+const cardsMock = [
+  { id: "card-1", bankName: "Bancolombia", cardName: "Visa Clasica", last4: "4242", currency: "COP" },
+  { id: "card-2", bankName: "Davivienda", cardName: "Mastercard Gold", last4: "1111", currency: "COP" },
+];
+
+const bankOptions = Array.from(new Set([
+  CASH_LABEL,
+  ...accountsMock.map((a) => a.bankName || a.accountName.split(" - ")[0]),
+  ...cardsMock.map((c) => c.bankName || c.cardName.split(" ")[0]),
+]));
+
+const cardOptionsByBank = (() => {
+  const map = {};
+  cardsMock.forEach((c) => {
+    const key = c.bankName || c.cardName.split(" ")[0];
+    if (!map[key]) map[key] = [];
+    map[key].push(c.cardName + (c.last4 ? ` ••••${c.last4}` : ""));
+  });
+  return map;
+})();
+
+const accountOptions = accountsMock.map((a) => `${a.accountName}${a.accountNumber ? " · " + a.accountNumber : ""}`);
 
 const initialMovements = [
   {
@@ -177,7 +193,7 @@ const initialMovements = [
     subcategory: "Necesidades Basicas",
     edge: "Gasolina",
     method: "cash",
-    bank: "",
+    bank: CASH_LABEL,
     card: "",
     currency: "COP",
     tags: [],
@@ -232,7 +248,7 @@ function createInitialForm() {
     subcategory: "",
     edge: "",
     method: "cash",
-    bank: "",
+    bank: CASH_LABEL,
     card: "",
     currency: "COP",
     tags: "",
@@ -263,7 +279,8 @@ function normalizeForm(nextForm) {
   }
 
   if (!methodNeedsBank(next.method)) {
-    next.bank = "";
+    if (next.method === "cash") next.bank = CASH_LABEL;
+    else next.bank = "";
   }
 
   if (!methodNeedsCard(next.method)) {
@@ -290,10 +307,17 @@ function createEl(tag, className, text) {
 }
 
 function parseTags(raw) {
+  const seen = new Set();
   return String(raw || "")
     .split(",")
     .map((t) => t.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((tag) => {
+      const key = tag.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -343,6 +367,9 @@ document.addEventListener("DOMContentLoaded", () => {
     formBank: document.getElementById("form-bank"),
     formCard: document.getElementById("form-card"),
     formTags: document.getElementById("form-tags"),
+    selectedTags: document.getElementById("selected-tags"),
+    tagSuggestions: document.getElementById("tag-suggestions"),
+    tagEmptyHint: document.getElementById("tag-empty-hint"),
     formAttachments: document.getElementById("form-attachments"),
     attachmentsHint: document.getElementById("attachments-hint"),
     feedback: document.getElementById("form-feedback"),
@@ -363,12 +390,101 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     drawerOpen: false,
     form: createInitialForm(),
+    tagInput: "",
+    tagCatalog: uniqueSorted(initialMovements.flatMap((item) => item.tags || [])),
   };
 
   function setFeedback(type, text) {
     ui.feedback.hidden = !text;
     ui.feedback.className = `message ${type === "error" ? "message-error" : "message-ok"}`;
     ui.feedback.textContent = text || "";
+  }
+
+  function getSelectedTags() {
+    return parseTags(state.form.tags);
+  }
+
+  function getFilteredTagSuggestions() {
+    const query = String(state.tagInput || "").trim().toLowerCase();
+    if (!query) {
+      return [];
+    }
+    const selected = new Set(getSelectedTags().map((tag) => tag.toLowerCase()));
+    return state.tagCatalog
+      .filter((tag) => !selected.has(tag.toLowerCase()))
+      .filter((tag) => tag.toLowerCase().includes(query))
+      .slice(0, 8);
+  }
+
+  function renderTagEditor() {
+    const selected = getSelectedTags();
+    const suggestions = getFilteredTagSuggestions();
+    const inputValue = String(state.tagInput || "").trim();
+
+    ui.selectedTags.innerHTML = "";
+    for (const tag of selected) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip expense-tag-chip";
+      chip.dataset.tag = tag;
+
+      const text = document.createElement("span");
+      text.textContent = tag;
+      chip.appendChild(text);
+
+      const close = document.createElement("span");
+      close.setAttribute("aria-hidden", "true");
+      close.textContent = "✕";
+      chip.appendChild(close);
+
+      ui.selectedTags.appendChild(chip);
+    }
+
+    ui.tagSuggestions.innerHTML = "";
+    for (const tag of suggestions) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.dataset.tag = tag;
+      chip.textContent = tag;
+      ui.tagSuggestions.appendChild(chip);
+    }
+
+    let hintText = "";
+    if (selected.length === 0) {
+      hintText = "Sin etiquetas en este movimiento.";
+    }
+    if (inputValue && suggestions.length === 0) {
+      hintText = `Sin coincidencias. Presiona Enter para crear "${inputValue}".`;
+    }
+    ui.tagEmptyHint.hidden = !hintText;
+    ui.tagEmptyHint.textContent = hintText;
+  }
+
+  function addTag(rawTag) {
+    const cleanTag = String(rawTag || "").trim();
+    if (!cleanTag) {
+      return;
+    }
+    const canonical = state.tagCatalog.find((tag) => tag.toLowerCase() === cleanTag.toLowerCase()) || cleanTag;
+    const selected = getSelectedTags();
+    const exists = selected.some((tag) => tag.toLowerCase() === canonical.toLowerCase());
+    if (!exists) {
+      state.form = normalizeForm({ ...state.form, tags: [...selected, canonical].join(", ") });
+      state.tagCatalog = uniqueSorted([...state.tagCatalog, canonical]);
+    }
+    state.tagInput = "";
+    renderForm();
+  }
+
+  function removeTag(tagToRemove) {
+    state.form = normalizeForm({
+      ...state.form,
+      tags: getSelectedTags()
+        .filter((tag) => tag.toLowerCase() !== String(tagToRemove).toLowerCase())
+        .join(", "),
+    });
+    renderForm();
   }
 
   function computeTotals() {
@@ -512,7 +628,8 @@ document.addEventListener("DOMContentLoaded", () => {
       editBtn.type = "button";
       editBtn.addEventListener("click", () => {
         state.editingId = item.id;
-        state.form = { ...item, tags: item.tags?.join(",") || "" };
+        state.form = normalizeForm({ ...item, tags: item.tags?.join(", ") || "" });
+        state.tagInput = "";
         openDrawer();
       });
       const delBtn = createEl("button", "btn btn-ghost", "Eliminar");
@@ -566,6 +683,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function openDrawer() {
     setFeedback(null, "");
+    state.tagInput = "";
     state.drawerOpen = true;
     ui.drawer.classList.add("open");
     ui.drawer.setAttribute("aria-hidden", "false");
@@ -579,6 +697,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function closeDrawer() {
     setFeedback(null, "");
+    state.tagInput = "";
     state.drawerOpen = false;
     ui.drawer.classList.remove("open");
     ui.drawer.setAttribute("aria-hidden", "true");
@@ -594,7 +713,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ui.formAmount.value = form.amount;
     ui.formDetail.value = form.detail;
     ui.formNotes.value = form.notes;
-    ui.formTags.value = form.tags;
+    ui.formTags.value = state.tagInput;
 
     ui.formCategory.value = form.category || "";
 
@@ -715,6 +834,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ui.attachmentsHint.hidden = true;
       ui.attachmentsHint.textContent = "";
     }
+
+    renderTagEditor();
   }
 
   function updateForm(patch) {
@@ -864,13 +985,41 @@ document.addEventListener("DOMContentLoaded", () => {
     updateForm({ attachments: files.map((f) => f.name) });
   });
 
+  ui.formTags.addEventListener("input", () => {
+    state.tagInput = ui.formTags.value;
+    renderTagEditor();
+  });
+
+  ui.formTags.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+    event.preventDefault();
+    addTag(state.tagInput);
+  });
+
+  ui.tagSuggestions.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-tag]");
+    if (!button) {
+      return;
+    }
+    addTag(button.dataset.tag);
+  });
+
+  ui.selectedTags.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-tag]");
+    if (!button) {
+      return;
+    }
+    removeTag(button.dataset.tag);
+  });
+
   ui.form.addEventListener("input", (event) => {
     if (event.target === ui.formAmount) updateForm({ amount: ui.formAmount.value });
     else if (event.target === ui.formDate) updateForm({ date: ui.formDate.value });
     else if (event.target === ui.formCurrency) updateForm({ currency: ui.formCurrency.value });
     else if (event.target === ui.formDetail) updateForm({ detail: ui.formDetail.value });
     else if (event.target === ui.formNotes) updateForm({ notes: ui.formNotes.value });
-    else if (event.target === ui.formTags) updateForm({ tags: ui.formTags.value });
   });
 
   ui.form.addEventListener("submit", (event) => {
@@ -908,6 +1057,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       state.movements.unshift(movement);
     }
+    state.tagCatalog = uniqueSorted([...state.tagCatalog, ...movement.tags]);
     renderSummary();
     renderTable();
 
@@ -921,8 +1071,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const keepType = state.form.movementType;
     const keepCurrency = state.form.currency;
     state.form = normalizeForm({ ...createInitialForm(), movementType: keepType, currency: keepCurrency });
+    state.tagInput = "";
     ui.formAttachments.value = "";
     renderForm();
+    state.editingId = null;
+    closeDrawer();
   });
 
   // Populate subcategory filter options

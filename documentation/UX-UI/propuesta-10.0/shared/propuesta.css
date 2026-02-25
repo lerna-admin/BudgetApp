@@ -92,7 +92,22 @@
 }
 
 .p10-viewport.mobile {
-  width: min(420px, 100%);
+  width: 100%;
+  max-width: 375px; /* ancho típico de iPhone (375px) */
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.p10-viewport.mobile .p10-browser {
+  width: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+}
+
+.p10-viewport.mobile .p10-frame {
+  width: 100%;
 }
 
 .p10-frame {

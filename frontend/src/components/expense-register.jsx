@@ -16,28 +16,12 @@ const paymentMethods = [
   { id: "cash", label: "Efectivo", icon: "💵" },
   { id: "card", label: "Tarjeta", icon: "💳" },
   { id: "bank_transfer", label: "Transferencia", icon: "🏦" },
-  { id: "loan", label: "Prestamo", icon: "🤝" },
 ];
 
 const currencyOptions = ["COP", "USD", "EUR"];
 
-const bankOptions = ["Bancolombia", "Davivienda", "Lulo", "Nequi"];
-
-const cardOptionsByBank = {
-  Bancolombia: ["Visa Clasica", "Mastercard Debito"],
-  Davivienda: ["Debito Dinamica", "Mastercard Gold"],
-  Lulo: ["Tarjeta Lulo Debito"],
-  Nequi: ["Tarjeta Nequi"],
-};
-
-const accountOptions = [
-  "Bancolombia - Cuenta Ahorros",
-  "Lulo - Cuenta Digital",
-  "Bolsillo Diario",
-  "Nequi Principal",
-];
-
 let startingBalance = 0;
+const cashLabel = "Efectivo";
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -69,7 +53,7 @@ function typeToCategory(movementType) {
 }
 
 function methodNeedsBank(method) {
-  return method === "card" || method === "bank_transfer";
+  return method === "bank_transfer";
 }
 
 function methodNeedsCard(method) {
@@ -105,15 +89,14 @@ function normalizeForm(nextForm) {
   }
 
   if (!methodNeedsBank(next.method)) {
-    next.bank = "";
+    if (next.method === "cash") {
+      next.bank = cashLabel;
+    } else {
+      next.bank = "";
+    }
   }
 
   if (!methodNeedsCard(next.method)) {
-    next.card = "";
-  }
-
-  const availableCards = cardOptionsByBank[next.bank] || [];
-  if (next.card && !availableCards.includes(next.card)) {
     next.card = "";
   }
 
@@ -191,8 +174,10 @@ export default function ExpenseRegister() {
   const [newSubOpen, setNewSubOpen] = useState(false);
   const [newSubName, setNewSubName] = useState("");
   const [newEdge, setNewEdge] = useState("");
+  const [tagInput, setTagInput] = useState("");
   const [tagSuggestions, setTagSuggestions] = useState([]);
   const [accounts, setAccounts] = useState([]);
+  const [cards, setCards] = useState([]);
   const totalAccountsBalance = accounts.reduce((acc, a) => acc + (Number(a.balance) || 0), 0);
 
   useEffect(() => {
@@ -221,11 +206,17 @@ export default function ExpenseRegister() {
     async function load() {
       try {
         setLoading(true);
-        const res = await fetch("/api/expenses", { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
+        const [expRes, accRes, cardRes] = await Promise.all([
+          fetch("/api/expenses", { cache: "no-store" }),
+          fetch("/api/accounts", { cache: "no-store" }),
+          fetch("/api/cards", { cache: "no-store" }),
+        ]);
+        if (!expRes.ok || !accRes.ok || !cardRes.ok) throw new Error();
+        const [expJson, accJson, cardJson] = await Promise.all([expRes.json(), accRes.json(), cardRes.json()]);
         if (aborted) return;
-        setMovements(json.data || []);
+        setMovements(expJson.data || []);
+        setAccounts(accJson.data || []);
+        setCards(cardJson.data || []);
         setApiError("");
       } catch (error) {
         if (aborted) return;
@@ -287,11 +278,13 @@ export default function ExpenseRegister() {
 
   function openDrawer() {
     setFeedback(null);
+    setTagInput("");
     setDrawerOpen(true);
   }
 
   function closeDrawer() {
     setFeedback(null);
+    setTagInput("");
     setDrawerOpen(false);
   }
 
@@ -336,9 +329,15 @@ export default function ExpenseRegister() {
   const incomeAccountOptions = useMemo(() => {
     return accounts.map((acc) => ({
       id: acc.id,
-      label: `${acc.accountName} · ${acc.currency}`,
+      label: `${acc.accountName}${acc.accountNumber ? " · " + acc.accountNumber : ""} · ${acc.currency}`,
     }));
   }, [accounts]);
+
+  const transferAccountOptions = useMemo(
+    () =>
+      accounts.map((acc) => `${acc.accountName}${acc.accountNumber ? " · " + acc.accountNumber : ""}`),
+    [accounts],
+  );
 
   useEffect(() => {
     if (form.movementType === "transfer") return;
@@ -354,10 +353,67 @@ export default function ExpenseRegister() {
     }
   }, [form.movementType, edgeOptions]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const availableCards = useMemo(
-    () => (form.bank ? cardOptionsByBank[form.bank] || [] : []),
-    [form.bank],
-  );
+  const bankOptions = useMemo(() => {
+    const names = new Set([cashLabel]);
+    accounts.forEach((a) => {
+      if (a.bankName) names.add(a.bankName);
+      else if (a.bankId) names.add(a.bankId);
+      else if (a.accountName) names.add(a.accountName.split(" - ")[0]);
+      if (a.accountType === "cash") names.add(cashLabel);
+    });
+    cards.forEach((c) => {
+      if (c.bankName) names.add(c.bankName);
+      else if (c.bankId) names.add(c.bankId);
+    });
+    let arr = Array.from(names);
+    if (form.method === "bank_transfer" || form.method === "card") {
+      arr = arr.filter((name) => name !== cashLabel);
+    }
+    return arr;
+  }, [accounts, cards, form.method]);
+
+  const cardOptionsByBank = useMemo(() => {
+    const map = {};
+    cards.forEach((c) => {
+      const bankKey = c.bankName || c.bankId || c.cardName.split(" ")[0];
+      if (!map[bankKey]) map[bankKey] = [];
+      map[bankKey].push(c.cardName + (c.last4 ? ` ••••${c.last4}` : ""));
+    });
+    return map;
+  }, [cards]);
+
+  const availableCards = useMemo(() => {
+    if (!form.bank) return [];
+    return cardOptionsByBank[form.bank] || [];
+  }, [cardOptionsByBank, form.bank]);
+
+  const selectedTags = useMemo(() => {
+    const seen = new Set();
+    return String(form.tags || "")
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean)
+      .filter((tag) => {
+        const key = tag.toLowerCase();
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      });
+  }, [form.tags]);
+
+  const filteredTagSuggestions = useMemo(() => {
+    const query = tagInput.trim().toLowerCase();
+    if (!query) {
+      return [];
+    }
+    const selected = new Set(selectedTags.map((tag) => tag.toLowerCase()));
+    return tagSuggestions
+      .filter((tag) => !selected.has(tag.toLowerCase()))
+      .filter((tag) => tag.toLowerCase().includes(query))
+      .slice(0, 8);
+  }, [tagInput, tagSuggestions, selectedTags]);
 
   const editing = useMemo(
     () => movements.find((m) => m.id === form.id) || null,
@@ -457,6 +513,27 @@ export default function ExpenseRegister() {
     setForm((current) => normalizeForm({ ...current, ...patch }));
   }
 
+  function addTag(tag) {
+    const cleanTag = String(tag || "").trim();
+    if (!cleanTag) {
+      return;
+    }
+    const canonical = tagSuggestions.find((item) => item.toLowerCase() === cleanTag.toLowerCase()) || cleanTag;
+    const exists = selectedTags.some((item) => item.toLowerCase() === canonical.toLowerCase());
+    if (!exists) {
+      updateForm({ tags: [...selectedTags, canonical].join(", ") });
+    }
+    setTagInput("");
+  }
+
+  function removeTag(tagToRemove) {
+    updateForm({
+      tags: selectedTags
+        .filter((tag) => tag.toLowerCase() !== String(tagToRemove).toLowerCase())
+        .join(", "),
+    });
+  }
+
   function validateForm() {
     const issues = [];
     const amount = Number(form.amount);
@@ -532,13 +609,12 @@ export default function ExpenseRegister() {
       bank: form.bank,
       card: form.card,
       currency: form.currency,
-      tags: form.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
+      tags: selectedTags,
       attachments: form.attachments,
       transferFrom: form.transferFrom,
       transferTo: form.transferTo,
+      destinationAccountId: form.destinationAccountId || null,
+      destinationNote: form.destinationNote || "",
     };
 
     try {
@@ -576,6 +652,8 @@ export default function ExpenseRegister() {
           currency: current.currency,
         }),
       );
+      setTagInput("");
+      setDrawerOpen(false);
     } catch (error) {
       setFeedback({ type: "error", text: error.message || "No se pudo guardar" });
     } finally {
@@ -837,7 +915,8 @@ export default function ExpenseRegister() {
                           type="button"
                           className="btn btn-ghost"
                           onClick={() => {
-                            setForm({ ...item, tags: (item.tags || []).join(",") });
+                            setForm(normalizeForm({ ...item, tags: (item.tags || []).join(", ") }));
+                            setTagInput("");
                             setDrawerOpen(true);
                             setFeedback(null);
                           }}
@@ -1117,7 +1196,13 @@ export default function ExpenseRegister() {
                     key={item.id}
                     type="button"
                     className={`expense-method-chip ${form.method === item.id ? "active" : ""}`}
-                    onClick={() => updateForm({ method: item.id })}
+                    onClick={() => {
+                      if (item.id === "cash") {
+                        updateForm({ method: item.id, bank: cashLabel, card: "" });
+                      } else {
+                        updateForm({ method: item.id });
+                      }
+                    }}
                     disabled={form.movementType === "transfer" && item.id !== "bank_transfer"}
                   >
                     <span>{item.icon}</span>
@@ -1142,27 +1227,28 @@ export default function ExpenseRegister() {
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
-                <button type="button" className="btn btn-ghost expense-clear-filters" onClick={() => setNewSubOpen((v) => !v)}>
-                  {newSubOpen ? "Cancelar" : "Nueva subcategoria"}
-                </button>
               </div>
+            </div>
+          )}
 
-              {cardRequired && (
-                <div className="form-field">
-                  <label className="form-label">Tarjeta</label>
-                  <select
-                    className="input"
-                    value={form.card}
-                    onChange={(event) => updateForm({ card: event.target.value })}
-                    disabled={availableCards.length === 0}
-                  >
-                    <option value="">Seleccionar tarjeta</option>
-                    {availableCards.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
+          {cardRequired && (
+            <div className="form-field">
+              <label className="form-label">Tarjeta</label>
+              <select
+                className="input"
+                value={form.card}
+                onChange={(event) => {
+                  const selected = event.target.value;
+                  const card = cards.find((c) => (c.cardName + (c.last4 ? ` ••••${c.last4}` : "")) === selected);
+                  updateForm({ card: selected, bank: card?.bankName || card?.bankId || form.bank });
+                }}
+                disabled={availableCards.length === 0}
+              >
+                <option value="">Seleccionar tarjeta</option>
+                {availableCards.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -1176,7 +1262,7 @@ export default function ExpenseRegister() {
                   onChange={(event) => updateForm({ transferFrom: event.target.value })}
                 >
                   <option value="">Seleccionar origen</option>
-                  {accountOptions.map((option) => (
+                  {transferAccountOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
@@ -1189,7 +1275,7 @@ export default function ExpenseRegister() {
                   onChange={(event) => updateForm({ transferTo: event.target.value })}
                 >
                   <option value="">Seleccionar destino</option>
-                  {accountOptions.map((option) => (
+                  {transferAccountOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
@@ -1202,16 +1288,47 @@ export default function ExpenseRegister() {
             <input
               type="text"
               className="input"
-              list="tag-suggestions"
-              value={form.tags}
-              onChange={(event) => updateForm({ tags: event.target.value })}
-              placeholder="Ej: comida, febrero"
+              value={tagInput}
+              onChange={(event) => setTagInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addTag(tagInput);
+                }
+              }}
+              placeholder="Escribe una etiqueta y presiona Enter"
             />
-            <datalist id="tag-suggestions">
-              {tagSuggestions.map((tag) => (
-                <option key={tag} value={tag} />
-              ))}
-            </datalist>
+            <p className="expense-hint">Escribe para buscar coincidencias o presiona Enter para crearla.</p>
+            {selectedTags.length > 0 ? (
+              <div className="tag-row expense-tag-list">
+                {selectedTags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    className="chip expense-tag-chip"
+                    onClick={() => removeTag(tag)}
+                    aria-label={`Quitar etiqueta ${tag}`}
+                  >
+                    <span>{tag}</span>
+                    <span aria-hidden="true">✕</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="expense-hint">Sin etiquetas en este movimiento.</p>
+            )}
+            {filteredTagSuggestions.length > 0 && (
+              <div className="tag-row expense-tag-suggestions">
+                {filteredTagSuggestions.map((tag) => (
+                  <button key={tag} type="button" className="chip" onClick={() => addTag(tag)}>
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            )}
+            {tagInput.trim() && filteredTagSuggestions.length === 0 ? (
+              <p className="expense-hint">Sin coincidencias. Presiona Enter para crear "{tagInput.trim()}".</p>
+            ) : null}
           </div>
 
           <div className="form-field">

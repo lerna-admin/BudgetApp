@@ -11,6 +11,8 @@ const mapRow = (row) => ({
   availableCredit: row.available_credit ? Number(row.available_credit) : null,
   currency: row.currency,
   expiration: row.expiration,
+  bankName: row.bank_name || "",
+  last4: row.last4 || "",
   createdAt: row.created_at,
 });
 
@@ -22,7 +24,7 @@ export async function listCards({ userId = null } = {}) {
     where = "WHERE user_id = $1";
   }
   const { rows } = await query(
-    `SELECT id, user_id, bank_id, card_name, card_type, credit_limit, available_credit, currency, expiration, created_at
+    `SELECT id, user_id, bank_id, card_name, card_type, credit_limit, available_credit, currency, expiration, bank_name, last4, created_at
        FROM cards
        ${where}
        ORDER BY created_at DESC`,
@@ -34,10 +36,10 @@ export async function listCards({ userId = null } = {}) {
 export async function createCard({ userId = null, bankId = null, cardName, cardType, creditLimit = null, availableCredit = null, currency = "COP", expiration = null }) {
   const id = crypto.randomUUID();
   const { rows } = await query(
-    `INSERT INTO cards(id, user_id, bank_id, card_name, card_type, credit_limit, available_credit, currency, expiration)
-     VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
-     RETURNING id, user_id, bank_id, card_name, card_type, credit_limit, available_credit, currency, expiration, created_at`,
-    [id, userId, bankId, cardName, cardType, creditLimit, availableCredit, currency, expiration],
+    `INSERT INTO cards(id, user_id, bank_id, card_name, card_type, credit_limit, available_credit, currency, expiration, bank_name, last4)
+     VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+     RETURNING id, user_id, bank_id, card_name, card_type, credit_limit, available_credit, currency, expiration, bank_name, last4, created_at`,
+    [id, userId, bankId, cardName, cardType, creditLimit, availableCredit, currency, expiration, null, null],
   );
   return mapRow(rows[0]);
 }
@@ -51,7 +53,7 @@ export async function deleteCard(id, { userId = null } = {}) {
   }
   const { rows } = await query(
     `DELETE FROM cards WHERE ${where}
-     RETURNING id, user_id, bank_id, card_name, card_type, credit_limit, available_credit, currency, expiration, created_at`,
+     RETURNING id, user_id, bank_id, card_name, card_type, credit_limit, available_credit, currency, expiration, bank_name, last4, created_at`,
     params,
   );
   return rows[0] ? mapRow(rows[0]) : null;
