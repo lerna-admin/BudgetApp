@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Registro</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell auth-shell">
+      <section class="auth-single">
+        <section class="auth-main panel auth-single-card">
+          <a href="../index.html" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Registro de usuario</p>
+            </div>
+          </a>
+
+          <h2>Crear cuenta</h2>
+
+          <form id="register-form">
+            <div class="form-field">
+              <label class="form-label" for="register-name">
+                Nombre completo <span class="required">*</span>
+              </label>
+              <input
+                id="register-name"
+                class="input"
+                placeholder="Tu nombre"
+                autocomplete="name"
+                required
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="register-email">
+                Correo <span class="required">*</span>
+              </label>
+              <input
+                id="register-email"
+                class="input"
+                type="email"
+                placeholder="tu@email.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="register-password">
+                Contrasena <span class="required">*</span>
+              </label>
+              <input
+                id="register-password"
+                class="input"
+                type="password"
+                minlength="8"
+                placeholder="Minimo 8 caracteres"
+                autocomplete="new-password"
+                required
+              />
+              <div class="password-rules">
+                <span id="rule-length" class="rule">8+ caracteres</span>
+                <span id="rule-number" class="rule">Incluye al menos un numero</span>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="register-country">
+                Pais <span class="required">*</span>
+              </label>
+              <select id="register-country" class="input" required>
+                <option value="CO">Colombia (COP)</option>
+                <option value="MX">Mexico (MXN)</option>
+                <option value="BR">Brasil (BRL)</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <div class="form-label-row">
+                <label class="form-label" for="register-template" style="margin-bottom: 0;">
+                  Perfil sugerido <span class="required">*</span>
+                </label>
+                <span class="info-dot" title="Define una guia inicial para arrancar tu primer presupuesto">i</span>
+              </div>
+              <select id="register-template" class="input" required>
+                <option value="mark-tilbury">Tilbury 1% (ahorro/inversion)</option>
+                <option value="savings-boost">Ahorro acelerado</option>
+                <option value="investment-priority">Inversion prioritaria</option>
+                <option value="debt-focus">Pago de deudas</option>
+              </select>
+
+              <div class="profile-info-box" aria-live="polite">
+                <div class="profile-alert-head">
+                  <p class="profile-alert-title">Alerta de lectura</p>
+                  <span class="profile-alert-badge">Importante</span>
+                </div>
+                <p id="profile-name" class="profile-alert-name">Tilbury (1%)</p>
+                <p class="profile-alert-text">
+                  <strong>Sirve para:</strong> <span id="profile-purpose">Equilibra ahorro e inversion desde el primer mes.</span>
+                </p>
+                <p class="profile-alert-text">
+                  <strong>Ideal si:</strong> <span id="profile-ideal">Quieres crecer sin descuidar liquidez.</span>
+                </p>
+                <p class="profile-alert-note">
+                  Puedes cambiar estos porcentajes cuando crees tu presupuesto.
+                </p>
+              </div>
+            </div>
+
+            <div class="row-between" style="justify-content: flex-start;">
+              <label class="inline-check">
+                <input id="register-terms" type="checkbox" />
+                <span>Acepto terminos y privacidad <span class="required">*</span></span>
+              </label>
+            </div>
+
+            <button id="register-submit" class="btn btn-primary" style="width: 100%;" type="submit" disabled>
+              Crear cuenta
+            </button>
+
+            <p class="form-foot">
+              Ya tienes cuenta? <a href="../login/index.html">Inicia sesion</a>
+            </p>
+          </form>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const templates = {
+        "mark-tilbury": {
+          name: "Tilbury (1%)",
+          purpose: "Equilibra ahorro e inversion desde el primer mes.",
+          ideal: "Quieres crecer sin descuidar liquidez.",
+        },
+        "savings-boost": {
+          name: "Ahorro acelerado",
+          purpose: "Sube tu ahorro mensual recortando gastos variables.",
+          ideal: "Tu prioridad es crear colchon rapido.",
+        },
+        "investment-priority": {
+          name: "Inversion prioritaria",
+          purpose: "Aumenta aportes de inversion de forma constante.",
+          ideal: "Aceptas menor gasto libre para invertir mas.",
+        },
+        "debt-focus": {
+          name: "Pago de deudas",
+          purpose: "Dirige mas flujo a bajar deudas e intereses.",
+          ideal: "Necesitas ordenar caja y reducir cuotas.",
+        },
+      };
+
+      function hasNumber(value) {
+        return /\d/.test(value || "");
+      }
+
+      function updateRegisterState() {
+        const name = document.getElementById("register-name").value.trim();
+        const email = document.getElementById("register-email").value.trim();
+        const password = document.getElementById("register-password").value;
+        const terms = document.getElementById("register-terms").checked;
+
+        const lengthOk = password.length >= 8;
+        const numberOk = hasNumber(password);
+
+        document.getElementById("rule-length").classList.toggle("rule-ok", lengthOk);
+        document.getElementById("rule-number").classList.toggle("rule-ok", numberOk);
+
+        const canSubmit = Boolean(name && email && lengthOk && numberOk && terms);
+        document.getElementById("register-submit").disabled = !canSubmit;
+      }
+
+      function updateTemplateInfo() {
+        const select = document.getElementById("register-template");
+        const chosen = templates[select.value] || templates["mark-tilbury"];
+        document.getElementById("profile-name").textContent = chosen.name;
+        document.getElementById("profile-purpose").textContent = chosen.purpose;
+        document.getElementById("profile-ideal").textContent = chosen.ideal;
+      }
+
+      document.getElementById("register-name").addEventListener("input", updateRegisterState);
+      document.getElementById("register-email").addEventListener("input", updateRegisterState);
+      document.getElementById("register-password").addEventListener("input", updateRegisterState);
+      document.getElementById("register-terms").addEventListener("change", updateRegisterState);
+      document.getElementById("register-template").addEventListener("change", updateTemplateInfo);
+
+      updateTemplateInfo();
+      updateRegisterState();
+
+      document.getElementById("register-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+      });
+    </script>
+  </body>
+</html>

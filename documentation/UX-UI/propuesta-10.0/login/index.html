@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Login</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector("form");
+        if (!form) return;
+        form.addEventListener("submit", (event) => event.preventDefault());
+      });
+    </script>
+  </head>
+  <body>
+    <main class="page-shell auth-shell">
+      <section class="auth-single">
+        <section class="auth-main panel auth-single-card">
+          <a href="../index.html" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Acceso de usuario</p>
+            </div>
+          </a>
+
+          <h2>Iniciar sesion</h2>
+
+          <form>
+            <div class="form-field">
+              <label class="form-label" for="login-email">Correo</label>
+              <input
+                id="login-email"
+                class="input"
+                type="email"
+                placeholder="tu@email.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="login-password">Contrasena</label>
+              <input
+                id="login-password"
+                class="input"
+                type="password"
+                placeholder="Minimo 8 caracteres"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+
+            <div class="row-between">
+              <label class="inline-check">
+                <input type="checkbox" />
+                <span>Recordarme</span>
+              </label>
+              <a href="#" class="helper-link">Recuperar acceso</a>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" type="submit">
+              Entrar
+            </button>
+
+            <p class="form-foot">
+              Aun no tienes cuenta? <a href="../register/index.html">Crear cuenta</a>
+            </p>
+          </form>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
+

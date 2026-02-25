@@ -1,5 +1,6 @@
 # Listado de vistas para Wireframes y Mockups
 
+- Propuesta final unificada: `Propuesta Final Unificada.html` (consolida propuestas 5, 6 y 7 como documento maestro)
 - Propuesta 7 branding: logo_9_transparent como logo oficial y logo_4_transparent como alterno
 - Onboarding (cuestionario salud financiera)
 - Login

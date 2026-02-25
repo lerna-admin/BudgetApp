@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Tema</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <link rel="stylesheet" href="../shared/extra.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de gastos</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+	          <div class="menu-section">
+	            <p class="menu-title">Config.</p>
+	            <div class="menu-list">
+	              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+	              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+	              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+	              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+	              <a class="menu-item" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+	              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+	              <a class="menu-item active" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+	            </div>
+	          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Configuracion / Tema</p>
+              <h1 class="dashboard-title">Tema y paleta</h1>
+            </div>
+            <div class="dashboard-actions">
+              <button class="btn btn-primary" type="button">Guardar</button>
+            </div>
+          </header>
+
+          <section class="panel-soft" style="padding:14px;">
+            <p class="expense-intro-title">Preferencias visuales</p>
+            <p class="expense-intro-copy">
+              Define tema (light/dark) y visualiza la paleta base usada en botones, estados y chips.
+            </p>
+          </section>
+
+          <section class="dashboard-grid" style="margin-top: 12px;">
+            <article class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Tema</h2>
+                <a href="#">Auto (SO)</a>
+              </div>
+              <div class="chip-row">
+                <button class="chip chip-live" type="button">Light</button>
+                <button class="chip" type="button">Dark</button>
+                <button class="chip" type="button">Alto contraste</button>
+              </div>
+              <div class="dashboard-empty" style="margin-top: 10px;">
+                En esta propuesta el tema activo es Light. Dark se implementa con tokens alternos (no incluidos en el CSS actual).
+              </div>
+            </article>
+
+            <article class="panel dashboard-card">
+              <div class="dashboard-card-head">
+                <h2>Paleta</h2>
+                <a href="#">Tokens</a>
+              </div>
+              <div class="palette-grid">
+                <div class="swatch">
+                  <div class="swatch-bar" style="background: var(--violet);"></div>
+                  <p>Primario</p>
+                  <b>Violet</b>
+                  <div class="muted">#7C3AED</div>
+                </div>
+                <div class="swatch">
+                  <div class="swatch-bar" style="background: var(--mint);"></div>
+                  <p>Exito</p>
+                  <b>Mint</b>
+                  <div class="muted">#10B981</div>
+                </div>
+                <div class="swatch">
+                  <div class="swatch-bar" style="background: var(--amber);"></div>
+                  <p>Alerta</p>
+                  <b>Amber</b>
+                  <div class="muted">#F97316</div>
+                </div>
+                <div class="swatch">
+                  <div class="swatch-bar" style="background: var(--red);"></div>
+                  <p>Error</p>
+                  <b>Red</b>
+                  <div class="muted">#F43F5E</div>
+                </div>
+                <div class="swatch">
+                  <div class="swatch-bar" style="background: var(--paper2);"></div>
+                  <p>Surface</p>
+                  <b>Paper 2</b>
+                  <div class="muted">#F3F4FF</div>
+                </div>
+                <div class="swatch">
+                  <div class="swatch-bar" style="background: var(--paper3);"></div>
+                  <p>Border</p>
+                  <b>Paper 3</b>
+                  <div class="muted">#E4E6F5</div>
+                </div>
+              </div>
+            </article>
+          </section>
+        </main>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+/* Extra helpers for screens that are not yet in the frontend CSS */
+
+.palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.swatch {
+  border-radius: 14px;
+  border: 1.5px solid var(--paper3);
+  background: white;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.swatch-bar {
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 18, 36, 0.12);
+}
+
+.swatch p {
+  margin: 0;
+  color: var(--ink4);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.swatch b {
+  color: var(--ink2);
+}
+
+.muted {
+  color: var(--ink4);
+  font-size: 12px;
+}
+

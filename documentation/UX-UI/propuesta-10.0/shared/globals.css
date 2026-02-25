@@ -406,6 +406,10 @@ body.nav-open {
   font-size: 13px;
 }
 
+.kpi-value-compact {
+  font-size: 15px;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 0.95fr;

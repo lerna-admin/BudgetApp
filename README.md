@@ -1,97 +1,93 @@
-# BudgetApp
+# BudgetApp (frontend + API Next.js)
 
-Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, alertas inteligentes e integración bancaria extensible; la primera fase de integraciones se enfocará en bancos colombianos, pero el producto no se limita a ese mercado. El proyecto se documenta bajo la metodología RUP para garantizar trazabilidad de decisiones y entregables por fase.
+Implementación unificada en Next.js 15 (App Router) que expone:
+- Frontend (React 19) con vistas Dashboard, Registro de movimientos, Bancos, Perfil.
+- API routes (Next) sobre PostgreSQL: autenticación, gastos/ingresos, categorías, cuentas, tarjetas, subcategorías personalizadas, tags.
 
-## Estado del repositorio
-- **Código fuente**: carpeta `web-app/` con la plantilla principal a adaptar y `legacy-code/` con artefactos anteriores (referencias, experimentos).
-- **Documentación**: carpeta `documentation/documents/` con los artefactos RUP que guían cada fase.
-- **Histórico**: carpeta `historic/` en la raíz del workspace (fuera de este repo) donde se registran todas las conversaciones y decisiones.
-
-## Documentación RUP
-| Documento | Descripción |
-|-----------|-------------|
-| [Visión](documentation/documents/vision.md) | Objetivos estratégicos, métricas de negocio, usuarios meta y diferenciadores competitivos. |
-| [Plan inicial](documentation/documents/plan_inicial.md) | Planeación por fases/iteraciones, matriz de riesgos, aprendizajes del Excel y benchmark de otras apps. |
-| [Arquitectura](documentation/documents/arquitectura.md) | Vista técnica de referencia, componentes, integraciones bancarias y decisiones clave para un despliegue multi-país. |
-| [Requisitos](documentation/documents/requisitos.md) | Detalle de requerimientos funcionales/no funcionales (en construcción). |
-| [Casos de uso](documentation/documents/casos_de_uso.md) | Actores y flujos principales que cubren la experiencia de BudgetApp. |
-| [OpenAPI](documentation/api/openapi.yaml) | Especificación 0.1.0 de los endpoints prioritarios (onboarding, presupuestos, transacciones, alertas, integraciones). |
-| [Registro decisiones 2026-02-19](documentation/documents/acciones-2026-02-19.md) | Nuevas acciones de presupuesto, configuración de bancos, y UX actualizado para el sprint de febrero. |
-
-> Cada iteración que avancemos agregará nuevos artefactos en este directorio (arquitectura, plan de pruebas, etc.) siguiendo la estructura RUP.
-
-## Mock API y pruebas manuales
-- El repositorio incluye un mock server basado en Prism para probar los contratos REST sin backend real.
-- Ejecutar con `./scripts/mock-api.sh` (requiere `node` y descargará Prism vía `npx`); variables `PORT` y `HOST` son opcionales (`4010` y `0.0.0.0` por defecto). Ejemplo: `PORT=5000 ./scripts/mock-api.sh`.
-- Los endpoints expuestos responden conforme a `documentation/api/openapi.yaml`, ideal para validar el flujo descrito en el documento de arquitectura.
-- Para tests de UI, apuntar los servicios HTTP de `web-app/` al host/puerto del mock. Se recomienda crear scripts `npm run dev:mock` en `web-app` conforme integremos el frontend.
-- **Pruebas rápidas vía cURL**:
-  ```bash
-  curl -X POST http://localhost:4010/api/onboarding \
-    -H 'Content-Type: application/json' \
-    -d '{"ingresosMensuales":5000000,"gastosFijos":2000000}'
-
-  curl http://localhost:4010/api/budgets?period=2025-12
-
-  curl -X POST http://localhost:4010/api/transactions \
-    -H 'Content-Type: application/json' \
-    -d '{"date":"2025-12-01T12:00:00Z","amount":125000,"categoryId":"gastos_fijos","method":"debit_card"}'
+## Requisitos
+- Node.js >= 20
+- npm >= 10
+- PostgreSQL >= 13
+- Archivo `.env` en `frontend/.env` (ya existe en repo de ejemplo):
+  ```env
+  DATABASE_URL=postgresql://user:pass@localhost:5432/budgetapp_dev
+  DB_SSL=false
+  PORT=4000
+  AUTH_SECRET=cambia-esta-clave-antes-de-produccion
   ```
-- Estos comandos permiten comprobar rápidamente que el mock responde conforme al OpenAPI antes de integrar el frontend; ajustar `localhost:4010` si se cambió el puerto.
 
-## Flujo de usuarios (onboarding → registros)
-```mermaid
-flowchart TD
-    A[Landing / Registro] --> B[Crear cuenta / Login]
-    B --> C[Onboarding financiero]
-    C -->|Cuestionario completado| D[Diagnóstico salud financiera]
-    D --> E[Configurar presupuesto inicial]
-    E --> F[Conectar cuentas bancarias]
-    F -->|Éxito| G[Sincronización automática]
-    F -->|Opcional / error| H[Registrar cuentas/tarjetas manuales]
-    E --> I[Definir categorías y metas]
-    I --> J[Configurar alertas y notificaciones]
-    J --> K[Dashboard principal]
-    G --> K
-    H --> K
-    K --> L[Registrar gasto/ingreso manual]
-    K --> M[Revisar transacciones importadas]
-    L --> N[Confirmar y categorizar]
-    M --> N
-    N --> O[Dashboards y alertas actualizados]
+## Instalación
+```bash
+cd frontend
+npm install
 ```
-- Este flujo debe guiar los prototipos de `web-app/` y los criterios de aceptación. Cada etapa corresponde a servicios disponibles en la especificación OpenAPI (onboarding, budgets, integrations, transactions).
 
-## Flujos del sistema y notificaciones en tiempo real
-- **Integraciones bancarias**: se consumen vía el servicio especializado descrito en `documentación/arquitectura`. Webhooks del proveedor (Belvo/Minka inicialmente) ingresan encolados (SQS/Rabbit) y disparan:
-  1. Persistencia de transacción → actualización de dashboards.
-  2. Emisión de eventos WebSocket/SSE para clientes activos.
-  3. Evaluación de reglas de alertas (presupuesto excedido, cargos altos, metas en riesgo).
-- **Canales en tiempo real**:
-  - Web/Móvil usan WebSockets (o SSE) expuestos por el BFF para reflejar nuevas transacciones sin recargar.
-  - Notificaciones push/email/WhatsApp se orquestan desde el servicio de notificaciones usando proveedores FCM/Twilio.
-- **Triggers internos**: además de eventos bancarios, se planifican cron jobs (p. ej. cada hora) para recalcular proyecciones y detectar riesgos antes de que sucedan (alertas predictivas).
+## Migraciones
+Las migraciones viven en `frontend/migrations`. Incluyen esquema base, gastos, catálogo Tilbury, custom subcategorías, ingresos y destinos de ingresos, cuentas/tarjetas.
 
-## Configuración por país (multi-mercado)
-- El sistema mantiene un catálogo `countries` que define moneda por defecto, zona horaria, regulaciones aplicables, límites de bancos soportados, textos legales y proveedores preferidos.
-- **Colombia (fase inicial)**:
-  - Moneda: COP.
-  - Proveedor bancario: Belvo/Minka (sandbox → producción).
-  - Normativa: Habeas Data, Ley 1581/2012, lineamientos de la Superintendencia Financiera. Requiere consentimiento explícito para uso de datos financieros.
-  - Reglas predeterminadas: categorías y metas alineadas con la plantilla Excel original; alertas activas por defecto para sobregiros y pagos de tarjetas.
-- Al sumar otro país se agrega una entrada nueva con sus requisitos (PSD2 en la UE, LGPD en Brasil, etc.). Las pantallas deberán ofrecer selección de país durante el onboarding, y los servicios deben validar que la configuración corresponda a la región del usuario.
+Ejecutar todas:
+```bash
+cd frontend
+npm run migrate
+```
 
-## Cómo colaborar
-1. Revisar los documentos anteriores antes de proponer cambios.
-2. Registrar toda conversación relevante en `historic/<fecha>.log` según el proceso acordado con el stakeholder.
-3. Usar la llave SSH `~/.ssh/id_ed25519_microimpulso` para interactuar con `git@github.com:lerna-admin/BudgetApp.git`.
+## Correr en desarrollo
+```bash
+cd frontend
+npm run dev   # levanta Next en http://localhost:3000
+```
 
-## Estructura de desarrollo compartido
-- `backend/`: servicio MVC Express + PostgreSQL. Controladores, servicios y repositorios en esta carpeta exponen la API que consumen todos los clientes (web, móvil, scripts).
-- `frontend/`: app Next.js (React 19) que sirve como vista de referencia. Está pensada para conectarse al backend y, eventualmente, reemplazarse por el producto final.
-- `pm2.config.js`: permite levantar ambos servicios simultáneamente en desarrollo (`pm2 start pm2.config.js --watch`). Cada carpeta sigue pudiendo ejecutarse por separado (`npm run dev`).
+## Build de producción
+```bash
+cd frontend
+npm run build
+npm start
+```
 
-### Pasos mínimos para correr todo
-1. Usa `docker compose -f backend/docker-compose.yml up --build` para arrancar base de datos, backend y frontend sin instalar nada localmente; el backend escucha en `4000` y el frontend en `3000`.
-2. Si prefieres aún ver los servicios separadamente para debugging, puedes levantar el backend o frontend solos a partir del `docker compose` anterior (por ejemplo `docker compose -f backend/docker-compose.yml up backend`).
-3. Cuando todo esté estable, desplegamos los servicios como contenedores independientes (backend en su host / frontend en Vercel o similar), mientras que PM2 se reserva para instalaciones locales temporales si es necesario.
+## Arquitectura (alta nivel)
+- **Next.js App Router**: páginas en `src/app`.
+- **Componentes clave**:
+  - `dashboard-home.jsx`: Dashboard con KPIs (ingresos, gastos, ahorro), disponible calculado usando saldos de cuentas + movimientos; recientes.
+  - `expense-register.jsx`: Registro de movimientos con drawer, filtros, subcategorías y aristas personalizadas, destinos de ingresos (efectivo/cuenta), tags con sugerencias, edición/eliminación.
+  - `dashboard-sidebar.jsx`: Navegación (Dashboard, Registro de movimientos, Herramientas, Configuración, Perfil, Bancos).
+  - `bancos/page.jsx`: Gestión de cuentas y tarjetas (tabulado), usa `/api/accounts` y `/api/cards`.
+  - `profile/page.jsx`: Perfil real (datos de sesión), muestra cuentas/tarjetas, selector de tema (light/mint/sunset) persistido en `localStorage` y `data-theme`.
+- **API routes (Postgres)**:
+  - Autenticación: `/api/auth/*` (existente).
+  - Movimientos: `/api/expenses`, `/api/expenses/[id]` (CRUD, movement_type incluye income/expense/saving/investment/transfer; destino ingreso opcional).
+  - Catálogo categorías/subcategorías/aristas: `/api/expense-categories`, `/api/subcategories` (custom), `/api/tags` (sugerencias).
+  - Cuentas/Tarjetas: `/api/accounts`, `/api/cards` (lista, alta, delete).
+- **DB helper**: `src/lib/server/db.js` usa `DATABASE_URL` con `pg`.
+
+## Flujo de datos
+- El Dashboard y Registro leen movimientos desde `/api/expenses` (base de datos) y cuentas desde `/api/accounts` para calcular disponible.
+- Ingresos permiten destino (efectivo o cuenta); se guardan en columnas `destination_account_id` y `destination_note` de `expenses`.
+- Subcategorías personalizadas se guardan en `expense_custom_subcategories`; se crean desde el drawer de movimientos.
+
+## Temas (UI)
+- Tema actual se guarda en `localStorage` (`budgetapp-theme`) y aplica a `document.documentElement.dataset.theme`. Opciones: light, mint, sunset. Añade tus variables en `globals.css` si deseas personalizar paletas.
+
+## Estructura de carpetas relevante
+- `src/app/page.jsx` → Dashboard
+- `src/app/gastos` → Registro de movimientos (UI + API en `src/app/api/expenses`)
+- `src/app/bancos` → Cuentas y tarjetas
+- `src/app/profile` → Perfil
+- `src/app/api/*` → Rutas API (Next)
+- `src/lib/server/*` → Repositorios DB
+- `migrations/` → SQL
+- `documentation/UX-UI/propuesta-10.0/` → Propuesta visual (actualizada con ingresos, edición, estados vacíos)
+
+## Prerrequisitos de sistema
+- PostgreSQL corriendo y accesible desde `DATABASE_URL`.
+- Abrir puertos: 3000 (Next) y el puerto de Postgres.
+- Variables de entorno configuradas antes de `npm run migrate` y `npm run dev`.
+
+## Notas operativas
+- El backend Express previo fue removido; todo vive en Next (frontend + API). Las migraciones se ejecutan con `npm run migrate` desde `frontend/`.
+- Disponible se calcula con: suma de balances de cuentas + ingresos – gastos – ahorro.
+
+## Comandos útiles
+- Ejecutar migraciones: `npm run migrate`
+- Levantar dev: `npm run dev`
+- Build/start: `npm run build && npm start`
+
