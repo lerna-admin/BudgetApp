@@ -116,20 +116,36 @@ function methodNeedsCard(method) {
 }
 
 const startingBalance = 0;
-const incomeId = 'income';
-const bankOptions = ["Bancolombia", "Davivienda", "Lulo", "Nequi"];
-const cardOptionsByBank = {
-  Bancolombia: ["Visa Clasica", "Mastercard Debito"],
-  Davivienda: ["Debito Dinamica", "Mastercard Gold"],
-  Lulo: ["Tarjeta Lulo Debito"],
-  Nequi: ["Tarjeta Nequi"],
-};
-const accountOptions = [
-  "Bancolombia - Cuenta Ahorros",
-  "Lulo - Cuenta Digital",
-  "Bolsillo Diario",
-  "Nequi Principal",
+const incomeId = "income";
+const CASH_LABEL = "Efectivo";
+
+const accountsMock = [
+  { id: "acc-1", bankName: "Bancolombia", accountName: "Bancolombia - Cuenta Ahorros", accountNumber: "1234", accountType: "savings", currency: "COP", balance: 500000 },
+  { id: "acc-2", bankName: "Nequi", accountName: "Nequi Principal", accountNumber: "5678", accountType: "cash", currency: "COP", balance: 200000 },
 ];
+
+const cardsMock = [
+  { id: "card-1", bankName: "Bancolombia", cardName: "Visa Clasica", last4: "4242", currency: "COP" },
+  { id: "card-2", bankName: "Davivienda", cardName: "Mastercard Gold", last4: "1111", currency: "COP" },
+];
+
+const bankOptions = Array.from(new Set([
+  CASH_LABEL,
+  ...accountsMock.map((a) => a.bankName || a.accountName.split(" - ")[0]),
+  ...cardsMock.map((c) => c.bankName || c.cardName.split(" ")[0]),
+]));
+
+const cardOptionsByBank = (() => {
+  const map = {};
+  cardsMock.forEach((c) => {
+    const key = c.bankName || c.cardName.split(" ")[0];
+    if (!map[key]) map[key] = [];
+    map[key].push(c.cardName + (c.last4 ? ` ••••${c.last4}` : ""));
+  });
+  return map;
+})();
+
+const accountOptions = accountsMock.map((a) => `${a.accountName}${a.accountNumber ? " · " + a.accountNumber : ""}`);
 
 const initialMovements = [
   {
@@ -177,7 +193,7 @@ const initialMovements = [
     subcategory: "Necesidades Basicas",
     edge: "Gasolina",
     method: "cash",
-    bank: "",
+    bank: CASH_LABEL,
     card: "",
     currency: "COP",
     tags: [],
@@ -232,7 +248,7 @@ function createInitialForm() {
     subcategory: "",
     edge: "",
     method: "cash",
-    bank: "",
+    bank: CASH_LABEL,
     card: "",
     currency: "COP",
     tags: "",
@@ -263,7 +279,8 @@ function normalizeForm(nextForm) {
   }
 
   if (!methodNeedsBank(next.method)) {
-    next.bank = "";
+    if (next.method === "cash") next.bank = CASH_LABEL;
+    else next.bank = "";
   }
 
   if (!methodNeedsCard(next.method)) {

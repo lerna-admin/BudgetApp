@@ -17,8 +17,8 @@ function BanksPage() {
   const [activeTab, setActiveTab] = useState("accounts");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [formAcc, setFormAcc] = useState({ name: "", type: "checking", currency: "COP", balance: "" });
-  const [formCard, setFormCard] = useState({ name: "", type: "debit", currency: "COP", limit: "", available: "" });
+  const [formAcc, setFormAcc] = useState({ name: "", type: "checking", currency: "COP", balance: "", bankName: "", accountNumber: "" });
+  const [formCard, setFormCard] = useState({ name: "", type: "debit", currency: "COP", limit: "", available: "", bankName: "", last4: "" });
 
   useEffect(() => {
     async function load() {
@@ -49,6 +49,8 @@ function BanksPage() {
       accountType: formAcc.type,
       currency: formAcc.currency,
       balance: Number(formAcc.balance) || 0,
+      bankName: formAcc.bankName || null,
+      accountNumber: formAcc.accountNumber || null,
     };
     const res = await fetch("/api/accounts", {
       method: "POST",
@@ -58,7 +60,7 @@ function BanksPage() {
     if (res.ok) {
       const { data } = await res.json();
       setAccounts((curr) => [data, ...curr]);
-      setFormAcc({ ...formAcc, name: "", balance: "" });
+      setFormAcc({ name: "", type: "checking", currency: "COP", balance: "", bankName: "", accountNumber: "" });
     }
   }
 
@@ -75,6 +77,8 @@ function BanksPage() {
       currency: formCard.currency,
       creditLimit: formCard.limit ? Number(formCard.limit) : null,
       availableCredit: formCard.available ? Number(formCard.available) : null,
+      bankName: formCard.bankName || null,
+      last4: formCard.last4 || null,
     };
     const res = await fetch("/api/cards", {
       method: "POST",
@@ -84,7 +88,7 @@ function BanksPage() {
     if (res.ok) {
       const { data } = await res.json();
       setCards((curr) => [data, ...curr]);
-      setFormCard({ ...formCard, name: "", limit: "", available: "" });
+      setFormCard({ name: "", type: "debit", currency: "COP", limit: "", available: "", bankName: "", last4: "" });
     }
   }
 
@@ -158,6 +162,8 @@ function BanksPage() {
               </div>
               <div className="expense-form-grid" style={{ marginBottom: 12 }}>
                 <input className="input" placeholder="Nombre cuenta" value={formAcc.name} onChange={(e) => setFormAcc({ ...formAcc, name: e.target.value })} />
+                <input className="input" placeholder="Banco" value={formAcc.bankName} onChange={(e) => setFormAcc({ ...formAcc, bankName: e.target.value })} />
+                <input className="input" placeholder="Número de cuenta" value={formAcc.accountNumber} onChange={(e) => setFormAcc({ ...formAcc, accountNumber: e.target.value })} />
                 <select className="input" value={formAcc.type} onChange={(e) => setFormAcc({ ...formAcc, type: e.target.value })}>
                   <option value="checking">Cuenta corriente</option>
                   <option value="savings">Cuenta ahorros</option>
@@ -200,6 +206,8 @@ function BanksPage() {
               </div>
               <div className="expense-form-grid" style={{ marginBottom: 12 }}>
                 <input className="input" placeholder="Nombre tarjeta" value={formCard.name} onChange={(e) => setFormCard({ ...formCard, name: e.target.value })} />
+                <input className="input" placeholder="Banco" value={formCard.bankName} onChange={(e) => setFormCard({ ...formCard, bankName: e.target.value })} />
+                <input className="input" placeholder="Últimos 4" value={formCard.last4} onChange={(e) => setFormCard({ ...formCard, last4: e.target.value })} />
                 <select className="input" value={formCard.type} onChange={(e) => setFormCard({ ...formCard, type: e.target.value })}>
                   <option value="debit">Débito</option>
                   <option value="credit">Crédito</option>

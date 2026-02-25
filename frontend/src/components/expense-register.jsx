@@ -38,6 +38,7 @@ const accountOptions = [
 ];
 
 let startingBalance = 0;
+const cashLabel = "Efectivo";
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -105,7 +106,11 @@ function normalizeForm(nextForm) {
   }
 
   if (!methodNeedsBank(next.method)) {
-    next.bank = "";
+    if (next.method === "cash") {
+      next.bank = cashLabel;
+    } else {
+      next.bank = "";
+    }
   }
 
   if (!methodNeedsCard(next.method)) {
@@ -193,6 +198,7 @@ export default function ExpenseRegister() {
   const [newEdge, setNewEdge] = useState("");
   const [tagSuggestions, setTagSuggestions] = useState([]);
   const [accounts, setAccounts] = useState([]);
+  const [cards, setCards] = useState([]);
   const totalAccountsBalance = accounts.reduce((acc, a) => acc + (Number(a.balance) || 0), 0);
 
   useEffect(() => {
@@ -221,11 +227,17 @@ export default function ExpenseRegister() {
     async function load() {
       try {
         setLoading(true);
-        const res = await fetch("/api/expenses", { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
+        const [expRes, accRes, cardRes] = await Promise.all([
+          fetch("/api/expenses", { cache: "no-store" }),
+          fetch("/api/accounts", { cache: "no-store" }),
+          fetch("/api/cards", { cache: "no-store" }),
+        ]);
+        if (!expRes.ok || !accRes.ok || !cardRes.ok) throw new Error();
+        const [expJson, accJson, cardJson] = await Promise.all([expRes.json(), accRes.json(), cardRes.json()]);
         if (aborted) return;
-        setMovements(json.data || []);
+        setMovements(expJson.data || []);
+        setAccounts(accJson.data || []);
+        setCards(cardJson.data || []);
         setApiError("");
       } catch (error) {
         if (aborted) return;
@@ -336,7 +348,7 @@ export default function ExpenseRegister() {
   const incomeAccountOptions = useMemo(() => {
     return accounts.map((acc) => ({
       id: acc.id,
-      label: `${acc.accountName} · ${acc.currency}`,
+      label: `${acc.accountName}${acc.accountNumber ? " · " + acc.accountNumber : ""} · ${acc.currency}`,
     }));
   }, [accounts]);
 
@@ -354,10 +366,34 @@ export default function ExpenseRegister() {
     }
   }, [form.movementType, edgeOptions]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const availableCards = useMemo(
-    () => (form.bank ? cardOptionsByBank[form.bank] || [] : []),
-    [form.bank],
-  );
+  const bankOptions = useMemo(() => {
+    const names = new Set([cashLabel]);
+    accounts.forEach((a) => {
+      if (a.bankName) names.add(a.bankName);
+      else if (a.bankId) names.add(a.bankId);
+      if (a.accountType === "cash") names.add(cashLabel);
+    });
+    cards.forEach((c) => {
+      if (c.bankName) names.add(c.bankName);
+      else if (c.bankId) names.add(c.bankId);
+    });
+    return Array.from(names);
+  }, [accounts, cards]);
+
+  const cardOptionsByBank = useMemo(() => {
+    const map = {};
+    cards.forEach((c) => {
+      const bankKey = c.bankName || c.bankId || c.cardName.split(" ")[0];
+      if (!map[bankKey]) map[bankKey] = [];
+      map[bankKey].push(c.cardName + (c.last4 ? ` ••••${c.last4}` : ""));
+    });
+    return map;
+  }, [cards]);
+
+  const availableCards = useMemo(() => {
+    if (!form.bank) return [] ;
+    return cardOptionsByBank[form.bank] || [] ;
+  }, [cardOptionsByBank, form.bank]);
 
   const editing = useMemo(
     () => movements.find((m) => m.id === form.id) || null,
@@ -1117,7 +1153,13 @@ export default function ExpenseRegister() {
                     key={item.id}
                     type="button"
                     className={`expense-method-chip ${form.method === item.id ? "active" : ""}`}
-                    onClick={() => updateForm({ method: item.id })}
+                    onClick={() => {
+                      if (item.id === "cash") {
+                        updateForm({ method: item.id, bank: cashLabel, card: "" });
+                      } else {
+                        updateForm({ method: item.id });
+                      }
+                    }}
                     disabled={form.movementType === "transfer" && item.id !== "bank_transfer"}
                   >
                     <span>{item.icon}</span>
