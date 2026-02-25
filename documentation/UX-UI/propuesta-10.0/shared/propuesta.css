@@ -95,6 +95,15 @@
   width: min(420px, 100%);
 }
 
+.p10-viewport.mobile .p10-browser {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.p10-viewport.mobile .p10-frame {
+  width: 100%;
+}
+
 .p10-frame {
   width: 100%;
   border: 0;
