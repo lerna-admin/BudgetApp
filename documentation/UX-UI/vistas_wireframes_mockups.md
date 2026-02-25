@@ -1,5 +1,6 @@
 # Listado de vistas para Wireframes y Mockups
 
+- Propuesta 7 branding: logo_9_transparent como logo oficial y logo_4_transparent como alterno
 - Onboarding (cuestionario salud financiera)
 - Login
 - Registro

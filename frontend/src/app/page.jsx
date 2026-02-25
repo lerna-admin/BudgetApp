@@ -1,3 +1,4 @@
+import BrandLogo from "../components/brand-logo";
 import AppShell from "../components/app-shell";
 
 const pendingModules = ["Dashboard", "Presupuestos", "Movimientos", "Metas", "Reportes", "Configuracion"];
@@ -8,7 +9,7 @@ export default function HomePage() {
       <section className="landing">
         <article className="panel landing-hero">
           <div className="brand-lockup">
-            <span className="brand-mark">B</span>
+            <BrandLogo />
             <div>
               <p className="brand-name">BudgetApp</p>
               <p className="brand-sub">Gestion personal financiera</p>

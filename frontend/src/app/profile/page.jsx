@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import BrandLogo from "../../components/brand-logo";
 import AppShell from "../../components/app-shell";
 import { logout, me } from "../../lib/auth-client";
 
@@ -80,7 +81,7 @@ export default function ProfilePage() {
       <section className="profile-shell">
         <header className="panel profile-topbar">
           <a href="/" className="brand-lockup brand-inline">
-            <span className="brand-mark">B</span>
+            <BrandLogo />
             <div>
               <p className="brand-name">BudgetApp</p>
               <p className="brand-sub">Cuenta de usuario</p>
