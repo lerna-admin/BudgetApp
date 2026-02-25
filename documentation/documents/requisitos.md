@@ -31,6 +31,7 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 | RF-17 | Alta | Cierre de mes y limpieza: Actualización de información de acuerdo al estado real del usuario e inicio de presupuesto del siguiente mes |
 | RF-18 | Alta | Importar archivos: archivos csv y xsl con las columnas asociadas a nuestra plantilla |
 | RF-19 | Media | División de cuentas compartidas: registrar compras con ítems y participantes para calcular cuánto paga cada persona. |
+| RF-20 | Media | Selector de tema y paleta: la interfaz permitirá elegir entre propuestas (paletas de color) y modo claro/oscuro en tiempo real, persistiendo la preferencia del usuario. |
 
 ## 4. Requisitos no funcionales
 - **Disponibilidad**: 99 % mensual para servicios web/móvil.
