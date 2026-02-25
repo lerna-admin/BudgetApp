@@ -101,11 +101,6 @@ function normalizeForm(nextForm) {
     next.card = "";
   }
 
-  const availableCards = cardOptionsByBank[next.bank] || [];
-  if (next.card && !availableCards.includes(next.card)) {
-    next.card = "";
-  }
-
   return next;
 }
 
