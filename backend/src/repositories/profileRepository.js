@@ -43,7 +43,7 @@ async function findAllProfiles() {
   }
 
   const { rows } = await db.query(
-    "SELECT id, name, objective, tags FROM profiles ORDER BY updated_at DESC",
+    "SELECT id, name, objective, tags FROM profiles ORDER BY created_at DESC",
   );
 
   if (!rows.length) {
