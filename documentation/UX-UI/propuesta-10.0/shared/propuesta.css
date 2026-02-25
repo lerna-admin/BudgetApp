@@ -92,10 +92,15 @@
 }
 
 .p10-viewport.mobile {
-  width: min(393px, 100%); /* ancho típico de smartphone (iPhone 15 Pro: 393px) */
+  width: 100%;
+  max-width: 393px; /* ancho típico de smartphone (iPhone 15 Pro: 393px) */
+  margin: 0 auto;
+  padding: 0 8px;
+  box-sizing: border-box;
 }
 
 .p10-viewport.mobile .p10-browser {
+  width: 100%;
   max-width: 393px;
   margin: 0 auto;
 }
