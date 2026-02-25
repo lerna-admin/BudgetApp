@@ -6,7 +6,8 @@ export function middleware(request) {
   const token = request.cookies.get(COOKIE_NAME)?.value;
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/profile") && !token) {
+  const protectedRoute = pathname === "/" || pathname.startsWith("/profile");
+  if (protectedRoute && !token) {
     const url = new URL("/login", request.url);
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
@@ -16,5 +17,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/profile"],
+  matcher: ["/", "/profile"],
 };
