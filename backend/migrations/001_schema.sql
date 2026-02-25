@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS cards (
   bank_id UUID REFERENCES banks(id),
   card_name TEXT,
   card_type TEXT,
-  limit NUMERIC,
+  credit_limit NUMERIC,
   available_credit NUMERIC,
   currency TEXT,
   expiration DATE,
