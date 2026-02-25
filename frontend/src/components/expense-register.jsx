@@ -21,22 +21,6 @@ const paymentMethods = [
 
 const currencyOptions = ["COP", "USD", "EUR"];
 
-const bankOptions = ["Bancolombia", "Davivienda", "Lulo", "Nequi"];
-
-const cardOptionsByBank = {
-  Bancolombia: ["Visa Clasica", "Mastercard Debito"],
-  Davivienda: ["Debito Dinamica", "Mastercard Gold"],
-  Lulo: ["Tarjeta Lulo Debito"],
-  Nequi: ["Tarjeta Nequi"],
-};
-
-const accountOptions = [
-  "Bancolombia - Cuenta Ahorros",
-  "Lulo - Cuenta Digital",
-  "Bolsillo Diario",
-  "Nequi Principal",
-];
-
 let startingBalance = 0;
 const cashLabel = "Efectivo";
 
@@ -352,6 +336,12 @@ export default function ExpenseRegister() {
     }));
   }, [accounts]);
 
+  const transferAccountOptions = useMemo(
+    () =>
+      accounts.map((acc) => `${acc.accountName}${acc.accountNumber ? " · " + acc.accountNumber : ""}`),
+    [accounts],
+  );
+
   useEffect(() => {
     if (form.movementType === "transfer") return;
     if (!form.subcategory && subcategoryOptions.length > 0) {
@@ -371,6 +361,7 @@ export default function ExpenseRegister() {
     accounts.forEach((a) => {
       if (a.bankName) names.add(a.bankName);
       else if (a.bankId) names.add(a.bankId);
+      else if (a.accountName) names.add(a.accountName.split(" - ")[0]);
       if (a.accountType === "cash") names.add(cashLabel);
     });
     cards.forEach((c) => {
@@ -391,8 +382,8 @@ export default function ExpenseRegister() {
   }, [cards]);
 
   const availableCards = useMemo(() => {
-    if (!form.bank) return [] ;
-    return cardOptionsByBank[form.bank] || [] ;
+    if (!form.bank) return [];
+    return cardOptionsByBank[form.bank] || [];
   }, [cardOptionsByBank, form.bank]);
 
   const editing = useMemo(
@@ -1218,7 +1209,7 @@ export default function ExpenseRegister() {
                   onChange={(event) => updateForm({ transferFrom: event.target.value })}
                 >
                   <option value="">Seleccionar origen</option>
-                  {accountOptions.map((option) => (
+                  {transferAccountOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
@@ -1231,7 +1222,7 @@ export default function ExpenseRegister() {
                   onChange={(event) => updateForm({ transferTo: event.target.value })}
                 >
                   <option value="">Seleccionar destino</option>
-                  {accountOptions.map((option) => (
+                  {transferAccountOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
