@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import BrandLogo from "../../components/brand-logo";
 import AppShell from "../../components/app-shell";
 import { register } from "../../lib/auth-client";
 
@@ -61,7 +62,7 @@ export default function RegisterPage() {
       <section className="auth-single">
         <section className="auth-main panel auth-single-card">
           <a href="/" className="brand-lockup brand-inline" style={{ marginBottom: 14 }}>
-            <span className="brand-mark">B</span>
+            <BrandLogo />
             <div>
               <p className="brand-name">BudgetApp</p>
               <p className="brand-sub">Registro de usuario</p>

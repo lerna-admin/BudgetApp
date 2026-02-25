@@ -80,15 +80,12 @@ code {
   width: fit-content;
 }
 
-.brand-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: inline-grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--violet), var(--mint));
-  color: white;
-  font-weight: 800;
+.brand-logo {
+  width: clamp(70px, 5.5vw, 80px);
+  height: clamp(70px, 5.5vw, 80px);
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .brand-name {
@@ -653,6 +650,11 @@ code {
   .right-card,
   .status-card {
     padding: 16px;
+  }
+
+  .brand-logo {
+    width: 64px;
+    height: 64px;
   }
 
   .auth-aside h1 {
