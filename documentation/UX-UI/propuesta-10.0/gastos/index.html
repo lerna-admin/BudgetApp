@@ -171,7 +171,6 @@
                       <option value="cash">Efectivo</option>
                       <option value="card">Tarjeta</option>
                       <option value="bank_transfer">Transferencia</option>
-                      <option value="loan">Prestamo</option>
                     </select>
                   </div>
 
@@ -335,7 +334,6 @@
                 <button type="button" class="expense-method-chip active" data-method="cash"><span>💵</span><span>Efectivo</span></button>
                 <button type="button" class="expense-method-chip" data-method="card"><span>💳</span><span>Tarjeta</span></button>
                 <button type="button" class="expense-method-chip" data-method="bank_transfer"><span>🏦</span><span>Transferencia</span></button>
-                <button type="button" class="expense-method-chip" data-method="loan"><span>🤝</span><span>Prestamo</span></button>
               </div>
             </div>
 
@@ -361,7 +359,11 @@
 
             <div class="form-field">
               <label class="form-label" for="form-tags">Tags (opcional)</label>
-              <input id="form-tags" type="text" class="input" placeholder="Ej: comida, febrero" />
+              <input id="form-tags" type="text" class="input" placeholder="Escribe una etiqueta y presiona Enter" />
+              <p class="expense-hint">Escribe para buscar coincidencias o presiona Enter para crearla.</p>
+              <div id="selected-tags" class="tag-row expense-tag-list"></div>
+              <div id="tag-suggestions" class="tag-row expense-tag-suggestions"></div>
+              <p id="tag-empty-hint" class="expense-hint" hidden></p>
             </div>
 
             <div class="form-field">

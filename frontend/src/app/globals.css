@@ -974,6 +974,20 @@ body.nav-open {
   cursor: not-allowed;
 }
 
+.expense-tag-list,
+.expense-tag-suggestions {
+  margin-top: 6px;
+}
+
+.expense-tag-chip {
+  gap: 6px;
+}
+
+.expense-tag-chip span:last-child {
+  font-size: 10px;
+  opacity: 0.75;
+}
+
 .message-ok {
   color: #047857;
 }

@@ -174,6 +174,7 @@ export default function ExpenseRegister() {
   const [newSubOpen, setNewSubOpen] = useState(false);
   const [newSubName, setNewSubName] = useState("");
   const [newEdge, setNewEdge] = useState("");
+  const [tagInput, setTagInput] = useState("");
   const [tagSuggestions, setTagSuggestions] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [cards, setCards] = useState([]);
@@ -277,11 +278,13 @@ export default function ExpenseRegister() {
 
   function openDrawer() {
     setFeedback(null);
+    setTagInput("");
     setDrawerOpen(true);
   }
 
   function closeDrawer() {
     setFeedback(null);
+    setTagInput("");
     setDrawerOpen(false);
   }
 
@@ -384,6 +387,34 @@ export default function ExpenseRegister() {
     return cardOptionsByBank[form.bank] || [];
   }, [cardOptionsByBank, form.bank]);
 
+  const selectedTags = useMemo(() => {
+    const seen = new Set();
+    return String(form.tags || "")
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean)
+      .filter((tag) => {
+        const key = tag.toLowerCase();
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      });
+  }, [form.tags]);
+
+  const filteredTagSuggestions = useMemo(() => {
+    const query = tagInput.trim().toLowerCase();
+    if (!query) {
+      return [];
+    }
+    const selected = new Set(selectedTags.map((tag) => tag.toLowerCase()));
+    return tagSuggestions
+      .filter((tag) => !selected.has(tag.toLowerCase()))
+      .filter((tag) => tag.toLowerCase().includes(query))
+      .slice(0, 8);
+  }, [tagInput, tagSuggestions, selectedTags]);
+
   const editing = useMemo(
     () => movements.find((m) => m.id === form.id) || null,
     [form.id, movements],
@@ -482,28 +513,25 @@ export default function ExpenseRegister() {
     setForm((current) => normalizeForm({ ...current, ...patch }));
   }
 
-  function normalizeTagsString(raw) {
-    return Array.from(
-      new Set(
-        String(raw || "")
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean),
-      ),
-    ).join(", " );
+  function addTag(tag) {
+    const cleanTag = String(tag || "").trim();
+    if (!cleanTag) {
+      return;
+    }
+    const canonical = tagSuggestions.find((item) => item.toLowerCase() === cleanTag.toLowerCase()) || cleanTag;
+    const exists = selectedTags.some((item) => item.toLowerCase() === canonical.toLowerCase());
+    if (!exists) {
+      updateForm({ tags: [...selectedTags, canonical].join(", ") });
+    }
+    setTagInput("");
   }
 
-  function addTag(tag) {
-    const tagsSet = new Set(
-      form.tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-    );
-    if (tag && !tagsSet.has(tag)) {
-      tagsSet.add(tag);
-      updateForm({ tags: Array.from(tagsSet).join(", ") });
-    }
+  function removeTag(tagToRemove) {
+    updateForm({
+      tags: selectedTags
+        .filter((tag) => tag.toLowerCase() !== String(tagToRemove).toLowerCase())
+        .join(", "),
+    });
   }
 
   function validateForm() {
@@ -581,13 +609,12 @@ export default function ExpenseRegister() {
       bank: form.bank,
       card: form.card,
       currency: form.currency,
-      tags: form.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
+      tags: selectedTags,
       attachments: form.attachments,
       transferFrom: form.transferFrom,
       transferTo: form.transferTo,
+      destinationAccountId: form.destinationAccountId || null,
+      destinationNote: form.destinationNote || "",
     };
 
     try {
@@ -625,6 +652,8 @@ export default function ExpenseRegister() {
           currency: current.currency,
         }),
       );
+      setTagInput("");
+      setDrawerOpen(false);
     } catch (error) {
       setFeedback({ type: "error", text: error.message || "No se pudo guardar" });
     } finally {
@@ -886,7 +915,8 @@ export default function ExpenseRegister() {
                           type="button"
                           className="btn btn-ghost"
                           onClick={() => {
-                            setForm({ ...item, tags: (item.tags || []).join(",") });
+                            setForm(normalizeForm({ ...item, tags: (item.tags || []).join(", ") }));
+                            setTagInput("");
                             setDrawerOpen(true);
                             setFeedback(null);
                           }}
@@ -1258,30 +1288,47 @@ export default function ExpenseRegister() {
             <input
               type="text"
               className="input"
-              list="tag-suggestions"
-              value={form.tags}
-              onChange={(event) => updateForm({ tags: event.target.value })}
-              placeholder="Ej: comida, febrero"
+              value={tagInput}
+              onChange={(event) => setTagInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addTag(tagInput);
+                }
+              }}
+              placeholder="Escribe una etiqueta y presiona Enter"
             />
-            <datalist id="tag-suggestions">
-              {tagSuggestions.map((tag) => (
-                <option key={tag} value={tag} />
-              ))}
-            </datalist>
-            {tagSuggestions.length > 0 && (
-              <div className="tag-row" style={{ marginTop: 6, gap: 6, flexWrap: "wrap" }}>
-                {tagSuggestions.map((tag) => (
+            <p className="expense-hint">Escribe para buscar coincidencias o presiona Enter para crearla.</p>
+            {selectedTags.length > 0 ? (
+              <div className="tag-row expense-tag-list">
+                {selectedTags.map((tag) => (
                   <button
                     key={tag}
                     type="button"
-                    className="chip"
-                    onClick={() => addTag(tag)}
+                    className="chip expense-tag-chip"
+                    onClick={() => removeTag(tag)}
+                    aria-label={`Quitar etiqueta ${tag}`}
                   >
+                    <span>{tag}</span>
+                    <span aria-hidden="true">✕</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="expense-hint">Sin etiquetas en este movimiento.</p>
+            )}
+            {filteredTagSuggestions.length > 0 && (
+              <div className="tag-row expense-tag-suggestions">
+                {filteredTagSuggestions.map((tag) => (
+                  <button key={tag} type="button" className="chip" onClick={() => addTag(tag)}>
                     {tag}
                   </button>
                 ))}
               </div>
             )}
+            {tagInput.trim() && filteredTagSuggestions.length === 0 ? (
+              <p className="expense-hint">Sin coincidencias. Presiona Enter para crear "{tagInput.trim()}".</p>
+            ) : null}
           </div>
 
           <div className="form-field">
