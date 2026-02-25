@@ -191,7 +191,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
   color:var(--teal);display:flex;align-items:center;justify-content:center;
   font-size:11px;box-shadow:var(--shadow-sm);
 }
+.detail-edit svg{width:12px;height:12px;display:block;}
 .detail-edit.sm{width:20px;height:20px;font-size:10px;}
+.detail-edit.sm svg{width:10px;height:10px;}
 .detail-add{
   width:28px;height:28px;border-radius:50%;
   background:linear-gradient(135deg,var(--teal),var(--teal2));
@@ -672,7 +674,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
           <!-- KPIs -->
           <div class="kpi-row">
             <div class="kpi kpi-teal">
-              <div class="kpi-label">Disponible restante / RN-DASH</div>
+              <div class="kpi-label">Disponible restante</div>
               <div class="kpi-val teal">$4.250.000</div>
               <div class="kpi-meta">de $9.500.000 presupuestados · 55% restante</div>
               <div class="kpi-prog"><div class="kpi-pf" style="width:55%;background:var(--teal);"></div></div>
@@ -699,12 +701,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
 
           <!-- Main charts grid -->
           <div class="dash-grid">
-            <!-- Barras horizontales Presupuesto vs Real (RN-DASH-01) -->
+            <!-- Barras horizontales Presupuesto vs Real -->
             <div class="card" style="grid-column:1/-1;">
               <div class="card-title">
                 Presupuesto vs Real — Todas las categorías <span class="card-link">Ver detalle completo →</span>
               </div>
-              <div class="card-sub">Subcategorías del período activo · Gastos + Ahorro · RN-DASH-01</div>
+              <div class="card-sub">Subcategorías del período activo · Gastos + Ahorro</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;">
                 <div class="bar-list">
                   <!-- Gastos -->
@@ -767,7 +769,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               </div>
             </div>
 
-            <!-- Pastel subcategorías Gastos (RN-DASH-02) -->
+            <!-- Pastel subcategorías Gastos -->
             <div class="card">
               <div class="card-title">Distribución Gastos por subcategoría<span class="card-link">Cambiar →</span></div>
               <div class="card-sub">Categoría activa: Gastos · Período: Feb 2026</div>
@@ -1043,7 +1045,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
         <!-- FORM PANEL -->
         <div style="padding:18px 20px;background:var(--paper2);overflow:hidden;">
           <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px;">Nuevo movimiento</div>
-          <div style="font-size:10px;color:var(--ink4);margin-bottom:14px;">UC-BP-06 · RN-RG-01 a RG-10</div>
+          <div style="font-size:10px;color:var(--ink4);margin-bottom:14px;">UC-BP-06</div>
 
           <!-- Type selector -->
           <div class="type-sel" style="grid-template-columns:1fr 1fr;gap:6px;">
@@ -1053,7 +1055,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
             <div class="ts-btn"><span class="ts-emoji">↔️</span><span class="ts-label">Entre cuentas</span></div>
           </div>
 
-          <!-- Breadcrumb selección guiada RN-RG-02,03,04 -->
+          <!-- Breadcrumb selección guiada -->
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:5px;">Categoría › Subcategoría › Detalle</div>
           <div class="bc-sel" style="margin-bottom:10px;">
             <span class="bc-item done">Gastos</span>
@@ -1078,23 +1080,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               <input class="f-input" value="21/02/2026" readonly>
             </div>
             <div class="form-field">
-              <label class="f-label">Moneda · RN-RG-08</label>
+              <label class="f-label">Moneda</label>
               <select class="f-select active"><option>🇨🇴 COP</option></select>
             </div>
           </div>
 
-          <!-- Conditional: método de pago RN-RG-07,08 -->
+          <!-- Conditional: método de pago -->
           <div style="margin-top:8px;">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:5px;">Método de pago · RN-RG-07</div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:5px;">Método de pago</div>
             <div style="display:flex;gap:5px;margin-bottom:8px;">
               <span class="chip">💵 Efectivo</span>
               <span class="chip on">💳 Tarjeta</span>
               <span class="chip">🏦 Transf.</span>
               <span class="chip">🤝 Préstamo</span>
             </div>
-            <!-- Conditional: si tarjeta → banco + tarjeta (RN-RG-08) -->
+            <!-- Conditional: si tarjeta → banco + tarjeta -->
             <div class="cond-row" style="grid-template-columns:1fr 1fr;gap:7px;">
-              <div class="form-field"><label class="f-label">Banco · RN-RG-08</label><select class="f-select active"><option>Bancolombia</option><option>Davivienda</option><option>Lulo</option></select></div>
+              <div class="form-field"><label class="f-label">Banco</label><select class="f-select active"><option>Bancolombia</option><option>Davivienda</option><option>Lulo</option></select></div>
               <div class="form-field"><label class="f-label">Tarjeta</label><select class="f-select active"><option>Visa Clásica</option><option>MC Débito</option></select></div>
             </div>
           </div>
@@ -1137,7 +1139,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
           <div class="mob-form" style="padding-top:8px;">
             <div class="mob-form-header">
               <div class="mob-back">←</div>
-              <div><div class="mob-form-title">Registrar Gasto</div><div class="mob-form-sub">UC-BP-06 · RN-RG-01 a RG-10</div></div>
+              <div><div class="mob-form-title">Registrar Gasto</div><div class="mob-form-sub">UC-BP-06</div></div>
             </div>
 
             <!-- Amount display -->
@@ -1154,17 +1156,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               <div class="mob-type-btn"><div class="mob-type-ico">↔️</div><div class="mob-type-lbl">Entre cuentas</div></div>
             </div>
 
-            <!-- Selección guiada RN-RG-02,03 -->
+            <!-- Selección guiada -->
             <div class="mob-field">
-              <div class="mob-field-label">Categoría · RN-RG-02</div>
+              <div class="mob-field-label">Categoría</div>
               <div class="mob-field-val active">💸 Gastos <span class="mob-field-arrow">›</span></div>
             </div>
             <div class="mob-field">
-              <div class="mob-field-label">Subcategoría · RN-RG-02</div>
+              <div class="mob-field-label">Subcategoría</div>
               <div class="mob-field-val active">🍽️ Alimentación <span class="mob-field-arrow">›</span></div>
             </div>
             <div class="mob-field">
-              <div class="mob-field-label">Detalle / Rubro · RN-RG-03,04</div>
+              <div class="mob-field-label">Detalle / Rubro</div>
               <div class="mob-field-val active">Domicilios <span class="mob-field-arrow">›</span></div>
             </div>
             <div class="mob-field">
@@ -1179,8 +1181,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               <span class="chip" style="font-size:10px;">🏦 Transf.</span>
             </div>
 
-            <!-- Conditional: RN-RG-08 -->
-            <div class="mob-cond">⚠️ Tarjeta seleccionada → debes indicar banco y tarjeta (RN-RG-08)</div>
+            <!-- Conditional -->
+            <div class="mob-cond">⚠️ Tarjeta seleccionada → debes indicar banco y tarjeta</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
               <div class="mob-field" style="margin:0;"><div class="mob-field-label">Banco</div><div class="mob-field-val active" style="font-size:12px;">Bancolombia</div></div>
               <div class="mob-field" style="margin:0;"><div class="mob-field-label">Tarjeta</div><div class="mob-field-val active" style="font-size:12px;">Visa Clásica</div></div>
@@ -1578,15 +1580,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               </tr>
             </thead>
             <tbody>
-              <tr class="bt-cat"><td colspan="4"><span style="font-size:12px;font-weight:800;color:var(--sage);">↑ Ingresos</span><span class="bt-cat-badge" style="background:var(--sage2);color:var(--sage);">Rubros directos</span></td></tr>
+              <tr class="bt-cat"><td colspan="4"><span style="font-size:12px;font-weight:800;color:var(--sage);">↑ Ingresos</span></td></tr>
               <tr class="bt-sub">
-                <td><div class="bt-sub-name">Salario</div><div class="bt-detalle">Rubro directo</div></td>
+                <td><div class="bt-sub-name">Salario</div><div class="bt-detalle">Ingreso base</div></td>
                 <td style="font-size:11px;color:var(--ink4);">Pago mensual empresa</td>
                 <td style="font-size:11px;color:var(--ink3);">🏦 Transf. · Bancolombia</td>
                 <td style="text-align:right;"><input class="bt-plan" value="$8.500.000"></td>
               </tr>
               <tr class="bt-sub">
-                <td><div class="bt-sub-name">Saldo mes anterior</div><div class="bt-detalle">Rubro directo</div></td>
+                <td><div class="bt-sub-name">Saldo mes anterior</div><div class="bt-detalle">Ingreso base</div></td>
                 <td style="font-size:11px;color:var(--ink4);">Saldo enero</td>
                 <td style="font-size:11px;color:var(--ink3);">🏦 Bancolombia</td>
                 <td style="text-align:right;"><input class="bt-plan" value="$1.390.000"></td>
@@ -1604,29 +1606,29 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               </tr>
             </thead>
             <tbody>
-              <tr class="bt-cat"><td colspan="3"><span style="font-size:12px;font-weight:800;color:var(--red);">↓ Gastos</span><span class="bt-cat-badge" style="background:var(--red3);color:var(--red);">No editable</span></td></tr>
+              <tr class="bt-cat"><td colspan="3"><span style="font-size:12px;font-weight:800;color:var(--red);">↓ Gastos</span></td></tr>
               <tr class="bt-sub">
-                <td><div class="bt-sub-name">Necesidades Básicas</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Arriendo, Servicios, Gas, Gasolina…</div><div class="detail-edit">✏️</div></div></td>
+                <td><div class="bt-sub-name">Necesidades Básicas</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Arriendo, Servicios, Gas, Gasolina…</div><div class="detail-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div></div></td>
                 <td style="text-align:right;"><input class="bt-plan" value="$1.400.000"></td>
                 <td style="font-size:11px;color:var(--ink3);">Recomendado 50% · Perfil Tilbury</td>
               </tr>
               <tr class="bt-sub">
-                <td><div class="bt-sub-name">Alimentación</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Restaurantes, Domicilios</div><div class="detail-edit">✏️</div></div></td>
+                <td><div class="bt-sub-name">Alimentación</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Restaurantes, Domicilios</div><div class="detail-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div></div></td>
                 <td style="text-align:right;"><input class="bt-plan" value="$500.000"></td>
                 <td style="font-size:11px;color:var(--ink3);">Máx 12% del ingreso · recordatorio semanal</td>
               </tr>
               <tr class="bt-sub" style="background:#FEF4F4;">
-                <td><div class="bt-sub-name">Transporte</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">App taxis, Gasolina, Peaje</div><div class="detail-edit">✏️</div></div></td>
+                <td><div class="bt-sub-name">Transporte</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">App taxis, Gasolina, Peaje</div><div class="detail-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div></div></td>
                 <td style="text-align:right;"><input class="bt-plan" value="$400.000" style="border-color:var(--red);"></td>
                 <td style="font-size:11px;color:var(--red);font-weight:700;">Define tope semanal · alerta si se supera</td>
               </tr>
               <tr class="bt-sub">
-                <td><div class="bt-sub-name">Entretenimiento</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Vacaciones, Cine, Plataformas…</div><div class="detail-edit">✏️</div></div></td>
+                <td><div class="bt-sub-name">Entretenimiento</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Vacaciones, Cine, Plataformas…</div><div class="detail-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div></div></td>
                 <td style="text-align:right;"><input class="bt-plan" value="$300.000"></td>
                 <td style="font-size:11px;color:var(--ink3);">Límite semanal $75K · flexible viernes-domingo</td>
               </tr>
               <tr class="bt-sub">
-                <td><div class="bt-sub-name">Deudas</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Tarjeta 1, Carro, Estudio</div><div class="detail-edit">✏️</div></div></td>
+                <td><div class="bt-sub-name">Deudas</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle">Tarjeta 1, Carro, Estudio</div><div class="detail-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div></div></td>
                 <td style="text-align:right;"><input class="bt-plan" value="$650.000"></td>
                 <td style="font-size:11px;color:var(--ink3);">Fecha de corte: 28 feb · pago mínimo auto</td>
               </tr>
@@ -1639,7 +1641,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
               </tr>
               <tr class="bt-cat"><td colspan="3"><span style="font-size:12px;font-weight:800;color:var(--sage);">💰 Ahorro</span><span class="bt-cat-badge" style="background:var(--sage2);color:var(--sage);">Ahorros</span></td></tr>
               <tr class="bt-sub">
-                <td><div class="bt-sub-name">Fondo de Emergencia</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle" style="color:var(--teal);">Ahorro programado</div><div class="detail-edit">✏️</div></div></td>
+                <td><div class="bt-sub-name">Fondo de Emergencia</div><div style="display:flex;align-items:center;gap:6px;"><div class="bt-detalle" style="color:var(--teal);">Ahorro programado</div><div class="detail-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div></div></td>
                 <td style="text-align:right;"><input class="bt-plan" value="$400.000" style="border-color:var(--sage);background:var(--sage2)50;"></td>
                 <td style="font-size:11px;color:var(--sage);font-weight:700;">Débito automático el 5 de cada mes</td>
               </tr>
@@ -1816,28 +1818,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div><div class="mob-cat-sub">Arriendo</div></div>
-                    <div class="detail-edit sm">✏️</div>
+                    <div class="detail-edit sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
                   </div>
                   <input class="mob-cat-input active" value="$800.000">
                 </div>
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div><div class="mob-cat-sub">Servicios públicos</div></div>
-                    <div class="detail-edit sm">✏️</div>
+                    <div class="detail-edit sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
                   </div>
                   <input class="mob-cat-input" value="$200.000">
                 </div>
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div><div class="mob-cat-sub">Gasolina</div></div>
-                    <div class="detail-edit sm">✏️</div>
+                    <div class="detail-edit sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
                   </div>
                   <input class="mob-cat-input" value="$200.000">
                 </div>
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div><div class="mob-cat-sub">Mercado</div></div>
-                    <div class="detail-edit sm">✏️</div>
+                    <div class="detail-edit sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
                   </div>
                   <input class="mob-cat-input" value="$200.000">
                 </div>
@@ -1856,21 +1858,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div><div class="mob-cat-sub">App taxis/taxi</div></div>
-                    <div class="detail-edit sm">✏️</div>
+                    <div class="detail-edit sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
                   </div>
                   <input class="mob-cat-input" value="$200.000">
                 </div>
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div><div class="mob-cat-sub">Mantenimiento</div></div>
-                    <div class="detail-edit sm">✏️</div>
+                    <div class="detail-edit sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
                   </div>
                   <input class="mob-cat-input" value="$150.000">
                 </div>
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div><div class="mob-cat-sub">Peaje/colpass</div></div>
-                    <div class="icon-btn" style="width:22px;height:22px;font-size:10px;">✏️</div>
+                    <div class="detail-edit sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
                   </div>
                   <input class="mob-cat-input" value="$50.000">
                 </div>
@@ -1896,14 +1898,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
                       <div class="mob-cat-sub">Fondo Emergencia</div>
                       <div class="mob-cat-detalle" style="color:var(--teal);">📌 Ahorro programado</div>
                     </div>
-                    <div class="detail-edit sm">✏️</div>
+                    <div class="detail-edit sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
                   </div>
                   <input class="mob-cat-input active" value="$400.000">
                 </div>
                 <div class="mob-cat-row">
                   <div style="flex:1;display:flex;align-items:center;justify-content:space-between;">
                     <div><div class="mob-cat-sub">Fondo Pensión</div></div>
-                    <div class="detail-edit sm">✏️</div>
+                    <div class="detail-edit sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l4 4-8 8H4v-4l8-8z"/><path d="M9 7l8 8"/></svg></div>
                   </div>
                   <input class="mob-cat-input" value="$250.000">
                 </div>
