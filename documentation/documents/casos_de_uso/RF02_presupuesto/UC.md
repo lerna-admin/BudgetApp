@@ -741,7 +741,7 @@ Pendiente por validar con el usuario.
 
 ### Descripción Breve
 
-Permite seleccionar un perfil financiero antes de crear el presupuesto para activar alertas y recomendaciones sin modificar la estructura de la plantilla. El usuario puede cambiar el perfil durante el año sin afectar información histórica.
+Permite seleccionar un perfil financiero antes de crear el presupuesto para activar alertas y recomendaciones sin modificar la estructura de la plantilla. El usuario puede cambiar el perfil durante el año sin afectar información histórica. En el primer inicio de sesión, el sistema propone Tilbury (1%) por defecto e informa que los porcentajes son editables y solo una guía.
 
 ### Actores
 
@@ -761,6 +761,7 @@ Permite seleccionar un perfil financiero antes de crear el presupuesto para acti
 1. Se guarda el perfil seleccionado con porcentajes por defecto o editados.
 2. Se activan alertas y recomendaciones según el perfil.
 3. Los cambios de perfil aplican desde la fecha seleccionada sin modificar histórico.
+4. Si es primer ingreso, se muestra la pantalla inicial con botón "Crear presupuesto" y acceso a "Dividir cuentas" en el menú lateral (Herramientas).
 
 #### Fallo
 1. No se guarda el perfil.
@@ -771,11 +772,12 @@ Permite seleccionar un perfil financiero antes de crear el presupuesto para acti
 
 | Paso | Actor | Sistema |
 |------|-------|---------|
-| 1 | Usuario abre “Seleccionar perfil” antes de crear el presupuesto. | - |
-| 2 | - | Muestra perfiles con objetivo, conceptos y porcentajes por defecto. |
-| 3 | Usuario selecciona un perfil y (opcional) ajusta porcentajes. | - |
-| 4 | - | Valida que la suma sea 100% y guarda la configuración. |
-| 5 | - | Activa alertas y recomendaciones y continúa con la creación del presupuesto. |
+| 1 | - | Si es primer inicio de sesión, muestra la pantalla de registro con selector de perfil (Tilbury 1% preseleccionado) y punto de información sobre los perfiles. |
+| 2 | Usuario abre “Seleccionar perfil” antes de crear el presupuesto (cuando no es primer ingreso). | - |
+| 3 | - | Muestra perfiles con objetivo, conceptos y porcentajes por defecto. |
+| 4 | Usuario selecciona un perfil y (opcional) ajusta porcentajes. | - |
+| 5 | - | Valida que la suma sea 100% y guarda la configuración. |
+| 6 | - | Activa alertas y recomendaciones y, si es primer ingreso, muestra la pantalla inicial con botón "Crear presupuesto" y acceso a "Dividir cuentas" desde el menú lateral (Herramientas). |
 
 ### Flujos Alternativos
 
@@ -812,6 +814,7 @@ No hay.
 
 #### Usabilidad
 - Cada perfil muestra su objetivo y el significado de cada concepto.
+- El campo de perfil incluye un punto informativo con lenguaje amistoso que explique los perfiles y aclare que los porcentajes son editables y una guía.
 - Las recomendaciones se basan en el perfil activo.
 
 #### Cumplimiento
@@ -832,6 +835,7 @@ No hay.
 | RN-BP-PR-03 | El mapeo de subcategorías a conceptos varía por perfil. |
 | RN-BP-PR-04 | El cambio de perfil no modifica información histórica previa. |
 | RN-BP-PR-05 | El perfil solo genera alertas y recomendaciones. |
+| RN-BP-PR-06 | En el primer inicio de sesión, el perfil Tilbury (1%) se propone por defecto. |
 
 #### Conceptos del perfil
 
@@ -1249,6 +1253,7 @@ Como usuario, quiero seleccionar un perfil de presupuesto para recibir alertas y
 
 **Criterios de aceptacion**
 - Se muestran perfiles con objetivo y porcentajes por defecto (editables).
+- En el primer inicio de sesión, Tilbury (1%) aparece seleccionado por defecto y se muestra un mensaje informativo sobre perfiles y porcentajes editables.
 - El usuario puede ajustar porcentajes y el sistema valida que sumen 100%.
 - La selección de perfil no modifica la estructura de categorías/subcategorías.
 - El perfil activa alertas y recomendaciones según su mapeo.
@@ -1266,4 +1271,3 @@ Como usuario, quiero crear y gestionar bancos, tarjetas y monedas para usarlas e
 - El usuario puede asociar tarjetas a un banco.
 - El usuario puede seleccionar o agregar monedas disponibles.
 - Los catálogos quedan disponibles para presupuesto y gastos.
-
