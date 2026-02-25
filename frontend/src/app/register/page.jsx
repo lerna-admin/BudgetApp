@@ -12,6 +12,37 @@ const countries = [
   { value: "BR", label: "Brasil (BRL)" },
 ];
 
+const profileTemplates = [
+  {
+    value: "mark-tilbury",
+    label: "Tilbury 1% (ahorro/inversion)",
+    name: "Tilbury (1%)",
+    purpose: "Equilibra ahorro e inversion desde el primer mes.",
+    idealFor: "Quieres crecer sin descuidar liquidez.",
+  },
+  {
+    value: "savings-boost",
+    label: "Ahorro acelerado",
+    name: "Ahorro acelerado",
+    purpose: "Sube tu ahorro mensual recortando gastos variables.",
+    idealFor: "Tu prioridad es crear colchon rapido.",
+  },
+  {
+    value: "investment-priority",
+    label: "Inversion prioritaria",
+    name: "Inversion prioritaria",
+    purpose: "Aumenta aportes de inversion de forma constante.",
+    idealFor: "Aceptas menor gasto libre para invertir mas.",
+  },
+  {
+    value: "debt-focus",
+    label: "Pago de deudas",
+    name: "Pago de deudas",
+    purpose: "Dirige mas flujo a bajar deudas e intereses.",
+    idealFor: "Necesitas ordenar caja y reducir cuotas.",
+  },
+];
+
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -27,10 +58,23 @@ export default function RegisterPage() {
 
   const hasNumber = useMemo(() => /\d/.test(formData.password), [formData.password]);
   const hasLength = formData.password.length >= 8;
-  const canSubmit = formData.name && formData.email && hasNumber && hasLength && acceptedTerms;
+  const canSubmit = Boolean(
+    formData.name &&
+      formData.email &&
+      formData.profileTemplate &&
+      hasNumber &&
+      hasLength &&
+      acceptedTerms,
+  );
+
+  const selectedProfile = useMemo(
+    () => profileTemplates.find((item) => item.value === formData.profileTemplate) || profileTemplates[0],
+    [formData.profileTemplate],
+  );
 
   async function handleSubmit(event) {
     event.preventDefault();
+
     if (!canSubmit || loading) {
       if (!acceptedTerms) {
         setError("Debes aceptar terminos y privacidad para continuar");
@@ -47,8 +91,9 @@ export default function RegisterPage() {
         email: formData.email,
         password: formData.password,
         countryCode: formData.countryCode,
+        profileTemplate: formData.profileTemplate,
       });
-      router.push("/profile");
+      router.push("/");
       router.refresh();
     } catch (requestError) {
       setError(requestError.message);
@@ -73,7 +118,9 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="form-field">
-              <label className="form-label" htmlFor="register-name">Nombre completo</label>
+              <label className="form-label" htmlFor="register-name">
+                Nombre completo <span className="required">*</span>
+              </label>
               <input
                 id="register-name"
                 className="input"
@@ -86,7 +133,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="form-field">
-              <label className="form-label" htmlFor="register-email">Correo</label>
+              <label className="form-label" htmlFor="register-email">
+                Correo <span className="required">*</span>
+              </label>
               <input
                 id="register-email"
                 className="input"
@@ -100,7 +149,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="form-field">
-              <label className="form-label" htmlFor="register-password">Contrasena</label>
+              <label className="form-label" htmlFor="register-password">
+                Contrasena <span className="required">*</span>
+              </label>
               <input
                 id="register-password"
                 className="input"
@@ -119,7 +170,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="form-field">
-              <label className="form-label" htmlFor="register-country">Pais</label>
+              <label className="form-label" htmlFor="register-country">
+                Pais <span className="required">*</span>
+              </label>
               <select
                 id="register-country"
                 className="input"
@@ -133,17 +186,40 @@ export default function RegisterPage() {
             </div>
 
             <div className="form-field">
-              <label className="form-label" htmlFor="register-template">Perfil sugerido</label>
+              <div className="form-label-row">
+                <label className="form-label" htmlFor="register-template" style={{ marginBottom: 0 }}>
+                  Perfil sugerido <span className="required">*</span>
+                </label>
+                <span className="info-dot" title="Define una guia inicial para arrancar tu primer presupuesto">i</span>
+              </div>
               <select
                 id="register-template"
                 className="input"
                 value={formData.profileTemplate}
                 onChange={(event) => setFormData((prev) => ({ ...prev, profileTemplate: event.target.value }))}
+                required
               >
-                <option value="mark-tilbury">Tilbury 1% ahorro / inversion</option>
-                <option value="growth-journey">Crecimiento patrimonial</option>
-                <option value="cashflow-starter">Control de flujo inicial</option>
+                {profileTemplates.map((profile) => (
+                  <option key={profile.value} value={profile.value}>{profile.label}</option>
+                ))}
               </select>
+
+              <div className="profile-info-box">
+                <div className="profile-alert-head">
+                  <p className="profile-alert-title">Alerta de lectura</p>
+                  <span className="profile-alert-badge">Importante</span>
+                </div>
+                <p className="profile-alert-name">{selectedProfile.name}</p>
+                <p className="profile-alert-text">
+                  <strong>Sirve para:</strong> {selectedProfile.purpose}
+                </p>
+                <p className="profile-alert-text">
+                  <strong>Ideal si:</strong> {selectedProfile.idealFor}
+                </p>
+                <p className="profile-alert-note">
+                  Puedes cambiar estos porcentajes cuando crees tu presupuesto.
+                </p>
+              </div>
             </div>
 
             <div className="row-between" style={{ justifyContent: "flex-start" }}>
@@ -153,7 +229,7 @@ export default function RegisterPage() {
                   checked={acceptedTerms}
                   onChange={(event) => setAcceptedTerms(event.target.checked)}
                 />
-                <span>Acepto terminos y privacidad</span>
+                <span>Acepto terminos y privacidad <span className="required">*</span></span>
               </label>
             </div>
 

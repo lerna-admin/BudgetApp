@@ -22,7 +22,7 @@ export default function LoginPage() {
     try {
       await login({ email, password });
       const search = typeof window !== "undefined" ? window.location.search : "";
-      const nextPath = new URLSearchParams(search).get("next") || "/profile";
+      const nextPath = new URLSearchParams(search).get("next") || "/";
       router.push(nextPath);
       router.refresh();
     } catch (requestError) {
