@@ -16,7 +16,6 @@ const paymentMethods = [
   { id: "cash", label: "Efectivo", icon: "💵" },
   { id: "card", label: "Tarjeta", icon: "💳" },
   { id: "bank_transfer", label: "Transferencia", icon: "🏦" },
-  { id: "loan", label: "Prestamo", icon: "🤝" },
 ];
 
 const currencyOptions = ["COP", "USD", "EUR"];
@@ -54,7 +53,7 @@ function typeToCategory(movementType) {
 }
 
 function methodNeedsBank(method) {
-  return method === "card" || method === "bank_transfer";
+  return method === "bank_transfer";
 }
 
 function methodNeedsCard(method) {
@@ -363,8 +362,12 @@ export default function ExpenseRegister() {
       if (c.bankName) names.add(c.bankName);
       else if (c.bankId) names.add(c.bankId);
     });
-    return Array.from(names);
-  }, [accounts, cards]);
+    let arr = Array.from(names);
+    if (form.method === "bank_transfer" || form.method === "card") {
+      arr = arr.filter((name) => name !== cashLabel);
+    }
+    return arr;
+  }, [accounts, cards, form.method]);
 
   const cardOptionsByBank = useMemo(() => {
     const map = {};
@@ -1170,27 +1173,28 @@ export default function ExpenseRegister() {
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
-                <button type="button" className="btn btn-ghost expense-clear-filters" onClick={() => setNewSubOpen((v) => !v)}>
-                  {newSubOpen ? "Cancelar" : "Nueva subcategoria"}
-                </button>
               </div>
+            </div>
+          )}
 
-              {cardRequired && (
-                <div className="form-field">
-                  <label className="form-label">Tarjeta</label>
-                  <select
-                    className="input"
-                    value={form.card}
-                    onChange={(event) => updateForm({ card: event.target.value })}
-                    disabled={availableCards.length === 0}
-                  >
-                    <option value="">Seleccionar tarjeta</option>
-                    {availableCards.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
+          {cardRequired && (
+            <div className="form-field">
+              <label className="form-label">Tarjeta</label>
+              <select
+                className="input"
+                value={form.card}
+                onChange={(event) => {
+                  const selected = event.target.value;
+                  const card = cards.find((c) => (c.cardName + (c.last4 ? ` ••••${c.last4}` : "")) === selected);
+                  updateForm({ card: selected, bank: card?.bankName || card?.bankId || form.bank });
+                }}
+                disabled={availableCards.length === 0}
+              >
+                <option value="">Seleccionar tarjeta</option>
+                {availableCards.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
             </div>
           )}
 
