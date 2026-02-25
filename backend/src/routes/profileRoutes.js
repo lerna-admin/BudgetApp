@@ -1,5 +1,10 @@
 const express = require("express");
-const { getProfiles } = require("../controllers/profileController");
+const {
+  getProfiles,
+  getProfileObjectives,
+  createSelection,
+  activeSelection,
+} = require("../controllers/profileController");
 
 const router = express.Router();
 
