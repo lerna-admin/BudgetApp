@@ -482,6 +482,17 @@ export default function ExpenseRegister() {
     setForm((current) => normalizeForm({ ...current, ...patch }));
   }
 
+  function normalizeTagsString(raw) {
+    return Array.from(
+      new Set(
+        String(raw || "")
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+      ),
+    ).join(", " );
+  }
+
   function addTag(tag) {
     const tagsSet = new Set(
       form.tags
