@@ -16,6 +16,7 @@ Aplicación web/móvil de presupuesto personal con monitoreo en tiempo real, ale
 | [Requisitos](documentation/documents/requisitos.md) | Detalle de requerimientos funcionales/no funcionales (en construcción). |
 | [Casos de uso](documentation/documents/casos_de_uso.md) | Actores y flujos principales que cubren la experiencia de BudgetApp. |
 | [OpenAPI](documentation/api/openapi.yaml) | Especificación 0.1.0 de los endpoints prioritarios (onboarding, presupuestos, transacciones, alertas, integraciones). |
+| [Registro decisiones 2026-02-19](documentation/documents/acciones-2026-02-19.md) | Nuevas acciones de presupuesto, configuración de bancos, y UX actualizado para el sprint de febrero. |
 
 > Cada iteración que avancemos agregará nuevos artefactos en este directorio (arquitectura, plan de pruebas, etc.) siguiendo la estructura RUP.
 
@@ -84,3 +85,13 @@ flowchart TD
 1. Revisar los documentos anteriores antes de proponer cambios.
 2. Registrar toda conversación relevante en `historic/<fecha>.log` según el proceso acordado con el stakeholder.
 3. Usar la llave SSH `~/.ssh/id_ed25519_microimpulso` para interactuar con `git@github.com:lerna-admin/BudgetApp.git`.
+
+## Estructura de desarrollo compartido
+- `backend/`: servicio MVC Express + PostgreSQL. Controladores, servicios y repositorios en esta carpeta exponen la API que consumen todos los clientes (web, móvil, scripts).
+- `frontend/`: app Next.js (React 19) que sirve como vista de referencia. Está pensada para conectarse al backend y, eventualmente, reemplazarse por el producto final.
+- `pm2.config.js`: permite levantar ambos servicios simultáneamente en desarrollo (`pm2 start pm2.config.js --watch`). Cada carpeta sigue pudiendo ejecutarse por separado (`npm run dev`).
+
+### Pasos mínimos para correr todo
+1. Usa `docker compose -f backend/docker-compose.yml up --build` para arrancar base de datos, backend y frontend sin instalar nada localmente; el backend escucha en `4000` y el frontend en `3000`.
+2. Si prefieres aún ver los servicios separadamente para debugging, puedes levantar el backend o frontend solos a partir del `docker compose` anterior (por ejemplo `docker compose -f backend/docker-compose.yml up backend`).
+3. Cuando todo esté estable, desplegamos los servicios como contenedores independientes (backend en su host / frontend en Vercel o similar), mientras que PM2 se reserva para instalaciones locales temporales si es necesario.
