@@ -25,7 +25,7 @@ function sanitizeUser(user) {
 export async function GET() {
   if (!hasPool()) {
     return NextResponse.json(
-      { message: "DATABASE_URL no configurada en frontend/.env" },
+      { message: "DATABASE_URL no configurada en app/.env" },
       { status: 500 },
     );
   }

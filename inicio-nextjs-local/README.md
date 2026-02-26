@@ -7,7 +7,7 @@ Este directorio centraliza lo necesario para arrancar la implementacion inicial.
 - Registro
 - Perfil de usuario
 
-El resto de secciones del frontend estan visibles, pero enlazan a `#` por ahora.
+El resto de secciones de la app estan visibles, pero enlazan a `#` por ahora.
 
 ## 1) Instalar PostgreSQL
 Ejemplo Ubuntu/Debian:
@@ -59,15 +59,15 @@ npm run dev
 
 Backend esperado en `http://localhost:4000`.
 
-## 6) Levantar frontend Next.js
+## 6) Levantar app Next.js
 
 ```bash
-cd frontend
+cd app
 npm install
 NEXT_PUBLIC_API_URL=http://localhost:4000 npm run dev
 ```
 
-Frontend esperado en `http://localhost:3000`.
+App esperada en `http://localhost:3000`.
 
 ## 7) Flujo funcional para validar
 1. Abrir `/register` y crear usuario.
