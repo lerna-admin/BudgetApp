@@ -7,7 +7,7 @@ const menuSections = [
     title: "Principal",
     items: [
       { id: "dashboard", label: "Dashboard", icon: "🏠", href: "/" },
-      { id: "budget", label: "Presupuesto", icon: "📊", href: "#" },
+      { id: "budget", label: "Presupuesto", icon: "📊", href: "/presupuesto" },
       { id: "expenses", label: "Registro de movimientos", icon: "✏️", href: "/gastos" },
       { id: "goals", label: "Metas", icon: "🎯", href: "#" },
     ],

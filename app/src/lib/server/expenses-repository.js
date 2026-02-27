@@ -221,14 +221,17 @@ export async function deleteExpense(id, { userId = null } = {}) {
 
 export async function listTags() {
   const { rows } = await query(
-    `SELECT DISTINCT TRIM(tag) AS tag
+    `SELECT tag
        FROM (
-         SELECT UNNEST(tags) AS tag
-         FROM expenses
-         WHERE tags IS NOT NULL
-       ) t
-      WHERE TRIM(tag) <> ''
-      ORDER BY LOWER(TRIM(tag))`,
+         SELECT DISTINCT TRIM(tag) AS tag, LOWER(TRIM(tag)) AS tag_lower
+         FROM (
+           SELECT UNNEST(tags) AS tag
+           FROM expenses
+           WHERE tags IS NOT NULL
+         ) t
+         WHERE TRIM(tag) <> ''
+       ) tags
+      ORDER BY tag_lower`,
   );
   return rows.map((r) => r.tag);
 }
