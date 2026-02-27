@@ -1,0 +1,2737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BudgetApp · Pantallas finales (basadas en implementación Frontend)</title>
+
+  <!-- Usa la misma hoja de estilos que la implementación actual del frontend -->
+  <link rel="stylesheet" href="../../app/src/app/globals.css" />
+
+  <style>
+    .doc {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: clamp(14px, 2.8vw, 28px);
+      display: grid;
+      gap: 16px;
+    }
+
+    .doc-section {
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--paper3);
+      box-shadow: var(--shadow);
+      background: white;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .doc-section.soft {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(16, 185, 129, 0.08)), var(--paper2);
+    }
+
+    .doc-title {
+      margin: 0;
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 4.2vw, 44px);
+      line-height: 1.08;
+      color: var(--ink2);
+      letter-spacing: -0.02em;
+    }
+
+    .doc-sub {
+      margin: 0;
+      color: var(--ink3);
+      max-width: 78ch;
+    }
+
+    .doc-divider {
+      height: 1px;
+      background: var(--paper3);
+    }
+
+    .browser {
+      border-radius: 16px;
+      border: 1.5px solid var(--paper3);
+      overflow: hidden;
+      background: white;
+      box-shadow: var(--shadow);
+    }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--paper2);
+      border-bottom: 1.5px solid var(--paper3);
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot.r { background: #f87171; }
+    .dot.y { background: #fbbf24; }
+    .dot.g { background: #34d399; }
+
+    .url {
+      flex: 1;
+      text-align: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      color: var(--ink4);
+      background: var(--paper3);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+	    .viewport {
+	      width: min(1220px, 100%);
+	      margin: 0 auto;
+	      position: relative;
+	    }
+
+	    .viewport.mobile {
+	      width: min(420px, 100%);
+	    }
+
+	    /* En el doc, los drawers/backdrops se limitan al viewport del "navegador" simulado */
+	    .viewport .expense-drawer-backdrop { position: absolute; inset: 0; }
+	    .viewport .expense-drawer { position: absolute; height: 100%; }
+	    .viewport.mobile .expense-drawer {
+	      left: 0;
+	      right: 0;
+	      top: auto;
+	      bottom: 0;
+	      height: min(92%, 780px);
+	      width: 100%;
+	      border-left: none;
+	      border-top: 1.5px solid var(--paper3);
+	      border-radius: 18px 18px 0 0;
+	      transform: translateY(105%);
+	    }
+	    .viewport.mobile .expense-drawer.open { transform: translateY(0); }
+
+	    .notes {
+	      border-radius: 14px;
+	      border: 1.5px dashed var(--paper3);
+      background: var(--paper2);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .notes h3 {
+      margin: 0;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      color: var(--ink2);
+    }
+
+    .notes ul {
+      margin: 0;
+      padding-left: 16px;
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--ink3);
+    }
+
+    .notes b { color: var(--ink2); }
+
+    /* Simulación mobile: replica los @media del frontend sobre un contenedor */
+    .viewport.mobile .dashboard-shell { grid-template-columns: 1fr; }
+    .viewport.mobile .dashboard-kpis,
+    .viewport.mobile .dashboard-grid { grid-template-columns: 1fr; }
+    .viewport.mobile .expense-workspace { grid-template-columns: 1fr; }
+    .viewport.mobile .expense-form-panel { border-left: none; border-top: 1.5px solid var(--paper3); }
+    .viewport.mobile .expense-summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .viewport.mobile .landing,
+    .viewport.mobile .auth-layout,
+    .viewport.mobile .profile-grid { grid-template-columns: 1fr; }
+    .viewport.mobile .profile-topbar { flex-direction: column; align-items: flex-start; }
+
+	    .viewport.mobile .page-shell { padding: 14px; }
+	    .viewport.mobile .status-page { padding: 14px; }
+	    .viewport.mobile .landing-hero,
+	    .viewport.mobile .landing-modules,
+	    .viewport.mobile .dashboard-sidebar,
+	    .viewport.mobile .dashboard-main,
+	    .viewport.mobile .auth-aside,
+    .viewport.mobile .auth-main,
+	    .viewport.mobile .profile-grid > .panel,
+	    .viewport.mobile .side-card,
+	    .viewport.mobile .right-card,
+	    .viewport.mobile .status-card { padding: 16px; }
+
+	    .viewport.mobile .row-between { align-items: flex-start; flex-direction: column; }
+	    .viewport.mobile .module-grid { grid-template-columns: 1fr; }
+	    .viewport.mobile .expense-form-grid { grid-template-columns: 1fr; }
+	    .viewport.mobile .dashboard-actions .btn { width: 100%; }
+	    .viewport.mobile .cta-row .btn { width: 100%; }
+	    .viewport.mobile .auth-aside h1 { font-size: 28px; }
+
+	    .viewport.mobile .brand-logo { width: 64px; height: 64px; }
+
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .swatch {
+      border-radius: 14px;
+      border: 1.5px solid var(--paper3);
+      background: white;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .swatch-bar {
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(15, 18, 36, 0.12);
+    }
+
+    .swatch p { margin: 0; color: var(--ink4); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+    .swatch b { color: var(--ink2); }
+
+    /* Doc-only small helper */
+    .muted { color: var(--ink4); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main class="doc">
+    <section class="doc-section soft">
+      <p class="eyebrow">Documento maestro · Feb 2026</p>
+      <div class="brand-lockup">
+        <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+        <div>
+          <p class="brand-name">BudgetApp</p>
+          <p class="brand-sub">Pantallas finales basadas en la implementación del frontend</p>
+        </div>
+      </div>
+      <h1 class="doc-title">Diseños finales para implementación (web + mobile)</h1>
+      <p class="doc-sub">Este documento usa la misma tipografía, paleta y componentes CSS del frontend actual (Next.js). Aquí se muestran pantallas en versión final, sin códigos UC/RF/RN dentro del UI: toda trazabilidad queda en notas al pie.</p>
+      <div class="chip-row" style="margin-top: 6px;">
+        <span class="chip chip-live">Paleta oficial</span>
+        <span class="chip">Syne + DM Sans</span>
+        <span class="chip">Login / Registro / Dashboard</span>
+        <span class="chip">Registro de gastos</span>
+      </div>
+    </section>
+
+    <section class="doc-section" id="marca">
+      <p class="eyebrow">Manual de marca</p>
+      <h2 class="dashboard-title" style="margin:0;">Paleta, tipografía y logos</h2>
+      <p class="lead">Tokens alineados con Propuestas 6/7 y el CSS actual del frontend.</p>
+
+      <div class="palette-grid">
+        <div class="swatch">
+          <div class="swatch-bar" style="background: var(--violet);"></div>
+          <p>Primario</p>
+          <b>Violet</b>
+          <div class="muted">#7C3AED</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-bar" style="background: var(--mint);"></div>
+          <p>Éxito</p>
+          <b>Mint</b>
+          <div class="muted">#10B981</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-bar" style="background: var(--amber);"></div>
+          <p>Alerta</p>
+          <b>Amber</b>
+          <div class="muted">#F97316</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-bar" style="background: var(--red);"></div>
+          <p>Error</p>
+          <b>Red</b>
+          <div class="muted">#F43F5E</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-bar" style="background: var(--paper2);"></div>
+          <p>Surface</p>
+          <b>Paper 2</b>
+          <div class="muted">#F3F4FF</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-bar" style="background: var(--paper3);"></div>
+          <p>Border</p>
+          <b>Paper 3</b>
+          <div class="muted">#E4E6F5</div>
+        </div>
+      </div>
+
+      <div class="doc-divider"></div>
+
+      <div class="grid" style="display:grid;gap:14px;grid-template-columns:1fr 1fr;">
+        <article class="panel" style="padding:14px;">
+          <h3 class="section-title">Tipografía</h3>
+          <div class="lead">Syne para titulares y DM Sans para UI. Mantener contraste AA.</div>
+          <div class="tag-row" style="margin-top:10px;">
+            <span class="tag tag-live">Syne 600-800</span>
+            <span class="tag tag-soft">DM Sans 400-700</span>
+          </div>
+        </article>
+        <article class="panel" style="padding:14px;">
+          <h3 class="section-title">Logos</h3>
+          <div class="brand-lockup" style="margin-top:6px;">
+            <img src="../assets/images/logo_9_transparent.png" alt="Logo 9" style="width:54px;height:54px;object-fit:contain;" />
+            <div>
+              <p style="margin:0;font-weight:800;color:var(--ink2);">Logo 9 (oficial)</p>
+              <p style="margin:2px 0 0;color:var(--ink4);font-size:12px;">Usar en header, docs y favicon.</p>
+            </div>
+          </div>
+          <div class="brand-lockup" style="margin-top:10px;">
+            <img src="../assets/images/logo_4_transparent.png" alt="Logo 4" style="width:42px;height:42px;object-fit:contain;opacity:.9" />
+            <div>
+              <p style="margin:0;font-weight:800;color:var(--ink2);">Logo 4 (alterno)</p>
+              <p style="margin:2px 0 0;color:var(--ink4);font-size:12px;">Solo material comercial.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- LOGIN (DESKTOP) -->
+    <section class="doc-section" id="login-desktop">
+      <p class="eyebrow">Pantalla · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Login</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/login</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell auth-shell">
+            <section class="auth-single">
+              <section class="auth-main panel auth-single-card">
+                <a href="#" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Acceso de usuario</p>
+                  </div>
+                </a>
+
+                <h2>Iniciar sesion</h2>
+
+                <form action="#" method="post">
+                  <div class="form-field">
+                    <label class="form-label" for="login-email">Correo</label>
+                    <input id="login-email" class="input" type="email" placeholder="tu@email.com" required />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="login-password">Contrasena</label>
+                    <input id="login-password" class="input" type="password" placeholder="Minimo 8 caracteres" required />
+                  </div>
+
+                  <div class="row-between">
+                    <label class="inline-check">
+                      <input type="checkbox" checked />
+                      <span>Recordarme</span>
+                    </label>
+                    <a href="#recuperar-desktop" class="helper-link">Recuperar acceso</a>
+                  </div>
+
+                  <button class="btn btn-primary" style="width: 100%;" type="submit">Entrar</button>
+
+                  <p class="form-foot">
+                    Aun no tienes cuenta? <a href="#registro-desktop">Crear cuenta</a>
+                  </p>
+                </form>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> UC-10, RF-14.</li>
+          <li><b>Reglas:</b> bloqueo por intentos, recuperación, revocación de sesiones desde Perfil.</li>
+          <li><b>UI:</b> sin sidebar (pantalla pública).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- LOGIN (MOBILE) -->
+    <section class="doc-section" id="login-mobile">
+      <p class="eyebrow">Pantalla · Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">Login</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/login</div>
+        </div>
+        <div class="viewport mobile">
+          <main class="page-shell auth-shell">
+            <section class="auth-single">
+              <section class="auth-main panel auth-single-card">
+                <a href="#" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Acceso de usuario</p>
+                  </div>
+                </a>
+
+                <h2>Iniciar sesion</h2>
+
+                <form action="#" method="post">
+                  <div class="form-field">
+                    <label class="form-label" for="login-email-m">Correo</label>
+                    <input id="login-email-m" class="input" type="email" placeholder="tu@email.com" required />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="login-password-m">Contrasena</label>
+                    <input id="login-password-m" class="input" type="password" placeholder="Minimo 8 caracteres" required />
+                  </div>
+
+                  <div class="row-between">
+                    <label class="inline-check">
+                      <input type="checkbox" checked />
+                      <span>Recordarme</span>
+                    </label>
+                    <a href="#recuperar-desktop" class="helper-link">Recuperar acceso</a>
+                  </div>
+
+                  <button class="btn btn-primary" style="width: 100%;" type="submit">Entrar</button>
+
+                  <p class="form-foot">
+                    Aun no tienes cuenta? <a href="#registro-desktop">Crear cuenta</a>
+                  </p>
+                </form>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Responsive:</b> centrado, padding reducido, links apilados.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- RECUPERAR (DESKTOP) -->
+    <section class="doc-section" id="recuperar-desktop">
+      <p class="eyebrow">Pantalla · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Recuperar acceso</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/recuperar</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell auth-shell">
+            <section class="auth-single">
+              <section class="auth-main panel auth-single-card">
+                <a href="#" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Recuperación</p>
+                  </div>
+                </a>
+
+                <h2>Recuperar acceso</h2>
+                <p>Te enviaremos un enlace para restablecer tu contraseña.</p>
+
+                <form action="#" method="post">
+                  <div class="form-field">
+                    <label class="form-label" for="recover-email">Correo</label>
+                    <input id="recover-email" class="input" type="email" placeholder="tu@email.com" required />
+                  </div>
+
+                  <button class="btn btn-primary" style="width: 100%;" type="submit">Enviar enlace</button>
+
+                  <p class="form-foot">
+                    Ya la recordaste? <a href="#login-desktop">Volver al login</a>
+                  </p>
+                </form>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> recuperación de contraseña (Auth).</li>
+          <li><b>Reglas:</b> rate-limit por IP/correo, confirmación sin filtrar existencia de usuario.</li>
+          <li><b>UI:</b> pantalla pública, sin sidebar.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- RECUPERAR (MOBILE) -->
+    <section class="doc-section" id="recuperar-mobile">
+      <p class="eyebrow">Pantalla · Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">Recuperar acceso</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/recuperar</div>
+        </div>
+        <div class="viewport mobile">
+          <main class="page-shell auth-shell">
+            <section class="auth-single">
+              <section class="auth-main panel auth-single-card">
+                <a href="#" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Recuperación</p>
+                  </div>
+                </a>
+
+                <h2>Recuperar acceso</h2>
+                <p>Enviaremos un enlace a tu correo.</p>
+
+                <form action="#" method="post">
+                  <div class="form-field">
+                    <label class="form-label" for="recover-email-m">Correo</label>
+                    <input id="recover-email-m" class="input" type="email" placeholder="tu@email.com" required />
+                  </div>
+
+                  <button class="btn btn-primary" style="width: 100%;" type="submit">Enviar enlace</button>
+
+                  <p class="form-foot">
+                    <a href="#login-desktop">Volver al login</a>
+                  </p>
+                </form>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Responsive:</b> card 100% ancho, padding reducido.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- VERIFICACION (DESKTOP) -->
+    <section class="doc-section" id="verificar-desktop">
+      <p class="eyebrow">Pantalla · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Verificar identidad</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/recuperar/codigo</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell auth-shell">
+            <section class="auth-single">
+              <section class="auth-main panel auth-single-card">
+                <a href="#" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Verificación</p>
+                  </div>
+                </a>
+
+                <h2>Verifica tu identidad</h2>
+                <p>Ingresa el código de 6 dígitos enviado a tu correo.</p>
+
+                <form action="#" method="post">
+                  <div class="form-field">
+                    <label class="form-label" for="verify-code">Código</label>
+                    <input id="verify-code" class="input" type="text" inputmode="numeric" placeholder="123 456" required />
+                  </div>
+
+                  <div class="tag-row" style="margin-bottom: 10px;">
+                    <span class="tag tag-soft">Reenviar</span>
+                    <span class="tag tag-soft">Usar código alterno</span>
+                  </div>
+
+                  <button class="btn btn-primary" style="width: 100%;" type="submit">Continuar</button>
+
+                  <p class="form-foot">
+                    <a href="#login-desktop">Volver al login</a>
+                  </p>
+                </form>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Reglas:</b> código expira, reintentos limitados, no revelar si el correo existe.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- VERIFICACION (MOBILE) -->
+    <section class="doc-section" id="verificar-mobile">
+      <p class="eyebrow">Pantalla · Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">Verificar identidad</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/recuperar/codigo</div>
+        </div>
+        <div class="viewport mobile">
+          <main class="page-shell auth-shell">
+            <section class="auth-single">
+              <section class="auth-main panel auth-single-card">
+                <a href="#" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Verificación</p>
+                  </div>
+                </a>
+
+                <h2>Verifica tu identidad</h2>
+                <p>Código de 6 dígitos.</p>
+
+                <form action="#" method="post">
+                  <div class="form-field">
+                    <label class="form-label" for="verify-code-m">Código</label>
+                    <input id="verify-code-m" class="input" type="text" inputmode="numeric" placeholder="123 456" required />
+                  </div>
+
+                  <div class="tag-row" style="margin-bottom: 10px;">
+                    <span class="tag tag-soft">Reenviar</span>
+                    <span class="tag tag-soft">Alterno</span>
+                  </div>
+
+                  <button class="btn btn-primary" style="width: 100%;" type="submit">Continuar</button>
+                </form>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Mobile:</b> inputs grandes, CTA fijo al final si se implementa scroll.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- REGISTRO (DESKTOP) -->
+    <section class="doc-section" id="registro-desktop">
+      <p class="eyebrow">Pantalla · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Registro</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/register</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell auth-shell">
+            <section class="auth-single">
+              <section class="auth-main panel auth-single-card">
+                <a href="#" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Registro de usuario</p>
+                  </div>
+                </a>
+
+                <h2>Crear cuenta</h2>
+
+                <form action="#" method="post">
+                  <div class="form-field">
+                    <label class="form-label" for="register-name">Nombre completo <span class="required">*</span></label>
+                    <input id="register-name" class="input" placeholder="Tu nombre" required />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="register-email">Correo <span class="required">*</span></label>
+                    <input id="register-email" class="input" type="email" placeholder="tu@email.com" required />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="register-password">Contrasena <span class="required">*</span></label>
+                    <input id="register-password" class="input" type="password" placeholder="Minimo 8 caracteres" required />
+                    <div class="password-rules">
+                      <span class="rule rule-ok">8+ caracteres</span>
+                      <span class="rule">Incluye al menos un numero</span>
+                    </div>
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="register-country">Pais <span class="required">*</span></label>
+                    <select id="register-country" class="input">
+                      <option>Colombia (COP)</option>
+                      <option>Mexico (MXN)</option>
+                      <option>Brasil (BRL)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field">
+                    <div class="form-label-row">
+                      <label class="form-label" for="register-template" style="margin-bottom:0;">Perfil sugerido <span class="required">*</span></label>
+                      <span class="info-dot" title="Define una guia inicial">i</span>
+                    </div>
+                    <select id="register-template" class="input">
+                      <option>Tilbury 1% (ahorro/inversion)</option>
+                      <option>Ahorro acelerado</option>
+                      <option>Inversion prioritaria</option>
+                      <option>Pago de deudas</option>
+                    </select>
+
+                    <div class="profile-info-box">
+                      <div class="profile-alert-head">
+                        <p class="profile-alert-title">Alerta de lectura</p>
+                        <span class="profile-alert-badge">Importante</span>
+                      </div>
+                      <p class="profile-alert-name">Tilbury (1%)</p>
+                      <p class="profile-alert-text"><strong>Sirve para:</strong> Equilibra ahorro e inversion desde el primer mes.</p>
+                      <p class="profile-alert-text"><strong>Ideal si:</strong> Quieres crecer sin descuidar liquidez.</p>
+                      <p class="profile-alert-note">Puedes cambiar estos porcentajes cuando crees tu presupuesto.</p>
+                    </div>
+                  </div>
+
+                  <div class="row-between" style="justify-content:flex-start;">
+                    <label class="inline-check">
+                      <input type="checkbox" checked />
+                      <span>Acepto terminos y privacidad <span class="required">*</span></span>
+                    </label>
+                  </div>
+
+                  <button class="btn btn-primary" style="width: 100%;" type="submit">Crear cuenta</button>
+
+                  <p class="form-foot">
+                    Ya tienes cuenta? <a href="#login-desktop">Inicia sesion</a>
+                  </p>
+                </form>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> UC-11, RF-14, RF-13.</li>
+          <li><b>Reglas:</b> validación de password (largo + número) y términos obligatorios.</li>
+          <li><b>UI:</b> sin sidebar (pantalla pública).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- REGISTRO (MOBILE) -->
+    <section class="doc-section" id="registro-mobile">
+      <p class="eyebrow">Pantalla · Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">Registro</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/register</div>
+        </div>
+        <div class="viewport mobile">
+          <main class="page-shell auth-shell">
+            <section class="auth-single">
+              <section class="auth-main panel auth-single-card">
+                <a href="#" class="brand-lockup brand-inline" style="margin-bottom: 14px;">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Registro de usuario</p>
+                  </div>
+                </a>
+
+                <h2>Crear cuenta</h2>
+
+                <form action="#" method="post">
+                  <div class="form-field">
+                    <label class="form-label" for="register-name-m">Nombre completo <span class="required">*</span></label>
+                    <input id="register-name-m" class="input" placeholder="Tu nombre" required />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="register-email-m">Correo <span class="required">*</span></label>
+                    <input id="register-email-m" class="input" type="email" placeholder="tu@email.com" required />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="form-label" for="register-password-m">Contrasena <span class="required">*</span></label>
+                    <input id="register-password-m" class="input" type="password" placeholder="Minimo 8 caracteres" required />
+                    <div class="password-rules">
+                      <span class="rule">8+ caracteres</span>
+                      <span class="rule rule-ok">Incluye un numero</span>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-primary" style="width: 100%;" type="submit">Crear cuenta</button>
+
+                  <p class="form-foot">
+                    Ya tienes cuenta? <a href="#login-desktop">Inicia sesion</a>
+                  </p>
+                </form>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Responsive:</b> el card ocupa 100% del ancho del contenedor.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- DASHBOARD (DESKTOP) -->
+    <section class="doc-section" id="dashboard-desktop">
+      <p class="eyebrow">Pantalla · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Dashboard</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell">
+            <section class="dashboard-shell panel">
+              <aside class="dashboard-sidebar">
+                <div class="dashboard-brand">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo menu-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Menu principal</p>
+                  </div>
+                </div>
+
+                <div class="menu-section">
+                  <p class="menu-title">Principal</p>
+                  <div class="menu-list">
+                    <a class="menu-item active" href="#dashboard-desktop"><span>🏠</span><span>Dashboard</span></a>
+                    <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+                    <a class="menu-item" href="#gastos-desktop"><span>✏️</span><span>Registro de gastos</span></a>
+                    <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+                  </div>
+                </div>
+
+                <div class="menu-section">
+                  <p class="menu-title">Herramientas</p>
+                  <div class="menu-list">
+                    <a class="menu-item" href="#dividir-cuentas-desktop"><span>🧰</span><span>Dividir cuentas</span></a>
+                  </div>
+                </div>
+
+                <div class="menu-section">
+                  <p class="menu-title">Cuenta</p>
+                  <div class="menu-list">
+                    <a class="menu-item" href="#perfil-desktop"><span>👤</span><span>Perfil</span></a>
+                    <a class="menu-item" href="#"><span>⚙️</span><span>Configuracion</span></a>
+                    <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+                  </div>
+                </div>
+
+                <div class="menu-user">
+                  <p class="menu-user-name">Alex Castaño</p>
+                  <p class="menu-user-mail">alex@budgetapp.co</p>
+                </div>
+
+                <button class="menu-item menu-item-logout" type="button">Cerrar sesion</button>
+              </aside>
+
+              <main class="dashboard-main">
+                <header class="dashboard-topbar">
+                  <div>
+                    <p class="dashboard-path">Dashboard / Sesion activa</p>
+                    <h1 class="dashboard-title">Resumen financiero</h1>
+                  </div>
+                  <div class="dashboard-actions">
+                    <a href="#gastos-desktop" class="btn btn-secondary">+ Nuevo movimiento</a>
+                    <a href="#" class="btn btn-primary">Crear presupuesto</a>
+                  </div>
+                </header>
+
+                <section class="dashboard-kpis">
+                  <article class="kpi-card"><p>Disponible</p><strong>$ 3.450.000</strong></article>
+                  <article class="kpi-card"><p>Ahorro</p><strong>$ 850.000</strong></article>
+                  <article class="kpi-card"><p>Deuda</p><strong>$ 1.200.000</strong></article>
+                  <article class="kpi-card"><p>Alertas</p><strong class="kpi-value-soft">2 activas</strong></article>
+                </section>
+
+                <section class="dashboard-grid">
+                  <article class="panel dashboard-card">
+                    <div class="dashboard-card-head">
+                      <h2>Presupuesto vs real</h2>
+                      <a href="#">Ver detalle</a>
+                    </div>
+                    <div class="bar-listing">
+                      <div>
+                        <div class="bar-meta"><span>Alimentacion</span><span>$450k / $380k</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:84%;background:var(--violet);"></div></div>
+                      </div>
+                      <div>
+                        <div class="bar-meta"><span>Transporte</span><span>$320k / $410k</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--amber);"></div></div>
+                      </div>
+                      <div>
+                        <div class="bar-meta"><span>Servicios</span><span>$280k / $220k</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--mint);"></div></div>
+                      </div>
+                    </div>
+                  </article>
+
+                  <article class="panel dashboard-card">
+                    <div class="dashboard-card-head">
+                      <h2>Movimientos recientes</h2>
+                      <a href="#gastos-desktop">Ir al registro</a>
+                    </div>
+                    <div class="movement-list">
+                      <div class="movement-item">
+                        <div>
+                          <p class="movement-name">Papa John's</p>
+                          <p class="movement-meta">Alimentacion · Domicilios</p>
+                        </div>
+                        <p class="movement-amount neg">- $42.000</p>
+                      </div>
+                      <div class="movement-item">
+                        <div>
+                          <p class="movement-name">Gasolina Terpel</p>
+                          <p class="movement-meta">Transporte · Gasolina</p>
+                        </div>
+                        <p class="movement-amount neg">- $95.000</p>
+                      </div>
+                      <div class="movement-item">
+                        <div>
+                          <p class="movement-name">Fondo de Emergencia</p>
+                          <p class="movement-meta">Ahorro</p>
+                        </div>
+                        <p class="movement-amount pos">+ $200.000</p>
+                      </div>
+                    </div>
+                  </article>
+                </section>
+              </main>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> UC-DASH-01, RF-02, RF-03.</li>
+          <li><b>Reglas:</b> tarjetas KPI, barras vs real, movimientos con signo y color.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- DASHBOARD (MOBILE) -->
+    <section class="doc-section" id="dashboard-mobile">
+      <p class="eyebrow">Pantalla · Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">Dashboard</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/</div>
+        </div>
+        <div class="viewport mobile">
+          <main class="page-shell">
+            <section class="dashboard-shell panel">
+              <aside class="dashboard-sidebar">
+                <div class="dashboard-brand">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo menu-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Menu principal</p>
+                  </div>
+                </div>
+	                <div class="menu-section">
+	                  <p class="menu-title">Principal</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item active" href="#dashboard-desktop"><span>🏠</span><span>Dashboard</span></a>
+	                    <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+	                    <a class="menu-item" href="#gastos-desktop"><span>✏️</span><span>Registro de gastos</span></a>
+	                    <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Herramientas</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#dividir-cuentas-desktop"><span>🧰</span><span>Dividir cuentas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Cuenta</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#perfil-desktop"><span>👤</span><span>Perfil</span></a>
+	                    <a class="menu-item" href="#"><span>⚙️</span><span>Configuracion</span></a>
+	                    <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+	                  </div>
+	                </div>
+	                <div class="menu-user">
+	                  <p class="menu-user-name">Alex Castaño</p>
+	                  <p class="menu-user-mail">alex@budgetapp.co</p>
+	                </div>
+	
+	                <button class="menu-item menu-item-logout" type="button"><span>↩</span><span>Cerrar sesion</span></button>
+	              </aside>
+
+              <main class="dashboard-main">
+                <header class="dashboard-topbar">
+                  <div>
+                    <p class="dashboard-path">Dashboard</p>
+                    <h1 class="dashboard-title">Resumen</h1>
+                  </div>
+                  <div class="dashboard-actions">
+                    <a href="#gastos-desktop" class="btn btn-primary">+ Movimiento</a>
+                  </div>
+                </header>
+
+                <section class="dashboard-kpis">
+                  <article class="kpi-card"><p>Disponible</p><strong>$ 3.450.000</strong></article>
+                  <article class="kpi-card"><p>Ahorro</p><strong>$ 850.000</strong></article>
+                </section>
+
+                <section class="dashboard-grid">
+                  <article class="panel dashboard-card">
+                    <div class="dashboard-card-head">
+                      <h2>Presupuesto vs real</h2>
+                      <a href="#">Detalle</a>
+                    </div>
+                    <div class="bar-listing">
+                      <div>
+                        <div class="bar-meta"><span>Transporte</span><span>$320k / $410k</span></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--amber);"></div></div>
+                      </div>
+                    </div>
+                  </article>
+                </section>
+              </main>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Responsive:</b> columnas apiladas y panel de gastos debajo del log.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- GASTOS (DESKTOP) -->
+    <section class="doc-section" id="gastos-desktop">
+      <p class="eyebrow">Pantalla · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Registro de gastos</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/gastos</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell">
+            <section class="dashboard-shell panel">
+              <aside class="dashboard-sidebar">
+                <div class="dashboard-brand">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo menu-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Menu principal</p>
+                  </div>
+                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Principal</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#dashboard-desktop"><span>🏠</span><span>Dashboard</span></a>
+	                    <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+	                    <a class="menu-item active" href="#gastos-desktop"><span>✏️</span><span>Registro de gastos</span></a>
+	                    <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Herramientas</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#dividir-cuentas-desktop"><span>🧰</span><span>Dividir cuentas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Cuenta</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#perfil-desktop"><span>👤</span><span>Perfil</span></a>
+	                    <a class="menu-item" href="#"><span>⚙️</span><span>Configuracion</span></a>
+	                    <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+	                  </div>
+	                </div>
+
+		                <div class="menu-user">
+		                  <p class="menu-user-name">Alex Castaño</p>
+		                  <p class="menu-user-mail">alex@budgetapp.co</p>
+	                </div>
+
+	                <button class="menu-item menu-item-logout" type="button"><span>↩</span><span>Cerrar sesion</span></button>
+	              </aside>
+
+              <main class="dashboard-main">
+                <header class="dashboard-topbar">
+                  <div>
+                    <p class="dashboard-path">Registro de Gastos / Febrero 2026</p>
+                    <h1 class="dashboard-title">Historial mensual + registro</h1>
+                  </div>
+                  <div class="dashboard-actions">
+                    <a href="#" class="btn btn-secondary">Exportar</a>
+                    <a href="#importar-desktop" class="btn btn-primary">Importar movimientos</a>
+                  </div>
+                </header>
+
+                <section class="expense-intro panel-soft">
+                  <p class="expense-intro-title">Registro de movimientos</p>
+                  <p class="expense-intro-copy">Registra gastos, ahorro, inversion y movimientos entre cuentas con flujo guiado por categoria, subcategoria y arista (rubro).</p>
+                </section>
+
+                <section class="expense-workspace">
+                  <article class="panel expense-log">
+                    <div class="expense-summary-strip">
+                      <div class="expense-summary-card"><p>Total Gastos</p><strong class="neg">$ 137.000</strong></div>
+                      <div class="expense-summary-card"><p>Total Ahorro</p><strong class="pos">$ 200.000</strong></div>
+                      <div class="expense-summary-card"><p>Movimientos</p><strong>4</strong></div>
+                      <div class="expense-summary-card expense-summary-card-live"><p>Disponible</p><strong>$ 4.663.000</strong></div>
+                    </div>
+
+	                    <div class="expense-toolbar">
+	                      <div class="expense-filter-row">
+	                        <button type="button" class="chip expense-filter-chip expense-filter-chip-active">Todos</button>
+	                        <button type="button" class="chip expense-filter-chip">💸 Gastos</button>
+	                        <button type="button" class="chip expense-filter-chip">🏦 Ahorro</button>
+	                        <button type="button" class="chip expense-filter-chip">↔️ Entre cuentas</button>
+	                      </div>
+
+		                      <div class="expense-toolbar-row">
+		                        <input class="input expense-search-input" value="" placeholder="Buscar: detalle, tags, banco, notas..." />
+		                        <div class="expense-toolbar-actions">
+		                          <button type="button" class="btn btn-secondary">Ocultar filtros</button>
+		                          <button type="button" class="btn btn-primary expense-open-drawer">+ Nuevo movimiento</button>
+		                        </div>
+		                      </div>
+
+		                      <div class="expense-advanced-filters" role="region" aria-label="Filtros de historial">
+		                        <div class="form-field">
+		                          <label class="form-label">Desde</label>
+		                          <input type="date" class="input" value="" />
+		                        </div>
+		                        <div class="form-field">
+		                          <label class="form-label">Hasta</label>
+		                          <input type="date" class="input" value="" />
+		                        </div>
+		                        <div class="form-field">
+		                          <label class="form-label">Subcategoria</label>
+		                          <select class="input">
+		                            <option>Todas</option>
+		                            <option>Alimentacion</option>
+		                            <option>Necesidades Basicas</option>
+		                            <option>Ahorros</option>
+		                          </select>
+		                        </div>
+		                        <div class="form-field">
+		                          <label class="form-label">Metodo</label>
+		                          <select class="input">
+		                            <option>Todos</option>
+		                            <option>Efectivo</option>
+		                            <option>Tarjeta</option>
+		                            <option>Transferencia</option>
+		                            <option>Prestamo</option>
+		                          </select>
+		                        </div>
+		                        <div class="form-field">
+		                          <label class="form-label">Banco</label>
+		                          <select class="input">
+		                            <option>Todos</option>
+		                            <option>Sin banco</option>
+		                            <option>Bancolombia</option>
+		                            <option>Davivienda</option>
+		                            <option>Lulo</option>
+		                            <option>Nequi</option>
+		                          </select>
+		                        </div>
+		                        <div class="expense-advanced-actions">
+		                          <label class="inline-check">
+		                            <input type="checkbox" />
+		                            <span>Solo con adjuntos</span>
+		                          </label>
+		                          <button type="button" class="btn btn-ghost expense-clear-filters">Limpiar</button>
+		                        </div>
+		                      </div>
+		                    </div>
+
+	                    <div class="expense-table-wrap">
+                      <table class="expense-table">
+                        <thead>
+                          <tr>
+                            <th>Fecha</th>
+                            <th>Detalle / Compra</th>
+                            <th>Categoria › Subcategoria › Arista</th>
+                            <th>Metodo</th>
+                            <th class="amount-col">Valor</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>2026-02-21</td>
+                            <td>
+                              <p class="expense-row-title">Papa John's - pizza familiar</p>
+                              <p class="expense-row-meta">Tags: comida</p>
+                              <p class="expense-row-meta">Nota: Promo 2x1 · pedido por app</p>
+                              <p class="expense-row-meta">Adjuntos: 1</p>
+                            </td>
+                            <td>
+                              <span class="expense-kind-pill expense-kind-expense">Gastos</span>
+                              <span class="expense-path">Alimentacion › Domicilios</span>
+                            </td>
+                            <td>
+                              <p class="expense-row-title">Tarjeta</p>
+                              <p class="expense-row-meta">Bancolombia · Visa Clasica · COP</p>
+                            </td>
+                            <td class="amount-col neg">- $ 42.000</td>
+                          </tr>
+                          <tr>
+                            <td>2026-02-20</td>
+                            <td>
+                              <p class="expense-row-title">Gasolina Terpel</p>
+                              <p class="expense-row-meta">Sin tags</p>
+                            </td>
+                            <td>
+                              <span class="expense-kind-pill expense-kind-expense">Gastos</span>
+                              <span class="expense-path">Necesidades Basicas › Gasolina</span>
+                            </td>
+                            <td>
+                              <p class="expense-row-title">Efectivo</p>
+                              <p class="expense-row-meta">Sin banco · COP</p>
+                            </td>
+                            <td class="amount-col neg">- $ 95.000</td>
+                          </tr>
+                          <tr>
+                            <td>2026-02-21</td>
+                            <td>
+                              <p class="expense-row-title">Fondo de Emergencia</p>
+                              <p class="expense-row-meta">Tags: meta</p>
+                            </td>
+                            <td>
+                              <span class="expense-kind-pill expense-kind-saving">Ahorro</span>
+                              <span class="expense-path">Ahorros › Fondo de Emergencia</span>
+                            </td>
+                            <td>
+                              <p class="expense-row-title">Transferencia</p>
+                              <p class="expense-row-meta">Bancolombia · COP</p>
+                            </td>
+                            <td class="amount-col pos">+ $ 200.000</td>
+                          </tr>
+                          <tr>
+                            <td>2026-02-22</td>
+                            <td>
+                              <p class="expense-row-title">Transferencia a Bolsillo Diario</p>
+                              <p class="expense-row-meta">Origen: Bancolombia - Cuenta Ahorros · Destino: Bolsillo Diario</p>
+                            </td>
+                            <td>
+                              <span class="expense-kind-pill expense-kind-transfer">Entre cuentas</span>
+                            </td>
+                            <td>
+                              <p class="expense-row-title">Transferencia</p>
+                              <p class="expense-row-meta">Bancolombia · COP</p>
+                            </td>
+                            <td class="amount-col neutral">$ 250.000</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </article>
+
+	                  <div class="expense-drawer-backdrop"></div>
+	                  <aside class="expense-drawer open" role="dialog" aria-modal="true">
+	                    <div class="expense-drawer-head">
+	                      <div>
+	                        <h2>Nuevo movimiento</h2>
+	                        <p>Registro guiado por categoria, subcategoria y arista.</p>
+	                      </div>
+	                      <button type="button" class="expense-drawer-close" aria-label="Cerrar">✕</button>
+	                    </div>
+	
+	                    <div class="expense-drawer-body">
+	                      <form action="#" method="post">
+                      <div class="expense-type-grid">
+                        <button type="button" class="expense-type-btn active"><span>💸</span><span>Gasto</span></button>
+                        <button type="button" class="expense-type-btn"><span>🏦</span><span>Ahorro</span></button>
+                        <button type="button" class="expense-type-btn"><span>📈</span><span>Inversion</span></button>
+                        <button type="button" class="expense-type-btn"><span>↔️</span><span>Entre cuentas</span></button>
+                      </div>
+
+                      <p class="expense-field-mini">Categoria › Subcategoria › Arista</p>
+                      <div class="expense-breadcrumb">
+                        <span class="expense-breadcrumb-item done">Gastos</span>
+                        <span>›</span>
+                        <span class="expense-breadcrumb-item active">Alimentacion</span>
+                        <span>›</span>
+                        <span class="expense-breadcrumb-item">Domicilios</span>
+                      </div>
+                      <p class="expense-hint">Arista = rubro/subclasificacion dentro de la subcategoria.</p>
+
+                      <div class="form-field">
+                        <label class="form-label">Valor / Amount</label>
+                        <input type="number" class="input expense-amount-input" placeholder="0" min="0" step="0.01" />
+                      </div>
+
+                      <div class="expense-form-grid">
+                        <div class="form-field">
+                          <label class="form-label">Fecha</label>
+                          <input type="date" class="input" value="2026-02-25" />
+                        </div>
+                        <div class="form-field">
+                          <label class="form-label">Moneda</label>
+                          <select class="input">
+                            <option selected>COP</option>
+                            <option>USD</option>
+                            <option>EUR</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="form-field">
+                        <label class="form-label">Categoria</label>
+                        <input type="text" class="input" value="Gastos" readonly />
+                      </div>
+
+                      <div class="expense-form-grid">
+                        <div class="form-field">
+                          <label class="form-label">Subcategoria</label>
+                          <select class="input">
+                            <option>Necesidades Basicas</option>
+                            <option>Deudas</option>
+                            <option>Casa</option>
+                            <option selected>Alimentacion</option>
+                            <option>Salud</option>
+                            <option>Entretenimiento</option>
+                          </select>
+                        </div>
+                        <div class="form-field">
+                          <label class="form-label">Arista / Rubro</label>
+                          <select class="input">
+                            <option>Restaurantes</option>
+                            <option selected>Domicilios</option>
+                          </select>
+                        </div>
+                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Detalle / Compra</label>
+	                        <input type="text" class="input" placeholder="Ej: Mercado semanal" />
+	                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Notas (opcional)</label>
+	                        <textarea class="input" rows="3" placeholder="Ej: promo, propina, motivo, etc."></textarea>
+	                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Metodo de pago</label>
+	                        <div class="expense-method-row">
+                          <button type="button" class="expense-method-chip"><span>💵</span><span>Efectivo</span></button>
+                          <button type="button" class="expense-method-chip active"><span>💳</span><span>Tarjeta</span></button>
+                          <button type="button" class="expense-method-chip"><span>🏦</span><span>Transferencia</span></button>
+                          <button type="button" class="expense-method-chip"><span>🤝</span><span>Prestamo</span></button>
+                        </div>
+                      </div>
+
+                      <div class="expense-form-grid">
+                        <div class="form-field">
+                          <label class="form-label">Banco</label>
+                          <select class="input">
+                            <option value="">Seleccionar banco</option>
+                            <option selected>Bancolombia</option>
+                            <option>Davivienda</option>
+                            <option>Lulo</option>
+                            <option>Nequi</option>
+                          </select>
+                        </div>
+                        <div class="form-field">
+                          <label class="form-label">Tarjeta</label>
+                          <select class="input">
+                            <option value="">Seleccionar tarjeta</option>
+                            <option selected>Visa Clasica</option>
+                            <option>Mastercard Debito</option>
+                          </select>
+                        </div>
+                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Tags (opcional)</label>
+	                        <input type="text" class="input" placeholder="Ej: comida, febrero" />
+	                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Adjuntos (opcional)</label>
+	                        <input type="file" class="input" multiple />
+	                        <p class="expense-hint">Adjuntos: recibo-pizza.jpg</p>
+	                      </div>
+
+	                      <button type="submit" class="btn btn-primary expense-submit-btn">Guardar movimiento</button>
+	                      <p class="expense-xp-note">+10 monedas al registrar movimiento</p>
+		                    </form>
+	                    </div>
+	                  </aside>
+                </section>
+              </main>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> UC-BP-06, RF-03, RN-RG-01..10.</li>
+          <li><b>Reglas:</b> flujo guiado por categoría/subcategoría/arista; banco/tarjeta condicional por método.</li>
+          <li><b>Campos:</b> tags, notas y adjuntos opcionales.</li>
+          <li><b>Filtros:</b> chips por tipo, búsqueda y filtros avanzados (fecha, subcategoría, método, banco y adjuntos).</li>
+          <li><b>UI:</b> “Nuevo movimiento” abre un drawer (overlay) encima del historial; se cierra con X, click en fondo o ESC.</li>
+          <li><b>UX:</b> sin textos técnicos dentro del UI (UC/RN en notas).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- GASTOS (MOBILE) -->
+    <section class="doc-section" id="gastos-mobile">
+      <p class="eyebrow">Pantalla · Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">Registro de gastos</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/gastos</div>
+        </div>
+        <div class="viewport mobile">
+          <main class="page-shell">
+            <section class="dashboard-shell panel">
+              <aside class="dashboard-sidebar">
+                <div class="dashboard-brand">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo menu-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Menu</p>
+                  </div>
+                </div>
+		                <div class="menu-section">
+		                  <p class="menu-title">Principal</p>
+		                  <div class="menu-list">
+		                    <a class="menu-item" href="#dashboard-desktop"><span>🏠</span><span>Dashboard</span></a>
+		                    <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+		                    <a class="menu-item active" href="#gastos-desktop"><span>✏️</span><span>Registro de gastos</span></a>
+		                    <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+		                  </div>
+		                </div>
+
+		                <div class="menu-section">
+		                  <p class="menu-title">Herramientas</p>
+		                  <div class="menu-list">
+		                    <a class="menu-item" href="#dividir-cuentas-desktop"><span>🧰</span><span>Dividir cuentas</span></a>
+		                  </div>
+		                </div>
+
+		                <div class="menu-section">
+		                  <p class="menu-title">Cuenta</p>
+		                  <div class="menu-list">
+		                    <a class="menu-item" href="#perfil-desktop"><span>👤</span><span>Perfil</span></a>
+		                    <a class="menu-item" href="#"><span>⚙️</span><span>Configuracion</span></a>
+		                    <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+		                  </div>
+		                </div>
+	
+	                <div class="menu-user">
+	                  <p class="menu-user-name">Alex Castaño</p>
+	                  <p class="menu-user-mail">alex@budgetapp.co</p>
+	                </div>
+	
+	                <button class="menu-item menu-item-logout" type="button"><span>↩</span><span>Cerrar sesion</span></button>
+	              </aside>
+
+              <main class="dashboard-main">
+                <header class="dashboard-topbar">
+                  <div>
+                    <p class="dashboard-path">Registro de Gastos / Febrero 2026</p>
+                    <h1 class="dashboard-title">Historial mensual + registro</h1>
+                  </div>
+                  <div class="dashboard-actions">
+                    <a href="#" class="btn btn-secondary">Exportar</a>
+                    <a href="#importar-desktop" class="btn btn-primary">Importar movimientos</a>
+                  </div>
+                </header>
+
+                <section class="expense-intro panel-soft">
+                  <p class="expense-intro-title">Registro de movimientos</p>
+                  <p class="expense-intro-copy">Registra gastos, ahorro, inversion y movimientos entre cuentas con flujo guiado por categoria, subcategoria y arista (rubro).</p>
+                </section>
+
+                <section class="expense-workspace">
+                  <article class="panel expense-log">
+                    <div class="expense-summary-strip">
+                      <div class="expense-summary-card"><p>Total Gastos</p><strong class="neg">$ 137.000</strong></div>
+                      <div class="expense-summary-card"><p>Total Ahorro</p><strong class="pos">$ 200.000</strong></div>
+                      <div class="expense-summary-card"><p>Movimientos</p><strong>4</strong></div>
+                      <div class="expense-summary-card expense-summary-card-live"><p>Disponible</p><strong>$ 4.663.000</strong></div>
+                    </div>
+
+	                    <div class="expense-toolbar">
+	                      <div class="expense-filter-row">
+	                        <button type="button" class="chip expense-filter-chip expense-filter-chip-active">Todos</button>
+	                        <button type="button" class="chip expense-filter-chip">💸 Gastos</button>
+	                        <button type="button" class="chip expense-filter-chip">🏦 Ahorro</button>
+	                        <button type="button" class="chip expense-filter-chip">↔️ Entre cuentas</button>
+	                      </div>
+
+		                      <div class="expense-toolbar-row">
+		                        <input class="input expense-search-input" value="" placeholder="Buscar: detalle, tags, banco, notas..." />
+		                        <div class="expense-toolbar-actions">
+		                          <button type="button" class="btn btn-secondary">Ocultar filtros</button>
+		                          <button type="button" class="btn btn-primary expense-open-drawer">+ Nuevo movimiento</button>
+		                        </div>
+		                      </div>
+
+		                      <div class="expense-advanced-filters" role="region" aria-label="Filtros de historial">
+		                        <div class="form-field">
+		                          <label class="form-label">Desde</label>
+		                          <input type="date" class="input" value="" />
+		                        </div>
+		                        <div class="form-field">
+		                          <label class="form-label">Hasta</label>
+		                          <input type="date" class="input" value="" />
+		                        </div>
+		                        <div class="form-field">
+		                          <label class="form-label">Subcategoria</label>
+		                          <select class="input">
+		                            <option>Todas</option>
+		                            <option>Alimentacion</option>
+		                            <option>Necesidades Basicas</option>
+		                            <option>Ahorros</option>
+		                          </select>
+		                        </div>
+		                        <div class="form-field">
+		                          <label class="form-label">Metodo</label>
+		                          <select class="input">
+		                            <option>Todos</option>
+		                            <option>Efectivo</option>
+		                            <option>Tarjeta</option>
+		                            <option>Transferencia</option>
+		                            <option>Prestamo</option>
+		                          </select>
+		                        </div>
+		                        <div class="form-field">
+		                          <label class="form-label">Banco</label>
+		                          <select class="input">
+		                            <option>Todos</option>
+		                            <option>Sin banco</option>
+		                            <option>Bancolombia</option>
+		                            <option>Davivienda</option>
+		                            <option>Lulo</option>
+		                            <option>Nequi</option>
+		                          </select>
+		                        </div>
+		                        <div class="expense-advanced-actions">
+		                          <label class="inline-check">
+		                            <input type="checkbox" />
+		                            <span>Solo con adjuntos</span>
+		                          </label>
+		                          <button type="button" class="btn btn-ghost expense-clear-filters">Limpiar</button>
+		                        </div>
+		                      </div>
+		                    </div>
+
+	                    <div class="expense-table-wrap">
+                      <table class="expense-table">
+                        <thead>
+                          <tr>
+                            <th>Fecha</th>
+                            <th>Detalle / Compra</th>
+                            <th>Categoria › Subcategoria › Arista</th>
+                            <th>Metodo</th>
+                            <th class="amount-col">Valor</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>2026-02-21</td>
+	                            <td>
+	                              <p class="expense-row-title">Papa John's - pizza familiar</p>
+	                              <p class="expense-row-meta">Tags: comida</p>
+	                              <p class="expense-row-meta">Nota: Promo 2x1 · pedido por app</p>
+	                              <p class="expense-row-meta">Adjuntos: 1</p>
+	                            </td>
+	                            <td>
+	                              <span class="expense-kind-pill expense-kind-expense">Gastos</span>
+	                              <span class="expense-path">Alimentacion › Domicilios</span>
+                            </td>
+                            <td>
+                              <p class="expense-row-title">Tarjeta</p>
+                              <p class="expense-row-meta">Bancolombia · Visa Clasica · COP</p>
+                            </td>
+                            <td class="amount-col neg">- $ 42.000</td>
+                          </tr>
+                          <tr>
+                            <td>2026-02-20</td>
+                            <td>
+                              <p class="expense-row-title">Gasolina Terpel</p>
+                              <p class="expense-row-meta">Sin tags</p>
+                            </td>
+                            <td>
+                              <span class="expense-kind-pill expense-kind-expense">Gastos</span>
+                              <span class="expense-path">Necesidades Basicas › Gasolina</span>
+                            </td>
+                            <td>
+                              <p class="expense-row-title">Efectivo</p>
+                              <p class="expense-row-meta">Sin banco · COP</p>
+                            </td>
+                            <td class="amount-col neg">- $ 95.000</td>
+                          </tr>
+                          <tr>
+                            <td>2026-02-21</td>
+                            <td>
+                              <p class="expense-row-title">Fondo de Emergencia</p>
+                              <p class="expense-row-meta">Tags: meta</p>
+                            </td>
+                            <td>
+                              <span class="expense-kind-pill expense-kind-saving">Ahorro</span>
+                              <span class="expense-path">Ahorros › Fondo de Emergencia</span>
+                            </td>
+                            <td>
+                              <p class="expense-row-title">Transferencia</p>
+                              <p class="expense-row-meta">Bancolombia · COP</p>
+                            </td>
+                            <td class="amount-col pos">+ $ 200.000</td>
+                          </tr>
+                          <tr>
+                            <td>2026-02-22</td>
+                            <td>
+                              <p class="expense-row-title">Transferencia a Bolsillo Diario</p>
+                              <p class="expense-row-meta">Origen: Bancolombia - Cuenta Ahorros · Destino: Bolsillo Diario</p>
+                            </td>
+                            <td>
+                              <span class="expense-kind-pill expense-kind-transfer">Entre cuentas</span>
+                            </td>
+                            <td>
+                              <p class="expense-row-title">Transferencia</p>
+                              <p class="expense-row-meta">Bancolombia · COP</p>
+                            </td>
+                            <td class="amount-col neutral">$ 250.000</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </article>
+
+	                  <div class="expense-drawer-backdrop"></div>
+	                  <aside class="expense-drawer open" role="dialog" aria-modal="true">
+	                    <div class="expense-drawer-head">
+	                      <div>
+	                        <h2>Nuevo movimiento</h2>
+	                        <p>Registro guiado por categoria, subcategoria y arista.</p>
+	                      </div>
+	                      <button type="button" class="expense-drawer-close" aria-label="Cerrar">✕</button>
+	                    </div>
+	
+	                    <div class="expense-drawer-body">
+	                      <form action="#" method="post">
+                      <div class="expense-type-grid">
+                        <button type="button" class="expense-type-btn active"><span>💸</span><span>Gasto</span></button>
+                        <button type="button" class="expense-type-btn"><span>🏦</span><span>Ahorro</span></button>
+                        <button type="button" class="expense-type-btn"><span>📈</span><span>Inversion</span></button>
+                        <button type="button" class="expense-type-btn"><span>↔️</span><span>Entre cuentas</span></button>
+                      </div>
+
+                      <p class="expense-field-mini">Categoria › Subcategoria › Arista</p>
+                      <div class="expense-breadcrumb">
+                        <span class="expense-breadcrumb-item done">Gastos</span>
+                        <span>›</span>
+                        <span class="expense-breadcrumb-item active">Alimentacion</span>
+                        <span>›</span>
+                        <span class="expense-breadcrumb-item">Domicilios</span>
+                      </div>
+                      <p class="expense-hint">Arista = rubro/subclasificacion dentro de la subcategoria.</p>
+
+                      <div class="form-field">
+                        <label class="form-label">Valor / Amount</label>
+                        <input type="number" class="input expense-amount-input" placeholder="0" min="0" step="0.01" />
+                      </div>
+
+                      <div class="expense-form-grid">
+                        <div class="form-field">
+                          <label class="form-label">Fecha</label>
+                          <input type="date" class="input" value="2026-02-25" />
+                        </div>
+                        <div class="form-field">
+                          <label class="form-label">Moneda</label>
+                          <select class="input">
+                            <option selected>COP</option>
+                            <option>USD</option>
+                            <option>EUR</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="form-field">
+                        <label class="form-label">Categoria</label>
+                        <input type="text" class="input" value="Gastos" readonly />
+                      </div>
+
+                      <div class="expense-form-grid">
+                        <div class="form-field">
+                          <label class="form-label">Subcategoria</label>
+                          <select class="input">
+                            <option>Necesidades Basicas</option>
+                            <option>Deudas</option>
+                            <option>Casa</option>
+                            <option selected>Alimentacion</option>
+                            <option>Salud</option>
+                            <option>Entretenimiento</option>
+                          </select>
+                        </div>
+                        <div class="form-field">
+                          <label class="form-label">Arista / Rubro</label>
+                          <select class="input">
+                            <option>Restaurantes</option>
+                            <option selected>Domicilios</option>
+                          </select>
+                        </div>
+                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Detalle / Compra</label>
+	                        <input type="text" class="input" placeholder="Ej: Mercado semanal" />
+	                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Notas (opcional)</label>
+	                        <textarea class="input" rows="3" placeholder="Ej: promo, propina, motivo, etc."></textarea>
+	                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Metodo de pago</label>
+	                        <div class="expense-method-row">
+                          <button type="button" class="expense-method-chip"><span>💵</span><span>Efectivo</span></button>
+                          <button type="button" class="expense-method-chip active"><span>💳</span><span>Tarjeta</span></button>
+                          <button type="button" class="expense-method-chip"><span>🏦</span><span>Transferencia</span></button>
+                          <button type="button" class="expense-method-chip"><span>🤝</span><span>Prestamo</span></button>
+                        </div>
+                      </div>
+
+                      <div class="expense-form-grid">
+                        <div class="form-field">
+                          <label class="form-label">Banco</label>
+                          <select class="input">
+                            <option value="">Seleccionar banco</option>
+                            <option selected>Bancolombia</option>
+                            <option>Davivienda</option>
+                            <option>Lulo</option>
+                            <option>Nequi</option>
+                          </select>
+                        </div>
+                        <div class="form-field">
+                          <label class="form-label">Tarjeta</label>
+                          <select class="input">
+                            <option value="">Seleccionar tarjeta</option>
+                            <option selected>Visa Clasica</option>
+                            <option>Mastercard Debito</option>
+                          </select>
+                        </div>
+                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Tags (opcional)</label>
+	                        <input type="text" class="input" placeholder="Ej: comida, febrero" />
+	                      </div>
+
+	                      <div class="form-field">
+	                        <label class="form-label">Adjuntos (opcional)</label>
+	                        <input type="file" class="input" multiple />
+	                        <p class="expense-hint">Adjuntos: recibo-pizza.jpg</p>
+	                      </div>
+
+	                      <button type="submit" class="btn btn-primary expense-submit-btn">Guardar movimiento</button>
+	                      <p class="expense-xp-note">+10 monedas al registrar movimiento</p>
+		                    </form>
+	                    </div>
+	                  </aside>
+                </section>
+              </main>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Mobile:</b> “Nuevo movimiento” abre un panel flotante (bottom sheet) con X para cerrar; no arrincona el historial.</li>
+          <li><b>Filtros:</b> el historial puede filtrarse por tipo/búsqueda y filtros avanzados; en mobile los filtros se apilan.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PERFIL (DESKTOP) -->
+    <section class="doc-section" id="perfil-desktop">
+      <p class="eyebrow">Pantalla · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Perfil</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/profile</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell">
+	            <section class="dashboard-shell panel">
+	              <aside class="dashboard-sidebar">
+	                <div class="dashboard-brand">
+	                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo menu-logo" width="80" height="80" />
+	                  <div>
+	                    <p class="brand-name">BudgetApp</p>
+	                    <p class="brand-sub">Menu principal</p>
+	                  </div>
+	                </div>
+
+		                <div class="menu-section">
+		                  <p class="menu-title">Principal</p>
+		                  <div class="menu-list">
+		                    <a class="menu-item" href="#dashboard-desktop"><span>🏠</span><span>Dashboard</span></a>
+		                    <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+		                    <a class="menu-item" href="#gastos-desktop"><span>✏️</span><span>Registro de gastos</span></a>
+		                    <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+		                  </div>
+		                </div>
+
+		                <div class="menu-section">
+		                  <p class="menu-title">Herramientas</p>
+		                  <div class="menu-list">
+		                    <a class="menu-item" href="#dividir-cuentas-desktop"><span>🧰</span><span>Dividir cuentas</span></a>
+		                  </div>
+		                </div>
+
+		                <div class="menu-section">
+		                  <p class="menu-title">Cuenta</p>
+		                  <div class="menu-list">
+		                    <a class="menu-item active" href="#perfil-desktop"><span>👤</span><span>Perfil</span></a>
+		                    <a class="menu-item" href="#"><span>⚙️</span><span>Configuracion</span></a>
+		                    <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+		                  </div>
+		                </div>
+
+	                <div class="menu-user">
+	                  <p class="menu-user-name">Alex Castaño</p>
+	                  <p class="menu-user-mail">alex@budgetapp.co</p>
+	                </div>
+
+	                <button class="menu-item menu-item-logout" type="button"><span>↩</span><span>Cerrar sesion</span></button>
+	              </aside>
+
+	              <main class="dashboard-main">
+	                <header class="dashboard-topbar">
+	                  <div>
+	                    <p class="dashboard-path">Cuenta / Perfil</p>
+	                    <h1 class="dashboard-title">Perfil</h1>
+	                  </div>
+	                  <div class="dashboard-actions">
+	                    <a href="#" class="btn btn-secondary">Editar perfil</a>
+	                  </div>
+	                </header>
+
+	                <section class="profile-grid">
+	                  <aside class="panel side-card">
+	                    <div class="avatar">AC</div>
+	                    <p class="user-name">Alex Castaño</p>
+	                    <p class="user-mail">alex@budgetapp.co</p>
+
+	                    <div class="tag-row">
+	                      <span class="tag tag-soft">Rol: user</span>
+	                      <span class="tag tag-live">Estado: active</span>
+	                    </div>
+
+	                    <div class="info-list">
+	                      <div class="info-item"><span>Pais</span><strong>CO</strong></div>
+	                      <div class="info-item"><span>Preferencia tema</span><strong>Light</strong></div>
+	                      <div class="info-item"><span>Idioma</span><strong>Espanol</strong></div>
+	                    </div>
+	                  </aside>
+
+	                  <section class="panel">
+	                    <div class="section-head">
+	                      <h2 class="section-title">Seguridad</h2>
+	                      <span class="tag tag-soft">Revision reciente</span>
+	                    </div>
+
+	                    <div class="tag-row" style="margin-bottom: 10px;">
+	                      <span class="tag tag-soft">Contrasena actualizada</span>
+	                      <span class="tag tag-soft">Sesiones web activas</span>
+	                    </div>
+
+	                    <div class="status status-ok">Alertas de inicio de sesion activas</div>
+	                    <div class="status status-warn">Hay sesiones abiertas en mas de un dispositivo</div>
+
+	                    <div class="cta-row" style="margin-top: 12px; margin-bottom: 18px;">
+	                      <a href="#" class="btn btn-primary">Cambiar contrasena</a>
+	                      <a href="#" class="btn btn-secondary">Gestionar sesiones</a>
+	                    </div>
+
+	                    <h2 class="section-title">Preferencias</h2>
+	                    <div class="pref-grid">
+	                      <article class="pref-item"><h3>Tema</h3><p>Light activo</p><a href="#" class="tag tag-soft">Cambiar</a></article>
+	                      <article class="pref-item"><h3>Idioma</h3><p>Espanol (ES)</p><a href="#" class="tag tag-soft">ES / EN</a></article>
+	                      <article class="pref-item"><h3>Notificaciones</h3><p>Email activado</p><a href="#" class="tag tag-soft">Configurar</a></article>
+	                      <article class="pref-item"><h3>Exportaciones</h3><p>CSV semanal</p><a href="#" class="tag tag-soft">Editar</a></article>
+	                    </div>
+	                  </section>
+
+	                  <aside class="panel right-card">
+	                    <h2 class="section-title">Bancos conectados</h2>
+	                    <div class="bank-list">
+	                      <article class="bank-item"><h3>Bancolombia</h3><p>Sincronizacion cada 6h</p><span class="tag tag-soft">Activo</span></article>
+	                      <article class="bank-item"><h3>Nequi</h3><p>Pendiente primer sincronizado</p><span class="tag tag-soft">Pendiente</span></article>
+	                      <article class="bank-item"><h3>Davivienda</h3><p>Disponible para conectar</p><span class="tag tag-soft">Nuevo</span></article>
+	                    </div>
+
+	                    <h2 class="section-title" style="margin-top: 10px;">Modulos</h2>
+	                    <div class="module-list">
+	                      <a href="#dashboard-desktop">Dashboard</a>
+	                      <a href="#">Presupuestos</a>
+	                      <a href="#gastos-desktop">Movimientos</a>
+	                      <a href="#">Metas</a>
+	                      <a href="#">Reportes</a>
+	                      <a href="#">Configuracion</a>
+	                    </div>
+	                  </aside>
+	                </section>
+	              </main>
+	            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> UC-18, RF-14, RF-06 (preferencias de notificaciones).</li>
+          <li><b>Reglas:</b> revocar sesiones, cambiar contraseña, ver bancos conectados.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PERFIL (MOBILE) -->
+    <section class="doc-section" id="perfil-mobile">
+      <p class="eyebrow">Pantalla · Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">Perfil</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/profile</div>
+        </div>
+        <div class="viewport mobile">
+          <main class="page-shell">
+            <section class="profile-shell">
+              <header class="panel profile-topbar">
+                <a href="#" class="brand-lockup brand-inline">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Cuenta</p>
+                  </div>
+                </a>
+                <div class="cta-row">
+                  <button type="button" class="btn btn-primary">Cerrar sesion</button>
+                </div>
+              </header>
+
+              <div class="profile-grid">
+                <aside class="panel side-card">
+                  <div class="avatar">AC</div>
+                  <p class="user-name">Alex Castaño</p>
+                  <p class="user-mail">alex@budgetapp.co</p>
+                </aside>
+
+                <section class="panel">
+                  <h2 class="section-title">Seguridad</h2>
+                  <div class="status status-ok">Alertas activas</div>
+                  <div class="cta-row" style="margin-top: 12px;">
+                    <a href="#" class="btn btn-secondary">Sesiones</a>
+                    <a href="#" class="btn btn-primary">Contraseña</a>
+                  </div>
+                </section>
+
+                <aside class="panel right-card">
+                  <h2 class="section-title">Bancos</h2>
+                  <div class="bank-list">
+                    <article class="bank-item"><h3>Bancolombia</h3><p>Sync 6h</p><span class="tag tag-soft">Activo</span></article>
+                  </div>
+                </aside>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Responsive:</b> grilla apilada, padding reducido.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 404 -->
+    <section class="doc-section" id="404">
+      <p class="eyebrow">Estado · Desktop/Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">404</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/no-existe</div>
+        </div>
+        <div class="viewport">
+          <main class="status-page">
+            <section class="panel status-card">
+              <p class="status-code">404</p>
+              <h1>No encontramos esta pagina</h1>
+              <p class="lead">La ruta que buscas no existe o fue movida. Puedes volver al inicio y continuar desde alli.</p>
+              <div class="cta-row">
+                <a href="#dashboard-desktop" class="btn btn-primary">Volver al inicio</a>
+                <a href="#login-desktop" class="btn btn-secondary">Iniciar sesion</a>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Reglas:</b> CTA a inicio si hay sesión; si no, CTA a login.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 500 -->
+    <section class="doc-section" id="500">
+      <p class="eyebrow">Estado · Desktop/Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">500</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/error</div>
+        </div>
+        <div class="viewport">
+          <main class="status-page">
+            <section class="panel status-card">
+              <p class="status-code" style="color: var(--amber);">500</p>
+              <h1>Ocurrio un error inesperado</h1>
+              <p class="lead">El equipo ya puede revisar este evento. Reintenta ahora o vuelve al inicio.</p>
+              <div class="cta-row">
+                <button type="button" class="btn btn-primary">Reintentar</button>
+                <a href="#dashboard-desktop" class="btn btn-secondary">Volver al inicio</a>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Reglas:</b> registrar evento y permitir reintento sin perder estado.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 503 (diseño nuevo) -->
+    <section class="doc-section" id="503">
+      <p class="eyebrow">Estado · Desktop/Mobile</p>
+      <h2 class="dashboard-title" style="margin:0;">503 (Mantenimiento)</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/mantenimiento</div>
+        </div>
+        <div class="viewport">
+          <main class="status-page">
+            <section class="panel status-card">
+              <p class="status-code" style="color: var(--violet);">503</p>
+              <h1>Estamos en mantenimiento</h1>
+              <p class="lead">Guardamos tus datos. Estimamos volver en 15 minutos. Puedes intentar de nuevo más tarde.</p>
+              <div class="cta-row">
+                <a href="#dashboard-desktop" class="btn btn-primary">Volver</a>
+                <a href="#" class="btn btn-secondary">Ver estado</a>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Reglas:</b> mostrar ETA, link a status page, mantener sesión si aplica.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PANTALLAS NUEVAS (no existentes aún) -->
+    <section class="doc-section" id="pantallas-nuevas">
+      <p class="eyebrow">Diseños nuevos</p>
+      <h2 class="dashboard-title" style="margin:0;">Pantallas faltantes por casos de uso (borrador final)</h2>
+      <p class="lead">Estas pantallas no existen todavía en el frontend, pero se diseñan con el mismo sistema visual para que el equipo las implemente sin desviaciones.</p>
+	      <div class="chip-row">
+	        <span class="chip chip-live">RF-04 Bancos</span>
+	        <span class="chip">RF-05 Categorización</span>
+	        <span class="chip">RF-06 Alertas</span>
+	        <span class="chip">RF-18 Importar</span>
+	        <span class="chip">RF-19 Dividir cuentas</span>
+	        <span class="chip">RF-20 Tema</span>
+	      </div>
+	    </section>
+
+    <!-- RF-04: Conectar banco -->
+    <section class="doc-section" id="bancos-desktop">
+      <p class="eyebrow">Pantalla nueva · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Bancos conectados</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/config/bancos</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell">
+            <section class="dashboard-shell panel">
+              <aside class="dashboard-sidebar">
+                <div class="dashboard-brand">
+                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo menu-logo" width="80" height="80" />
+                  <div>
+                    <p class="brand-name">BudgetApp</p>
+                    <p class="brand-sub">Configuracion</p>
+                  </div>
+                </div>
+	                <div class="menu-section">
+	                  <p class="menu-title">Principal</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#dashboard-desktop"><span>🏠</span><span>Dashboard</span></a>
+	                    <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+	                    <a class="menu-item" href="#gastos-desktop"><span>✏️</span><span>Registro de gastos</span></a>
+	                    <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Herramientas</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#dividir-cuentas-desktop"><span>🧰</span><span>Dividir cuentas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Cuenta</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#perfil-desktop"><span>👤</span><span>Perfil</span></a>
+	                    <a class="menu-item active" href="#bancos-desktop"><span>🏦</span><span>Bancos</span></a>
+	                    <a class="menu-item" href="#tema-desktop"><span>🎨</span><span>Tema</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-user">
+	                  <p class="menu-user-name">Alex Castaño</p>
+	                  <p class="menu-user-mail">alex@budgetapp.co</p>
+	                </div>
+
+	                <button class="menu-item menu-item-logout" type="button"><span>↩</span><span>Cerrar sesion</span></button>
+	              </aside>
+
+              <main class="dashboard-main">
+                <header class="dashboard-topbar">
+                  <div>
+                    <p class="dashboard-path">Configuracion / Bancos</p>
+                    <h1 class="dashboard-title">Conexiones</h1>
+                  </div>
+                  <div class="dashboard-actions">
+                    <a href="#" class="btn btn-primary">+ Conectar banco</a>
+                  </div>
+                </header>
+
+                <section class="dashboard-grid">
+                  <article class="panel dashboard-card">
+                    <div class="dashboard-card-head">
+                      <h2>Conectados</h2>
+                      <a href="#">Ver actividad</a>
+                    </div>
+                    <div class="movement-list">
+                      <div class="movement-item">
+                        <div>
+                          <p class="movement-name">Bancolombia</p>
+                          <p class="movement-meta">Sync cada 6h · Última: 10:32</p>
+                        </div>
+                        <span class="tag tag-live">Activo</span>
+                      </div>
+                      <div class="movement-item">
+                        <div>
+                          <p class="movement-name">Nequi</p>
+                          <p class="movement-meta">Requiere reautorización</p>
+                        </div>
+                        <span class="tag tag-soft" style="border-color:rgba(249,115,22,.35);">Atención</span>
+                      </div>
+                    </div>
+                  </article>
+
+                  <article class="panel dashboard-card">
+                    <div class="dashboard-card-head">
+                      <h2>Conectar nuevo</h2>
+                      <a href="#">Requisitos</a>
+                    </div>
+                    <div class="dashboard-empty">
+                      Selecciona un banco, autoriza acceso y define reglas de importación. La app concilia movimientos con categorías.
+                    </div>
+                    <div class="cta-row" style="margin-top: 12px;">
+                      <button class="btn btn-primary" type="button">Iniciar conexión</button>
+                      <button class="btn btn-secondary" type="button">Aprender más</button>
+                    </div>
+                  </article>
+                </section>
+              </main>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> RF-04 (integración bancaria), RF-03 (catálogos para métodos).</li>
+          <li><b>Reglas:</b> reautorización, logs de sync, permisos por banco.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- RF-05: Motor de categorización -->
+    <section class="doc-section" id="categorizacion-desktop">
+      <p class="eyebrow">Pantalla nueva · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Reglas de categorización</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/config/categorizacion</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell">
+            <section class="panel" style="padding: 18px; display:grid; gap:14px;">
+              <header class="dashboard-topbar">
+                <div>
+                  <p class="dashboard-path">Configuracion / Categorización</p>
+                  <h1 class="dashboard-title">Reglas automáticas</h1>
+                </div>
+                <div class="dashboard-actions">
+                  <button class="btn btn-secondary" type="button">Importar reglas</button>
+                  <button class="btn btn-primary" type="button">Nueva regla</button>
+                </div>
+              </header>
+
+              <div class="panel" style="padding:14px;">
+                <div class="dashboard-card-head">
+                  <h2>Reglas activas</h2>
+                  <a href="#">Historial</a>
+                </div>
+                <div class="expense-table-wrap" style="min-height: 0;">
+                  <table class="expense-table" style="min-width: 760px;">
+                    <thead>
+                      <tr>
+                        <th>Si contiene</th>
+                        <th>Asignar</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><p class="expense-row-title">"Terpel"</p><p class="expense-row-meta">Detalle / Compra</p></td>
+                        <td><span class="expense-kind-pill expense-kind-expense">Gastos</span><span class="expense-path">Transporte › Gasolina</span></td>
+                        <td>Alta</td>
+                        <td><span class="tag tag-live">Activa</span></td>
+                      </tr>
+                      <tr>
+                        <td><p class="expense-row-title">"Netflix"</p><p class="expense-row-meta">Detalle / Compra</p></td>
+                        <td><span class="expense-kind-pill expense-kind-expense">Gastos</span><span class="expense-path">Ocio › Suscripciones</span></td>
+                        <td>Media</td>
+                        <td><span class="tag tag-soft">Activa</span></td>
+                      </tr>
+                      <tr>
+                        <td><p class="expense-row-title">"Nómina"</p><p class="expense-row-meta">Movimiento bancario</p></td>
+                        <td><span class="expense-kind-pill expense-kind-saving">Ingreso</span><span class="expense-path">Salario</span></td>
+                        <td>Alta</td>
+                        <td><span class="tag tag-soft" style="border-color:rgba(249,115,22,.35);">Revisar</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel-soft" style="padding: 14px;">
+                <p class="expense-intro-title">Bandeja de sugerencias</p>
+                <p class="expense-intro-copy">Movimientos sin categoría o con baja confianza aparecen aquí para confirmación rápida.</p>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> RF-05 (motor de categorización asistida).</li>
+          <li><b>Reglas:</b> prioridad, activación/desactivación, trazabilidad de cambios.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- RF-06: Alertas -->
+    <section class="doc-section" id="alertas-desktop">
+      <p class="eyebrow">Pantalla nueva · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Alertas y notificaciones</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/config/alertas</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell">
+            <section class="panel" style="padding: 18px; display:grid; gap:14px;">
+              <header class="dashboard-topbar">
+                <div>
+                  <p class="dashboard-path">Configuracion / Alertas</p>
+                  <h1 class="dashboard-title">Canales</h1>
+                </div>
+                <div class="dashboard-actions">
+                  <button class="btn btn-primary" type="button">Guardar cambios</button>
+                </div>
+              </header>
+
+              <section class="dashboard-grid">
+                <article class="panel dashboard-card">
+                  <div class="dashboard-card-head"><h2>Preferencias</h2><a href="#">Ayuda</a></div>
+                  <div class="movement-list">
+                    <div class="movement-item"><div><p class="movement-name">Email</p><p class="movement-meta">Alertas por exceder presupuesto</p></div><span class="tag tag-live">Activo</span></div>
+                    <div class="movement-item"><div><p class="movement-name">Push</p><p class="movement-meta">Movimientos relevantes</p></div><span class="tag tag-soft">Activo</span></div>
+                    <div class="movement-item"><div><p class="movement-name">WhatsApp</p><p class="movement-meta">Opcional</p></div><span class="tag tag-soft" style="border-color:rgba(244,63,94,.35);">Off</span></div>
+                  </div>
+                </article>
+
+                <article class="panel dashboard-card">
+                  <div class="dashboard-card-head"><h2>Reglas</h2><a href="#">Detalle</a></div>
+                  <div class="dashboard-empty">Configura umbrales: 80% (warning), 100% (error), cargos inusuales, y meta de ahorro.</div>
+                  <div class="cta-row" style="margin-top: 12px;">
+                    <button class="btn btn-secondary" type="button">Probar alerta</button>
+                    <button class="btn btn-primary" type="button">Crear regla</button>
+                  </div>
+                </article>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> RF-06 (alertas en tiempo real).</li>
+          <li><b>Reglas:</b> umbrales 80/100, canal por tipo de evento, historial de envíos.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- RF-18: Importación -->
+    <section class="doc-section" id="importar-desktop">
+      <p class="eyebrow">Pantalla nueva · Desktop</p>
+      <h2 class="dashboard-title" style="margin:0;">Importar movimientos</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/importar</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell">
+            <section class="panel" style="padding:18px; display:grid; gap:14px;">
+              <header class="dashboard-topbar">
+                <div>
+                  <p class="dashboard-path">Movimientos / Importar</p>
+                  <h1 class="dashboard-title">CSV / XLS</h1>
+                </div>
+                <div class="dashboard-actions">
+                  <button class="btn btn-secondary" type="button">Descargar plantilla</button>
+                  <button class="btn btn-primary" type="button">Subir archivo</button>
+                </div>
+              </header>
+
+              <div class="panel-soft" style="padding:14px;">
+                <p class="expense-intro-title">Vista previa</p>
+                <p class="expense-intro-copy">Se valida formato, columnas y duplicados antes de aplicar cambios.</p>
+              </div>
+
+              <div class="expense-table-wrap" style="min-height: 0;">
+                <table class="expense-table" style="min-width: 880px;">
+                  <thead>
+                    <tr><th>Fila</th><th>Fecha</th><th>Detalle</th><th>Monto</th><th>Estado</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>12</td><td>2026-02-21</td><td>Papa John's</td><td class="amount-col neg">- 42.000</td><td><span class="tag tag-live">OK</span></td></tr>
+                    <tr><td>13</td><td>2026-02-21</td><td>Terpel</td><td class="amount-col neg">- 95.000</td><td><span class="tag tag-soft" style="border-color:rgba(249,115,22,.35);">Revisar</span></td></tr>
+                    <tr><td>14</td><td>2026-02-21</td><td>Movimiento duplicado</td><td class="amount-col neg">- 42.000</td><td><span class="tag tag-soft" style="border-color:rgba(244,63,94,.35);">Rechazado</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="cta-row">
+                <button class="btn btn-secondary" type="button">Cancelar</button>
+                <button class="btn btn-primary" type="button">Aplicar importación</button>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> RF-18 (importar CSV/XLS), RF-12 (export/backup).</li>
+          <li><b>Reglas:</b> preview obligatorio, detección de duplicados, mapeo columnas.</li>
+        </ul>
+      </div>
+	    </section>
+
+	    <!-- RF-19: División de cuentas -->
+	    <section class="doc-section" id="dividir-cuentas-desktop">
+	      <p class="eyebrow">Pantalla nueva · Desktop</p>
+	      <h2 class="dashboard-title" style="margin:0;">Dividir cuentas</h2>
+
+	      <div class="browser">
+	        <div class="browser-bar">
+	          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+	          <div class="url">/herramientas/dividir-cuentas</div>
+	        </div>
+	        <div class="viewport">
+	          <main class="page-shell">
+	            <section class="dashboard-shell panel">
+	              <aside class="dashboard-sidebar">
+	                <div class="dashboard-brand">
+	                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo menu-logo" width="80" height="80" />
+	                  <div>
+	                    <p class="brand-name">BudgetApp</p>
+	                    <p class="brand-sub">Menu principal</p>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Principal</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#dashboard-desktop"><span>🏠</span><span>Dashboard</span></a>
+	                    <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+	                    <a class="menu-item" href="#gastos-desktop"><span>✏️</span><span>Registro de gastos</span></a>
+	                    <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Herramientas</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item active" href="#dividir-cuentas-desktop"><span>🧰</span><span>Dividir cuentas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Cuenta</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#perfil-desktop"><span>👤</span><span>Perfil</span></a>
+	                    <a class="menu-item" href="#"><span>⚙️</span><span>Configuracion</span></a>
+	                    <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-user">
+	                  <p class="menu-user-name">Alex Castaño</p>
+	                  <p class="menu-user-mail">alex@budgetapp.co</p>
+	                </div>
+
+	                <button class="menu-item menu-item-logout" type="button"><span>↩</span><span>Cerrar sesion</span></button>
+	              </aside>
+
+	              <main class="dashboard-main">
+	                <header class="dashboard-topbar">
+	                  <div>
+	                    <p class="dashboard-path">Herramientas / Dividir cuentas</p>
+	                    <h1 class="dashboard-title">Dividir cuenta compartida</h1>
+	                  </div>
+	                  <div class="dashboard-actions">
+	                    <a href="#" class="btn btn-secondary">Ver historial</a>
+	                    <a href="#" class="btn btn-primary">+ Nueva division</a>
+	                  </div>
+	                </header>
+
+	                <section class="expense-intro panel-soft">
+	                  <p class="expense-intro-title">Herramienta</p>
+	                  <p class="expense-intro-copy">Registra compras compartidas, agrega participantes (con o sin app) y define el reparto por ítem. El resumen calcula cuánto debe pagar cada persona.</p>
+	                </section>
+
+	                <section class="dashboard-grid">
+	                  <article class="panel dashboard-card">
+	                    <div class="dashboard-card-head">
+	                      <h2>Divisiones recientes</h2>
+	                      <a href="#">Exportar</a>
+	                    </div>
+	                    <div class="dashboard-empty">Aun no hay divisiones registradas. Crea una nueva para comenzar.</div>
+	                  </article>
+
+	                  <aside class="panel dashboard-card">
+	                    <div class="dashboard-card-head">
+	                      <h2>Reglas</h2>
+	                      <a href="#">Ver UC</a>
+	                    </div>
+	                    <div class="bar-listing">
+	                      <div class="info-item"><span>El reparto se calcula por ítem según participantes.</span><strong>Por defecto</strong></div>
+	                      <div class="info-item"><span>Puedes invitar participantes con o sin app y seguir.</span><strong>Flexible</strong></div>
+	                      <div class="info-item"><span>Si el total de ítems no coincide, se alerta pero permite guardar.</span><strong>No bloquea</strong></div>
+	                    </div>
+	                  </aside>
+	                </section>
+	              </main>
+	            </section>
+	          </main>
+	        </div>
+	      </div>
+
+	      <div class="notes">
+	        <h3>Notas</h3>
+	        <ul>
+	          <li><b>Cobertura:</b> RF-19 · UC-DC-01.</li>
+	          <li><b>Reglas:</b> reparto por ítem; participantes por invitación; alerta si suma de ítems no coincide con total.</li>
+	          <li><b>Sidebar:</b> accesible desde la sección “Herramientas”.</li>
+	        </ul>
+	      </div>
+	    </section>
+
+	    <!-- RF-19: División de cuentas (MOBILE) -->
+	    <section class="doc-section" id="dividir-cuentas-mobile">
+	      <p class="eyebrow">Pantalla nueva · Mobile</p>
+	      <h2 class="dashboard-title" style="margin:0;">Dividir cuentas</h2>
+
+	      <div class="browser">
+	        <div class="browser-bar">
+	          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+	          <div class="url">/herramientas/dividir-cuentas</div>
+	        </div>
+	        <div class="viewport mobile">
+	          <main class="page-shell">
+	            <section class="dashboard-shell panel">
+	              <aside class="dashboard-sidebar">
+	                <div class="dashboard-brand">
+	                  <img src="../assets/images/logo_9_transparent.png" alt="BudgetApp" class="brand-logo menu-logo" width="80" height="80" />
+	                  <div>
+	                    <p class="brand-name">BudgetApp</p>
+	                    <p class="brand-sub">Menu</p>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Principal</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#dashboard-desktop"><span>🏠</span><span>Dashboard</span></a>
+	                    <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+	                    <a class="menu-item" href="#gastos-desktop"><span>✏️</span><span>Registro de gastos</span></a>
+	                    <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Herramientas</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item active" href="#dividir-cuentas-desktop"><span>🧰</span><span>Dividir cuentas</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-section">
+	                  <p class="menu-title">Cuenta</p>
+	                  <div class="menu-list">
+	                    <a class="menu-item" href="#perfil-desktop"><span>👤</span><span>Perfil</span></a>
+	                    <a class="menu-item" href="#"><span>⚙️</span><span>Configuracion</span></a>
+	                    <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+	                  </div>
+	                </div>
+
+	                <div class="menu-user">
+	                  <p class="menu-user-name">Alex Castaño</p>
+	                  <p class="menu-user-mail">alex@budgetapp.co</p>
+	                </div>
+
+	                <button class="menu-item menu-item-logout" type="button"><span>↩</span><span>Cerrar sesion</span></button>
+	              </aside>
+
+	              <main class="dashboard-main">
+	                <header class="dashboard-topbar">
+	                  <div>
+	                    <p class="dashboard-path">Herramientas</p>
+	                    <h1 class="dashboard-title">Dividir cuentas</h1>
+	                  </div>
+	                  <div class="dashboard-actions">
+	                    <a href="#" class="btn btn-primary">+ Nueva</a>
+	                  </div>
+	                </header>
+
+	                <section class="expense-intro panel-soft">
+	                  <p class="expense-intro-title">Compra compartida</p>
+	                  <p class="expense-intro-copy">Agrega participantes y define reparto por ítem. El resumen calcula cuánto debe cada persona.</p>
+	                </section>
+
+	                <section class="dashboard-grid">
+	                  <article class="panel dashboard-card">
+	                    <div class="dashboard-card-head"><h2>Recientes</h2><a href="#">Exportar</a></div>
+	                    <div class="dashboard-empty">Aun no hay divisiones registradas.</div>
+	                  </article>
+	                  <article class="panel dashboard-card">
+	                    <div class="dashboard-card-head"><h2>Reglas</h2><a href="#">Ayuda</a></div>
+	                    <div class="bar-listing">
+	                      <div class="info-item"><span>Reparto por ítem</span><strong>Rápido</strong></div>
+	                      <div class="info-item"><span>Invitar sin app</span><strong>OK</strong></div>
+	                    </div>
+	                  </article>
+	                </section>
+	              </main>
+	            </section>
+	          </main>
+	        </div>
+	      </div>
+
+	      <div class="notes">
+	        <h3>Notas</h3>
+	        <ul>
+	          <li><b>Mobile:</b> se apila en una columna; CTA “+ Nueva” permanece visible en topbar.</li>
+	        </ul>
+	      </div>
+	    </section>
+
+	    <!-- RF-20: Tema -->
+	    <section class="doc-section" id="tema-desktop">
+	      <p class="eyebrow">Pantalla nueva · Desktop</p>
+	      <h2 class="dashboard-title" style="margin:0;">Tema y paleta</h2>
+
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+          <div class="url">/config/tema</div>
+        </div>
+        <div class="viewport">
+          <main class="page-shell">
+            <section class="panel" style="padding:18px; display:grid; gap:14px;">
+              <header class="dashboard-topbar">
+                <div>
+                  <p class="dashboard-path">Configuracion / Tema</p>
+                  <h1 class="dashboard-title">Personalización</h1>
+                </div>
+                <div class="dashboard-actions">
+                  <button class="btn btn-primary" type="button">Guardar</button>
+                </div>
+              </header>
+
+              <section class="dashboard-grid">
+                <article class="panel dashboard-card">
+                  <div class="dashboard-card-head"><h2>Modo</h2><a href="#">Sistema</a></div>
+                  <div class="tag-row">
+                    <span class="tag tag-live">Claro</span>
+                    <span class="tag tag-soft">Oscuro</span>
+                    <span class="tag tag-soft">Automático</span>
+                  </div>
+                  <div class="dashboard-empty" style="margin-top: 10px;">El modo claro usa la paleta oficial (violet/mint/amber/red) y superficies paper.</div>
+                </article>
+                <article class="panel dashboard-card">
+                  <div class="dashboard-card-head"><h2>Paleta</h2><a href="#marca">Ver manual</a></div>
+                  <div class="palette-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+                    <div class="swatch"><div class="swatch-bar" style="background: var(--violet);"></div><p>Actual</p><b>Violet + Mint</b></div>
+                    <div class="swatch"><div class="swatch-bar" style="background: linear-gradient(135deg, var(--violet), var(--amber));"></div><p>Alterna</p><b>Violet + Amber</b></div>
+                  </div>
+                </article>
+              </section>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>Notas</h3>
+        <ul>
+          <li><b>Cobertura:</b> RF-20 (selector de tema/paleta).</li>
+          <li><b>Reglas:</b> persistir preferencia por usuario y aplicar en todo el UI.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="doc-section" id="soporte">
+      <p class="eyebrow">Cierre</p>
+      <h2 class="dashboard-title" style="margin:0;">Checklist de cobertura</h2>
+      <div class="tag-row" style="margin-top: 10px;">
+        <span class="tag tag-live">Auth</span>
+        <span class="tag tag-live">Dashboard</span>
+        <span class="tag tag-live">Gastos</span>
+        <span class="tag tag-soft">Perfil</span>
+        <span class="tag tag-soft">Bancos</span>
+        <span class="tag tag-soft">Importación</span>
+        <span class="tag tag-soft">Tema</span>
+        <span class="tag tag-soft">Categorización</span>
+        <span class="tag tag-soft">Alertas</span>
+      </div>
+      <p class="lead" style="margin-top: 10px;">Siguiente paso: si quieres, agrego las pantallas restantes (RF-07 simulador, RF-08 tarjetas, RF-09 familiar, RF-10 suscripciones, RF-17 cierre de mes, RF-19 división de compras) con el mismo sistema visual del frontend.</p>
+    </section>
+  </main>
+</body>
+</html>

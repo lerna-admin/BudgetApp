@@ -20,6 +20,7 @@ const menuSections = [
     title: "Config.",
     items: [
       { id: "banks", label: "Bancos", icon: "🏦", href: "/bancos" },
+      { id: "debts", label: "Deudas", icon: "💳", href: "/deudas" },
       { id: "categories", label: "Categorias", icon: "🗂️", href: "#" },
       { id: "edges", label: "Aristas", icon: "🔺", href: "#" },
       { id: "rules", label: "Reglas", icon: "🤖", href: "#" },

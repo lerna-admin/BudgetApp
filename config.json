@@ -1,0 +1,9 @@
+{
+  "name": "budgetapp",
+  "path": "/home/xanadu/projects/budgetapp",
+  "created_at": "2026-02-25T14:06:32Z",
+  "notes": "Config per-project; do not share between projects.",
+  "env_file": "/home/xanadu/projects/budgetapp/.env",
+  "logs_file": "/home/xanadu/projects/budgetapp/logs/logs.jsonl",
+  "instructions": "/home/xanadu/projects/budgetapp/INSTRUCTIONS.md"
+}

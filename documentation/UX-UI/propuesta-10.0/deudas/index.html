@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BudgetApp · Deudas</title>
+    <link rel="stylesheet" href="../shared/globals.css" />
+    <script src="../shared/screen.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="dashboard-shell panel">
+        <aside class="dashboard-sidebar">
+          <div class="dashboard-brand">
+            <img
+              src="../assets/images/logo_9_transparent.png"
+              alt="BudgetApp"
+              class="brand-logo menu-logo"
+              width="80"
+              height="80"
+            />
+            <div>
+              <p class="brand-name">BudgetApp</p>
+              <p class="brand-sub">Menu principal</p>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Principal</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
+              <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de movimientos</span></a>
+              <a class="menu-item active" href="../deudas/index.html"><span>💳</span><span>Deudas</span></a>
+              <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Herramientas</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../herramientas-dividir-cuentas/index.html"><span>🧰</span><span>Dividir cuentas</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Config.</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
+              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
+              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
+              <a class="menu-item" href="../alertas/index.html"><span>🔔</span><span>Alertas</span></a>
+              <a class="menu-item" href="../importar/index.html"><span>📤</span><span>Importar</span></a>
+              <a class="menu-item" href="../tema/index.html"><span>🎨</span><span>Tema</span></a>
+            </div>
+          </div>
+
+          <div class="menu-section">
+            <p class="menu-title">Cuenta</p>
+            <div class="menu-list">
+              <a class="menu-item" href="../profile/index.html"><span>👤</span><span>Perfil</span></a>
+              <a class="menu-item" href="#"><span>📈</span><span>Reportes</span></a>
+            </div>
+          </div>
+
+          <div class="menu-user">
+            <p class="menu-user-name">Alex Castano</p>
+            <p class="menu-user-mail">alex@budgetapp.co</p>
+          </div>
+
+          <button class="menu-item menu-item-logout" type="button">
+            <span>↩</span>
+            <span>Cerrar sesion</span>
+          </button>
+        </aside>
+
+        <main class="dashboard-main">
+          <header class="dashboard-topbar">
+            <div>
+              <p class="dashboard-path">Deudas / Gestion</p>
+              <h1 class="dashboard-title">Control de deudas</h1>
+            </div>
+          </header>
+
+          <section class="expense-intro panel-soft">
+            <p class="expense-intro-title">Modulo de deudas</p>
+            <p class="expense-intro-copy">
+              CRUD para deudas con interes EA, principal, pago minimo y vinculacion a cuentas o tarjetas.
+              Al guardar se sincroniza automaticamente con el presupuesto del periodo.
+            </p>
+          </section>
+
+          <div class="expense-summary-strip" style="margin-bottom: 12px;">
+            <div class="expense-summary-card">
+              <p>Deudas abiertas</p>
+              <strong>4</strong>
+            </div>
+            <div class="expense-summary-card">
+              <p>Principal total</p>
+              <strong class="neg">$ 18.400.000</strong>
+            </div>
+            <div class="expense-summary-card">
+              <p>Pago minimo mensual</p>
+              <strong>$ 1.240.000</strong>
+            </div>
+            <div class="expense-summary-card">
+              <p>Tasa promedio</p>
+              <strong>22.30% EA</strong>
+            </div>
+            <div class="expense-summary-card expense-summary-card-live">
+              <p>Vencidas</p>
+              <strong>1</strong>
+            </div>
+          </div>
+
+          <article class="panel dashboard-card" style="margin-bottom: 12px;">
+            <div class="dashboard-card-head">
+              <h2>Nueva deuda</h2>
+              <span>💳</span>
+            </div>
+            <div class="expense-form-grid" style="margin-bottom: 10px;">
+              <input class="input" placeholder="Nombre deuda" value="Tarjeta Visa Bancolombia" />
+              <select class="input">
+                <option>Tarjeta de credito</option>
+              </select>
+              <input class="input" placeholder="Principal" value="6800000" />
+              <input class="input" placeholder="Interes EA (%)" value="31.40" />
+              <input class="input" placeholder="Pago minimo" value="420000" />
+              <select class="input">
+                <option>COP</option>
+              </select>
+              <input class="input" type="date" value="2026-03-15" />
+              <select class="input">
+                <option>Abierta</option>
+              </select>
+              <select class="input">
+                <option>Tarjeta</option>
+              </select>
+              <select class="input">
+                <option>Visa Clasica ••••4242</option>
+              </select>
+            </div>
+            <textarea class="input" rows="3" placeholder="Notas">Prioridad alta por tasa EA.</textarea>
+            <p class="expense-hint" style="margin-top: 8px;">Se registra automaticamente en presupuesto al guardar.</p>
+            <button class="btn btn-primary" type="button" style="margin-top: 10px;">Guardar deuda</button>
+          </article>
+
+          <article class="panel dashboard-card">
+            <div class="dashboard-card-head">
+              <h2>Historial de deudas</h2>
+            </div>
+            <table class="expense-table">
+              <thead>
+                <tr>
+                  <th>Deuda</th>
+                  <th>Principal</th>
+                  <th>Interes EA</th>
+                  <th>Pago minimo</th>
+                  <th>Vencimiento</th>
+                  <th>Estado</th>
+                  <th>Vinculo</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <p class="expense-row-title">Tarjeta Visa Bancolombia</p>
+                    <p class="expense-row-meta">Tarjeta de credito</p>
+                  </td>
+                  <td>$ 6.800.000</td>
+                  <td>31.40% EA</td>
+                  <td>$ 420.000</td>
+                  <td>2026-03-15</td>
+                  <td><span class="chip chip-live">open</span></td>
+                  <td>Visa Clasica ••••4242</td>
+                  <td><button class="btn btn-ghost" type="button">Editar</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <p class="expense-row-title">Credito educativo</p>
+                    <p class="expense-row-meta">Credito educativo</p>
+                  </td>
+                  <td>$ 11.600.000</td>
+                  <td>13.80% EA</td>
+                  <td>$ 820.000</td>
+                  <td>2026-03-25</td>
+                  <td><span class="chip chip-live">open</span></td>
+                  <td>Global66 · 00893124</td>
+                  <td><button class="btn btn-ghost" type="button">Editar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </main>
+      </section>
+    </main>
+  </body>
+</html>

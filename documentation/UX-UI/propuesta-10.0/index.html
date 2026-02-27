@@ -53,6 +53,7 @@
           <a class="module-link" href="#register">Registro</a>
           <a class="module-link" href="#dashboard">Dashboard</a>
           <a class="module-link" href="#gastos">Registro de movimientos</a>
+          <a class="module-link" href="#deudas">Deudas</a>
           <a class="module-link" href="#perfil">Perfil</a>
           <a class="module-link" href="#herramientas">Herramientas</a>
           <a class="module-link" href="#config">Config.</a>
@@ -288,6 +289,42 @@
           </div>
           <div class="p10-viewport mobile">
             <iframe class="p10-frame" src="./gastos/index.html" name="p10-gastos-mobile" title="Gastos (Mobile)" loading="lazy"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <section class="p10-section" id="deudas">
+        <p class="eyebrow">Pantalla · Desktop</p>
+        <h2 class="dashboard-title" style="margin:0;">Deudas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/deudas</div>
+          </div>
+          <div class="p10-viewport">
+            <iframe class="p10-frame" src="./deudas/index.html" name="p10-deudas-desktop" title="Deudas (Desktop)" loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="p10-notes">
+          <h3>Notas</h3>
+          <ul>
+            <li><b>CRUD:</b> crear, editar y eliminar deudas en un solo flujo.</li>
+            <li><b>Campo clave:</b> cada deuda solicita interes en <span class="p10-kbd">% EA</span>.</li>
+            <li><b>Sincronizacion:</b> al crear o editar, la deuda se registra en el presupuesto del periodo.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="p10-section">
+        <p class="eyebrow">Pantalla · Mobile</p>
+        <h2 class="dashboard-title" style="margin:0;">Deudas</h2>
+        <div class="p10-browser">
+          <div class="p10-browser-bar">
+            <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
+            <div class="p10-url">/deudas</div>
+          </div>
+          <div class="p10-viewport mobile">
+            <iframe class="p10-frame" src="./deudas/index.html" name="p10-deudas-mobile" title="Deudas (Mobile)" loading="lazy"></iframe>
           </div>
         </div>
       </section>
