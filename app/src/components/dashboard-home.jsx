@@ -16,6 +16,7 @@ export default function DashboardHome({ user }) {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const isZero = (value) => Math.abs(Number(value) || 0) < 0.00001;
 
   useEffect(() => {
     async function load() {
@@ -66,27 +67,27 @@ export default function DashboardHome({ user }) {
         </div>
         <div className="dashboard-actions">
           <a href="/gastos" className="btn btn-secondary">+ Nuevo movimiento</a>
-          <a href="#" className="btn btn-primary">Crear presupuesto</a>
+          <a href="/presupuesto" className="btn btn-primary">Crear presupuesto</a>
         </div>
       </header>
 
       <section className="dashboard-kpis">
-        <article className="kpi-card"><p>Disponible</p><strong className="pos">{formatCurrency(available)}</strong></article>
-        <article className="kpi-card"><p>Ingresos</p><strong className="pos">{formatCurrency(totals.income)}</strong></article>
-        <article className="kpi-card"><p>Gastos</p><strong className="neg">{formatCurrency(totals.expense)}</strong></article>
-        <article className="kpi-card"><p>Ahorro</p><strong className="pos">{formatCurrency(totals.saving)}</strong></article>
+        <article className={`kpi-card${isZero(available) ? " kpi-zero" : ""}`}><p>Disponible</p><strong className="pos">{formatCurrency(available)}</strong></article>
+        <article className={`kpi-card${isZero(totals.income) ? " kpi-zero" : ""}`}><p>Ingresos</p><strong className="pos">{formatCurrency(totals.income)}</strong></article>
+        <article className={`kpi-card${isZero(totals.expense) ? " kpi-zero" : ""}`}><p>Gastos</p><strong className="neg">{formatCurrency(totals.expense)}</strong></article>
+        <article className={`kpi-card${isZero(totals.saving) ? " kpi-zero" : ""}`}><p>Ahorro</p><strong className="pos">{formatCurrency(totals.saving)}</strong></article>
       </section>
 
       <section className="dashboard-grid">
         <article className="panel dashboard-card">
           <div className="dashboard-card-head">
             <h2>Presupuesto vs real</h2>
-            <a href="#">Ver detalle</a>
+            <a href="/presupuesto">Ver detalle</a>
           </div>
           <div className="dashboard-empty">
             No hay presupuestos creados todavía.
             <div style={{ marginTop: 10 }}>
-              <a href="#" className="btn btn-primary">Crear presupuesto</a>
+              <a href="/presupuesto" className="btn btn-primary">Crear presupuesto</a>
             </div>
           </div>
         </article>
