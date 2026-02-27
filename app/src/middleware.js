@@ -9,6 +9,8 @@ export function middleware(request) {
   const protectedRoute =
     pathname === "/" ||
     pathname.startsWith("/profile") ||
+    pathname.startsWith("/bancos") ||
+    pathname.startsWith("/deudas") ||
     pathname.startsWith("/gastos") ||
     pathname.startsWith("/herramientas");
   if (protectedRoute && !token) {
@@ -21,5 +23,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/", "/profile/:path*", "/gastos/:path*", "/herramientas/:path*"],
+  matcher: ["/", "/profile/:path*", "/bancos/:path*", "/deudas/:path*", "/gastos/:path*", "/herramientas/:path*"],
 };

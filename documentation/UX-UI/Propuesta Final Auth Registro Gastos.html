@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BudgetApp · Pantallas finales Auth + Registro de gastos (Feb 2026)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ink:#0F1224; --ink2:#20244A; --ink3:#4B4F75; --ink4:#7D80A4; --ink5:#C7CAE2;
+  --paper:#FDFBFF; --paper2:#F3F4FF; --paper3:#E4E6F5; --paper4:#D6D9EC;
+  --primary:#7C3AED; --primary-2:#A78BFA;
+  --success:#10B981; --success-2:#6EE7B7;
+  --warning:#F97316; --warning-2:#FBBF24;
+  --error:#F43F5E; --error-2:#FB7185;
+  --info:#2563EB; --info-2:#60A5FA;
+  --shadow:0 16px 42px rgba(15,18,36,.12),0 6px 18px rgba(15,18,36,.08);
+  --r:12px; --r2:18px; --gap:14px;
+}
+body{font-family:'DM Sans',sans-serif;background:
+  radial-gradient(ellipse 70% 50% at 20% 20%,rgba(124,58,237,.10),transparent),
+  radial-gradient(ellipse 65% 45% at 80% 70%,rgba(16,185,129,.10),transparent),
+  var(--paper);
+  color:var(--ink);line-height:1.55;font-size:14px;
+}
+.main{max-width:1280px;margin:0 auto;padding:28px 18px 48px;display:grid;gap:18px;}
+.section{background:white;border:1.5px solid var(--paper3);border-radius:18px;box-shadow:var(--shadow);padding:18px;display:grid;gap:12px;}
+.label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink4);}
+.title{font-family:'Syne',sans-serif;font-size:32px;color:var(--ink2);letter-spacing:-.01em;}
+.sub{font-size:14px;color:var(--ink3);max-width:860px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid var(--paper3);background:var(--paper2);color:var(--ink3);}
+.dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.12);}
+.card{border:1.5px solid var(--paper3);border-radius:14px;background:white;padding:14px;display:grid;gap:10px;}
+.browser{border:1px solid var(--paper3);border-radius:14px;overflow:hidden;background:white;box-shadow:var(--shadow);}
+.browser-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--paper2);border-bottom:1px solid var(--paper3);}
+.dots{display:flex;gap:6px;} .d{width:10px;height:10px;border-radius:50%;}
+.d-r{background:#F66;} .d-y{background:#FA3;} .d-g{background:#3C6;}
+.url{flex:1;text-align:center;font-size:11px;color:var(--ink4);background:var(--paper3);padding:4px 10px;border-radius:8px;font-family:'JetBrains Mono',monospace;}
+.screen{padding:18px;display:grid;gap:12px;}
+.h1{font-family:'Syne',sans-serif;font-size:24px;color:var(--ink2);letter-spacing:-.01em;}
+.p{font-size:13px;color:var(--ink3);}
+.field{display:grid;gap:5px;}
+.field label{font-size:11px;font-weight:700;color:var(--ink4);}
+.input{width:100%;padding:11px 12px;border:1.5px solid var(--paper3);border-radius:10px;font-size:13px;color:var(--ink2);background:var(--paper2);}
+.select{appearance:none;cursor:pointer;}
+.btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--primary),var(--success));color:white;border:none;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer;box-shadow:0 10px 24px rgba(124,58,237,.16);}
+.btn-ghost{display:inline-flex;align-items:center;justify-content:center;padding:11px 14px;border-radius:10px;border:1.5px solid var(--paper3);background:var(--paper2);color:var(--ink2);font-weight:700;}
+.pills{display:flex;flex-wrap:wrap;gap:6px;}
+.pill{font-size:11px;font-weight:700;padding:6px 10px;border-radius:999px;background:var(--paper2);border:1px solid var(--paper3);color:var(--ink3);}
+.status.ok{background:#E7F9F1;color:#047857;border:1px solid rgba(16,185,129,.3);} 
+.status.warn{background:#FFF3E5;color:#C05621;border:1px solid rgba(249,115,22,.35);} 
+.status.err{background:#FFE8EC;color:#C53030;border:1px solid rgba(244,63,94,.35);} 
+.table{width:100%;border-collapse:collapse;}
+.table th,.table td{padding:9px 10px;border-bottom:1px solid var(--paper3);text-align:left;font-size:12px;color:var(--ink3);}
+.table th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);}
+.mobile-row{display:flex;gap:12px;flex-wrap:wrap;}
+.mobile{width:280px;border-radius:26px;background:white;border:1.5px solid var(--paper3);box-shadow:var(--shadow);overflow:hidden;}
+.m-bar{height:12px;background:var(--paper2);} .m-body{padding:16px;display:grid;gap:10px;}
+.m-title{font-family:'Syne',sans-serif;font-size:17px;color:var(--ink2);} .m-text{font-size:12px;color:var(--ink3);}
+.badge{font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;background:rgba(124,58,237,.16);color:var(--ink2);}
+.hero-cover{display:grid;gap:12px;padding:40px 28px;border-radius:20px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(16,185,129,.10));border:1.5px solid rgba(124,58,237,.25);}
+.token-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;}
+.token{border:1px solid var(--paper3);border-radius:12px;padding:10px;display:grid;gap:6px;background:white;}
+.token .swatch{width:100%;height:32px;border-radius:9px;}
+.small{font-size:11px;color:var(--ink4);}
+.divider{height:1px;background:var(--paper3);}
+.stack{display:grid;gap:14px;width:100%;}
+
+/* ===== NOTES (outside the screen) ===== */
+.notes{border:1.5px dashed var(--paper3);border-radius:14px;background:var(--paper2);padding:12px;display:grid;gap:8px;}
+.notes-title{font-family:'Syne',sans-serif;font-size:16px;color:var(--ink2);}
+.notes-list{margin:0;padding-left:16px;display:grid;gap:6px;font-size:12px;color:var(--ink3);}
+.notes-list b{color:var(--ink2);}
+
+/* ===== AUTH (no sidebar) ===== */
+.auth-shell{min-height:620px;border:1.5px solid var(--paper3);border-radius:16px;overflow:hidden;background:var(--paper);}
+.auth-topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:rgba(255,255,255,.8);border-bottom:1.5px solid var(--paper3);backdrop-filter:blur(6px);}
+.auth-brand{display:flex;align-items:center;gap:10px;font-weight:900;color:var(--ink2);letter-spacing:-.01em;}
+.auth-logo{width:26px;height:26px;object-fit:contain;}
+.auth-brand small{display:block;font-size:10px;font-weight:700;color:var(--ink4);letter-spacing:.08em;text-transform:uppercase;}
+.auth-link{font-size:12px;font-weight:800;color:var(--info);text-decoration:none;}
+.auth-grid{display:grid;grid-template-columns:1.08fr 0.92fr;gap:14px;padding:18px;}
+.auth-center{display:grid;place-items:center;padding:24px;}
+.auth-panel{width:min(460px,100%);border:1.5px solid var(--paper3);border-radius:18px;background:white;box-shadow:var(--shadow);padding:18px;display:grid;gap:10px;}
+.auth-panel h2{font-family:'Syne',sans-serif;font-size:24px;color:var(--ink2);letter-spacing:-.01em;}
+.auth-panel .muted{font-size:13px;color:var(--ink3);}
+.auth-panel .link-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;}
+.auth-hero{
+  border:1.5px solid rgba(124,58,237,.22);
+  border-radius:18px;
+  padding:18px;
+  background:
+    radial-gradient(ellipse 60% 55% at 20% 25%,rgba(124,58,237,.16),transparent 60%),
+    radial-gradient(ellipse 55% 45% at 80% 80%,rgba(16,185,129,.12),transparent 60%),
+    linear-gradient(135deg,#FFFFFF 0%,var(--paper2) 100%);
+  display:grid;
+  gap:10px;
+  align-content:start;
+  min-height:420px;
+}
+.auth-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  width:fit-content;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(124,58,237,.25);
+  background:rgba(124,58,237,.10);
+  color:var(--ink2);
+  font-size:11px;
+  font-weight:800;
+}
+.auth-hero h1{font-family:'Syne',sans-serif;font-size:34px;line-height:1.05;letter-spacing:-.02em;color:var(--ink2);}
+.auth-hero p{color:var(--ink3);font-size:14px;max-width:52ch;}
+.auth-bullets{margin:4px 0 0;padding-left:16px;color:var(--ink3);font-size:13px;display:grid;gap:6px;}
+.auth-stats{margin-top:8px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.auth-stat{border:1px solid var(--paper3);border-radius:14px;background:white;padding:10px;display:grid;gap:3px;}
+.auth-stat b{font-size:14px;color:var(--ink2);}
+.auth-stat span{font-size:11px;color:var(--ink4);}
+.auth-card{
+  border:1.5px solid var(--paper3);
+  border-radius:18px;
+  background:white;
+  box-shadow:var(--shadow);
+  padding:18px;
+  display:grid;
+  gap:10px;
+  align-content:start;
+}
+.auth-card h2{font-family:'Syne',sans-serif;font-size:24px;color:var(--ink2);letter-spacing:-.01em;}
+.auth-card .muted{font-size:13px;color:var(--ink3);}
+.auth-step{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--ink3);margin-top:2px;}
+.auth-step b{color:var(--ink2);}
+.auth-progress{height:6px;background:var(--paper3);border-radius:999px;overflow:hidden;}
+.auth-progress span{display:block;height:100%;width:33%;background:linear-gradient(135deg,var(--primary),var(--success));}
+.auth-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--ink3);}
+.auth-check{display:flex;align-items:center;gap:8px;}
+.auth-check input{accent-color:var(--primary);width:14px;height:14px;}
+.auth-actions{display:grid;gap:10px;margin-top:6px;}
+.auth-divider{display:flex;align-items:center;gap:10px;color:var(--ink4);font-size:11px;}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--paper3);}
+.auth-legal{font-size:11px;color:var(--ink4);}
+
+.input:focus,.ui-input:focus,.ui-select:focus{outline:none;border-color:rgba(124,58,237,.55);box-shadow:0 0 0 3px rgba(124,58,237,.12);background:white;}
+
+@media (max-width: 980px){
+  .auth-grid{grid-template-columns:1fr;}
+  .auth-hero{min-height:auto;}
+}
+
+/* ===== HI-FI UI PREVIEWS (desktop + mobile) ===== */
+.ui-shell{display:grid;grid-template-columns:230px 1fr;min-height:540px;background:var(--paper);border:1px solid var(--paper3);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
+.ui-side{background:var(--paper2);border-right:1.5px solid var(--paper3);padding:14px;display:grid;gap:10px;}
+.ui-side .brand{display:flex;align-items:center;gap:9px;font-weight:800;color:var(--ink2);}
+.ui-side .brand-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--primary-2));display:grid;place-items:center;color:white;font-weight:800;}
+.ui-side .nav-title{font-size:10px;font-weight:700;color:var(--ink4);letter-spacing:.08em;text-transform:uppercase;margin-top:6px;}
+.ui-side .nav{display:grid;gap:6px;}
+.ui-side .nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;font-size:12px;color:var(--ink3);background:white;border:1px solid var(--paper3);}
+.ui-side .nav-item.active{border-color:rgba(124,58,237,.45);color:var(--primary);box-shadow:0 6px 18px rgba(124,58,237,.12);}
+.ui-main{padding:16px 18px;display:grid;gap:12px;background:white;}
+.ui-top{display:flex;justify-content:space-between;align-items:center;}
+.ui-top .path{font-size:11px;color:var(--ink4);}
+.ui-top .actions{display:flex;gap:6px;}
+.ui-top .btn{padding:8px 12px;border-radius:9px;border:1.5px solid var(--paper3);background:var(--paper2);font-size:11px;font-weight:700;color:var(--ink3);}
+.ui-top .btn.primary{background:linear-gradient(135deg,var(--primary),var(--success));border:none;color:white;box-shadow:0 10px 24px rgba(124,58,237,.16);}
+.ui-grid{display:grid;grid-template-columns:1fr 0.95fr;gap:10px;}
+.ui-card{border:1.5px solid var(--paper3);border-radius:12px;background:var(--paper2);padding:12px;display:grid;gap:10px;}
+.ui-card.white{background:white;}
+.ui-field{display:grid;gap:4px;}
+.ui-field label{font-size:11px;font-weight:700;color:var(--ink4);}
+.ui-input, .ui-select{width:100%;height:36px;border:1.5px solid var(--paper3);border-radius:10px;background:var(--paper2);padding:0 10px;font-size:12px;color:var(--ink3);font-family:'DM Sans',sans-serif;}
+.ui-select{appearance:none;cursor:pointer;}
+.ui-checkbox{accent-color:var(--primary);width:14px;height:14px;}
+.ui-pill-row{display:flex;flex-wrap:wrap;gap:6px;}
+.ui-pill{font-size:11px;font-weight:700;padding:6px 9px;border-radius:999px;border:1px solid var(--paper3);background:var(--paper2);color:var(--ink3);}
+.ui-alert{padding:10px;border-radius:10px;font-size:12px;font-weight:700;}
+.ui-alert.ok{background:#E7F9F1;color:#047857;border:1px solid rgba(16,185,129,.35);}
+.ui-alert.warn{background:#FFF3E5;color:#C05621;border:1px solid rgba(249,115,22,.35);}
+.ui-alert.err{background:#FFE8EC;color:#C53030;border:1px solid rgba(244,63,94,.35);}
+.ui-chart{height:140px;border:1.5px dashed var(--paper3);border-radius:12px;background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(16,185,129,.06));display:grid;place-items:center;color:var(--ink3);font-size:12px;}
+.ui-table{border:1px solid var(--paper3);border-radius:10px;overflow:hidden;}
+.ui-table table{width:100%;border-collapse:collapse;font-size:12px;color:var(--ink3);}
+.ui-table th,.ui-table td{padding:8px 10px;border-bottom:1px solid var(--paper3);text-align:left;}
+.ui-table th{background:var(--paper2);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink4);}
+.ui-mobile{width:320px;border-radius:24px;border:1.5px solid var(--paper3);box-shadow:var(--shadow);overflow:hidden;background:white;}
+.ui-mobile .m-bar{height:12px;background:var(--paper2);}
+.ui-mobile .m-body{padding:16px;display:grid;gap:10px;}
+.ui-mobile .m-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink4);}
+.ui-mobile .m-title{font-family:'Syne',sans-serif;font-size:18px;color:var(--ink2);}
+.ui-mobile .m-field{display:grid;gap:4px;}
+.ui-mobile .m-ctrl{height:34px;border:1.5px solid var(--paper3);border-radius:10px;background:var(--paper2);padding:0 10px;font-size:12px;color:var(--ink3);display:flex;align-items:center;}
+.ui-mobile .m-btn{height:36px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--primary),var(--success));color:white;font-weight:800;}
+</style>
+</head>
+<body>
+<main class="main">
+  <section class="section hero-cover">
+    <div class="label">BudgetApp · Feb 2026</div>
+    <h1 class="title">Pantallas finales de Autenticación y Registro de Gastos</h1>
+    <p class="sub">Cobertura completa de login, registro, recuperación, 2FA, sesión expirada, perfil y registro de gastos (web + mobile) con la paleta oficial derivada de Propuesta 6 + 7. Fuentes Syne (titulares) y DM Sans (UI).</p>
+    <div class="pills">
+      <span class="pill">UC-10..UC-19 Auth</span>
+      <span class="pill">UC-BP-06 Registro gasto</span>
+      <span class="pill">RN-RG-01..10</span>
+      <span class="pill">Accesibilidad AA</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Sistema visual</div>
+    <h2 class="title">Paleta oficial y uso</h2>
+    <div class="token-grid">
+      <div class="token"><div class="swatch" style="background:var(--primary);"></div><b>Primario</b><div class="small">#7C3AED</div><div class="small">Botones, énfasis</div></div>
+      <div class="token"><div class="swatch" style="background:var(--primary-2);"></div><b>Secundario</b><div class="small">#A78BFA</div><div class="small">Fondo de hero, badges</div></div>
+      <div class="token"><div class="swatch" style="background:var(--success);"></div><b>Éxito</b><div class="small">#10B981</div><div class="small">Estados OK, progresos</div></div>
+      <div class="token"><div class="swatch" style="background:var(--warning);"></div><b>Alerta</b><div class="small">#F97316</div><div class="small">Advertencias, CTA secundarios</div></div>
+      <div class="token"><div class="swatch" style="background:var(--error);"></div><b>Error</b><div class="small">#F43F5E</div><div class="small">Errores críticos</div></div>
+      <div class="token"><div class="swatch" style="background:var(--info);"></div><b>Info</b><div class="small">#2563EB</div><div class="small">Enlaces, soporte</div></div>
+      <div class="token"><div class="swatch" style="background:var(--paper);"></div><b>Surface 0</b><div class="small">#FDFBFF</div><div class="small">Background app</div></div>
+      <div class="token"><div class="swatch" style="background:var(--paper2);"></div><b>Surface 1</b><div class="small">#F3F4FF</div><div class="small">Panels, barras</div></div>
+      <div class="token"><div class="swatch" style="background:var(--paper3);"></div><b>Surface 2</b><div class="small">#E4E6F5</div><div class="small">Bordes, inputs</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <b>Tipografía</b>
+        <ul class="small" style="display:grid;gap:6px;list-style:disc;padding-left:16px;">
+          <li>Syne 600–800 para títulos y numerales.</li>
+          <li>DM Sans 400–700 para UI y cuerpo.</li>
+          <li>JetBrains Mono para URLs y tokens técnicos.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <b>Reglas rápidas</b>
+        <ul class="small" style="display:grid;gap:6px;list-style:disc;padding-left:16px;">
+          <li>Botones primarios: degradado Primario→Éxito, texto blanco.</li>
+          <li>Inputs: fondo Surface1, borde Surface2; foco borde Primario.</li>
+          <li>Alertas: OK (#E7F9F1), Warn (#FFF3E5), Error (#FFE8EC).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Componentes base</div>
+    <div class="grid-3">
+      <div class="card">
+        <b>Botones</b>
+        <div class="pills">
+          <span class="pill" style="background:linear-gradient(135deg,var(--primary),var(--success));color:white;border:none;">Primario</span>
+          <span class="pill" style="background:var(--paper2);color:var(--ink2);">Ghost</span>
+          <span class="pill" style="background:var(--warning);color:white;border:none;">Alerta</span>
+        </div>
+      </div>
+      <div class="card">
+        <b>Inputs</b>
+        <div class="field">
+          <label>Ejemplo</label>
+          <input class="input" placeholder="Valor" />
+        </div>
+      </div>
+      <div class="card">
+        <b>Chips y estados</b>
+        <div class="pills"><span class="pill">AA Ready</span><span class="pill" style="border-color:rgba(124,58,237,.4);color:var(--primary);">Focus</span><span class="pill" style="background:#E7F9F1;border-color:rgba(16,185,129,.35);color:#047857;">OK</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="auth-login-desktop">
+    <div class="label">Auth · Desktop</div>
+    <h2 class="title">Login</h2>
+    <div class="browser">
+      <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/login</div></div>
+      <div class="screen">
+        <div class="auth-shell">
+          <div class="auth-topbar">
+            <div class="auth-brand">
+              <img class="auth-logo" src="../assets/images/logo_9_transparent.png" alt="Logo 9">
+              <div>BudgetApp<small>Acceso seguro</small></div>
+            </div>
+            <a class="auth-link" href="#auth-registro-desktop">Crear cuenta</a>
+          </div>
+          <div class="auth-grid">
+            <div class="auth-hero">
+              <div class="auth-badge">Control + metas</div>
+              <h1>Vuelve a tu presupuesto en segundos</h1>
+              <p>Tu dashboard, tus alertas y tus reportes listos. Sesión segura para proteger tus datos.</p>
+              <ul class="auth-bullets">
+                <li>Acceso rápido y verificación por dispositivo.</li>
+                <li>Alertas cuando excedas presupuesto.</li>
+                <li>Importación y conciliación de movimientos.</li>
+              </ul>
+              <div class="auth-stats">
+                <div class="auth-stat"><b>AA</b><span>Contraste y foco</span></div>
+                <div class="auth-stat"><b>2FA</b><span>Código 6 dígitos</span></div>
+                <div class="auth-stat"><b>Sync</b><span>Estado de bancos</span></div>
+              </div>
+            </div>
+            <div class="auth-card">
+              <h2>Inicia sesión</h2>
+              <div class="muted">Ingresa tus credenciales o continúa con Google. Mantén la sesión corta para seguridad.</div>
+              <div class="field"><label>Correo</label><input class="input" placeholder="tu@email.com"></div>
+              <div class="field"><label>Contraseña</label><input class="input" type="password" placeholder="••••••••"></div>
+              <div class="auth-row">
+                <label class="auth-check"><input type="checkbox" checked> Recordarme</label>
+                <a class="auth-link" href="#auth-recuperar-desktop">¿Olvidaste tu contraseña?</a>
+              </div>
+              <div class="auth-actions">
+                <button class="btn-primary" style="width:100%;">Iniciar sesión</button>
+                <div class="auth-divider">o</div>
+                <button class="btn-ghost" style="width:100%;">Continuar con Google</button>
+              </div>
+              <div class="status ok">Última sync: Bancolombia · 10:32</div>
+              <div class="auth-legal">Al continuar aceptas términos y política de privacidad.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="notes-title">Notas</div>
+      <ul class="notes-list">
+        <li><b>Cobertura:</b> UC-10, RF-14.</li>
+        <li><b>Reglas:</b> bloqueo tras 5 intentos fallidos, revocación de sesiones desde perfil.</li>
+        <li><b>Accesibilidad:</b> labels visibles, foco marcado, contraste AA.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="auth-registro-desktop">
+    <div class="label">Auth · Desktop</div>
+    <h2 class="title">Registro</h2>
+    <div class="browser">
+      <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/registro</div></div>
+      <div class="screen">
+        <div class="auth-shell">
+          <div class="auth-topbar">
+            <div class="auth-brand">
+              <img class="auth-logo" src="../assets/images/logo_9_transparent.png" alt="Logo 9">
+              <div>BudgetApp<small>Crear cuenta</small></div>
+            </div>
+            <a class="auth-link" href="#auth-login-desktop">Ya tengo cuenta</a>
+          </div>
+          <div class="auth-grid">
+            <div class="auth-hero">
+              <div class="auth-badge">Paso 1 de 3</div>
+              <h1>En menos de 2 minutos creas tu primer presupuesto</h1>
+              <p>Capturamos lo mínimo: país para moneda/zona horaria y un perfil sugerido para alertas.</p>
+              <ul class="auth-bullets">
+                <li>Moneda y zona horaria por país.</li>
+                <li>Perfil sugerido editable en onboarding.</li>
+                <li>Validaciones en vivo de email y contraseña.</li>
+              </ul>
+              <div class="auth-stats">
+                <div class="auth-stat"><b>ES</b><span>Idioma por defecto</span></div>
+                <div class="auth-stat"><b>COP</b><span>Moneda inicial</span></div>
+                <div class="auth-stat"><b>Perfil</b><span>Sugerido</span></div>
+              </div>
+            </div>
+            <div class="auth-card">
+              <h2>Crea tu cuenta</h2>
+              <div class="auth-step"><span>Registro</span><b>Paso 1/3</b></div>
+              <div class="auth-progress"><span></span></div>
+              <div class="field"><label>Nombre completo</label><input class="input" placeholder="Tu nombre"></div>
+              <div class="field"><label>Correo</label><input class="input" placeholder="tu@email.com"></div>
+              <div class="field"><label>Contraseña</label><input class="input" type="password" placeholder="Mínimo 8 caracteres"></div>
+              <div class="pills"><span class="pill">8+ caracteres</span><span class="pill">Debe incluir número</span><span class="pill">Mayúscula opcional</span></div>
+              <div class="field"><label>País / Moneda</label><select class="input select"><option>Colombia (COP)</option><option>México (MXN)</option><option>Brasil (BRL)</option></select></div>
+              <div class="field"><label>Perfil sugerido</label><select class="input select"><option>Tilbury 1% (ahorro/inversión)</option><option>Starter control de gastos</option></select></div>
+              <div class="auth-row">
+                <label class="auth-check"><input type="checkbox" checked> Acepto términos</label>
+                <span style="font-size:11px;color:var(--ink4);">Marketing opcional</span>
+              </div>
+              <button class="btn-primary" style="width:100%;">Crear cuenta</button>
+              <div class="auth-legal">Enviamos email de verificación. Puedes conectar banco después.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="notes-title">Notas</div>
+      <ul class="notes-list">
+        <li><b>Cobertura:</b> UC-11, RF-14, RF-13.</li>
+        <li><b>Datos mínimos:</b> país, moneda, zona horaria, perfil sugerido.</li>
+        <li><b>Estados:</b> botón deshabilitado hasta aceptar términos y validar campos.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="auth-recuperar-desktop">
+    <div class="label">Auth · Desktop</div>
+    <h2 class="title">Recuperación de contraseña</h2>
+    <div class="browser">
+      <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/recuperar</div></div>
+      <div class="screen">
+        <div class="auth-shell">
+          <div class="auth-topbar">
+            <div class="auth-brand">
+              <img class="auth-logo" src="../assets/images/logo_9_transparent.png" alt="Logo 9">
+              <div>BudgetApp<small>Recuperación</small></div>
+            </div>
+            <a class="auth-link" href="#auth-login-desktop">Volver al login</a>
+          </div>
+          <div class="auth-center">
+            <div class="auth-panel">
+              <h2>Recupera tu acceso</h2>
+              <div class="muted">Te enviamos un enlace y un código alterno válido por 15 minutos.</div>
+              <div class="field"><label>Correo</label><input class="input" placeholder="tu@email.com"></div>
+              <button class="btn-primary" style="width:100%;">Enviar enlace</button>
+              <div class="status warn">Si no reconoces el correo, reporta un incidente de seguridad.</div>
+              <div class="link-row">
+                <a class="auth-link" href="#auth-login-desktop">Iniciar sesión</a>
+                <a class="auth-link" href="#soporte">Soporte</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="notes-title">Notas</div>
+      <ul class="notes-list">
+        <li><b>Cobertura:</b> UC-12, RF-14.</li>
+        <li><b>Reglas:</b> enlace con expiración 15 min, rate limit por IP/email, auditoría de intentos.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="auth-2fa-desktop">
+    <div class="label">Auth · Desktop</div>
+    <h2 class="title">2FA</h2>
+    <div class="browser">
+      <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/2fa</div></div>
+      <div class="screen">
+        <div class="auth-shell">
+          <div class="auth-topbar">
+            <div class="auth-brand">
+              <img class="auth-logo" src="../assets/images/logo_9_transparent.png" alt="Logo 9">
+              <div>BudgetApp<small>Verificación</small></div>
+            </div>
+            <a class="auth-link" href="#auth-login-desktop">Cancelar</a>
+          </div>
+          <div class="auth-center">
+            <div class="auth-panel">
+              <h2>Verifica tu identidad</h2>
+              <div class="muted">Ingresa el código de 6 dígitos. Puedes reenviar o usar un código alterno.</div>
+              <div class="field"><label>Código</label><input class="input" placeholder="123 456"></div>
+              <div class="pills"><span class="pill">Reenviar (30s)</span><span class="pill">Usar backup</span></div>
+              <button class="btn-primary" style="width:100%;">Validar</button>
+              <div class="status ok">Dispositivo reconocido. Continuarás al dashboard.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="notes-title">Notas</div>
+      <ul class="notes-list">
+        <li><b>Cobertura:</b> UC-13, RF-14.</li>
+        <li><b>Reglas:</b> reintentos limitados, fallback por código alterno, expiración de códigos.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="auth-session-expired-desktop">
+    <div class="label">Auth · Desktop</div>
+    <h2 class="title">Sesión expirada (401)</h2>
+    <div class="browser">
+      <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/session/expired</div></div>
+      <div class="screen">
+        <div class="auth-shell">
+          <div class="auth-topbar">
+            <div class="auth-brand">
+              <img class="auth-logo" src="../assets/images/logo_9_transparent.png" alt="Logo 9">
+              <div>BudgetApp<small>Seguridad</small></div>
+            </div>
+            <a class="auth-link" href="#auth-login-desktop">Iniciar sesión</a>
+          </div>
+          <div class="auth-center">
+            <div class="auth-panel">
+              <h2>Tu sesión expiró</h2>
+              <div class="muted">Por seguridad cerramos tu sesión. Guardamos cambios recientes para que continúes.</div>
+              <div class="pills"><span class="pill">Reintentar</span><span class="pill">Ver dispositivos</span></div>
+              <div style="display:grid;gap:10px;">
+                <button class="btn-primary" style="width:100%;">Iniciar sesión</button>
+                <button class="btn-ghost" style="width:100%;">Cerrar sesiones en otros dispositivos</button>
+              </div>
+              <div class="status warn">Si ves actividad sospechosa, cambia tu contraseña.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div class="notes-title">Notas</div>
+      <ul class="notes-list">
+        <li><b>Cobertura:</b> Estado 401, RF-14.</li>
+        <li><b>Reglas:</b> persistir borrador local, revalidar token y reintentar última acción.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Cuenta y perfil</div>
+    <h2 class="title">Perfil, seguridad y bancos</h2>
+    <div class="browser">
+      <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/perfil</div></div>
+      <div class="screen" style="grid-template-columns:280px 1fr 0.9fr;gap:12px;align-items:start;">
+        <div class="card" style="background:var(--paper2);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--success));color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;">AC</div>
+            <div>
+              <div style="font-weight:800;color:var(--ink2);">Alex Castaño</div>
+              <div style="font-size:12px;color:var(--ink4);">alex@budgetapp.co</div>
+            </div>
+          </div>
+          <div class="pills" style="margin-top:10px;"><span class="pill">Plan Starter</span><span class="pill" style="border-color:rgba(124,58,237,.4);color:var(--primary);">Tema claro</span></div>
+          <button class="btn-primary" style="width:100%;">Actualizar foto</button>
+          <button class="btn-ghost" style="width:100%;">Cerrar sesión en todos</button>
+        </div>
+        <div class="card" style="display:grid;gap:10px;">
+          <div class="h1" style="font-size:18px;">Seguridad</div>
+          <div class="pills"><span class="pill">Contraseña OK</span><span class="pill">Sesiones activas: 2</span><span class="pill">MFA activo</span></div>
+          <div class="status ok">Alertas de inicio de sesión activas</div>
+          <div class="status warn">Biometría móvil pendiente</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-primary">Resetear contraseña</button>
+            <button class="btn-ghost">Revocar sesiones</button>
+          </div>
+          <div class="h1" style="font-size:18px;">Preferencias</div>
+          <div class="grid-2" style="gap:8px;">
+            <div class="status" style="background:var(--paper2);border:1.5px solid var(--paper3);">Tema: Claro · seguir sistema</div>
+            <div class="status" style="background:var(--paper2);border:1.5px solid var(--paper3);">Idioma: ES · EN disponible</div>
+          </div>
+        </div>
+        <div class="card" style="display:grid;gap:10px;">
+          <div class="h1" style="font-size:18px;">Bancos conectados</div>
+          <div class="status" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Bancolombia · sync cada 6h</span><span class="pill">Activo</span>
+          </div>
+          <div class="status" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Davivienda · sync manual</span><span class="pill" style="background:#FFF3E5;border-color:rgba(249,115,22,.35);color:#C05621;">Pendiente</span>
+          </div>
+          <button class="btn-primary">Agregar banco</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Registro de gasto (web)</div>
+    <h2 class="title">Formulario completo con categorías y aristas</h2>
+    <div class="browser">
+      <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/registro</div></div>
+      <div class="screen" style="gap:12px;">
+        <div class="ui-shell">
+          <div class="ui-side">
+            <div class="brand"><div class="brand-mark">B</div>BudgetApp</div>
+            <div class="nav-title">Registro</div>
+            <div class="nav">
+              <div class="nav-item active">Gasto</div>
+              <div class="nav-item">Ingreso</div>
+              <div class="nav-item">Transferencia</div>
+            </div>
+            <div class="nav-title">Catálogos</div>
+            <div class="nav">
+              <div class="nav-item">Categorías</div>
+              <div class="nav-item">Aristas</div>
+              <div class="nav-item">Bancos</div>
+            </div>
+          </div>
+          <div class="ui-main">
+            <div class="ui-top">
+              <div class="path">Registro / Gasto</div>
+              <div class="actions"><div class="btn">Borrador</div><div class="btn primary">Guardar</div></div>
+            </div>
+              <div class="ui-grid">
+                <div class="ui-card white">
+                  <div class="badge">UC-BP-06</div>
+                  <div class="h1">Registrar gasto</div>
+                <div class="ui-field"><label>Monto</label><input class="ui-input" value="$ 180.000" /></div>
+                <div class="ui-grid" style="grid-template-columns:1fr 1fr;gap:10px;">
+                  <div class="ui-field"><label>Fecha</label><input class="ui-input" value="2026-02-25" /></div>
+                  <div class="ui-field"><label>Método</label><select class="ui-select"><option>Débito</option><option>Crédito</option><option>Efectivo</option></select></div>
+                </div>
+                <div class="ui-grid" style="grid-template-columns:1fr 1fr;gap:10px;">
+                  <div class="ui-field"><label>Categoría / Subcategoría</label><select class="ui-select"><option>Gastos · Alimentación</option><option>Gastos · Transporte</option><option>Ahorro · Fondo emergencia</option></select></div>
+                  <div class="ui-field"><label>Arista</label><select class="ui-select"><option>Domicilios</option><option>Gasolina</option><option>Suscripciones</option></select></div>
+                </div>
+                <div class="ui-grid" style="grid-template-columns:1fr 1fr;gap:10px;">
+                  <div class="ui-field"><label>Banco / Tarjeta</label><select class="ui-select"><option>Bancolombia</option><option>Davivienda</option><option>Tarjeta XYZ</option></select></div>
+                  <div class="ui-field"><label>Moneda</label><select class="ui-select"><option>COP</option><option>USD</option><option>MXN</option></select></div>
+                </div>
+                <div class="ui-field"><label>Etiquetas</label><input class="ui-input" value="transporte, gasolina" /></div>
+                <div class="ui-pill-row"><span class="ui-pill">RN-RG-01 Duplicados</span><span class="ui-pill">RN-RG-03 Aristas</span><span class="ui-pill">RN-RG-08 Catálogos</span></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <div class="btn primary" style="flex:1;justify-content:center;">Guardar gasto</div>
+                  <div class="btn" style="flex:1;justify-content:center;">Guardar y registrar otro</div>
+                </div>
+                <div class="ui-alert ok">Sync en dashboard y móvil en &lt; 5s.</div>
+              </div>
+              <div class="ui-card">
+                <b>Reglas y validaciones</b>
+                <ul class="small" style="display:grid;gap:6px;list-style:disc;padding-left:16px;">
+                  <li>Evita duplicados por monto+fecha+categoría.</li>
+                  <li>Arista obligatoria cuando la subcategoría lo defina.</li>
+                  <li>Moneda sincronizada con country_config o seleccionable.</li>
+                  <li>Etiquetas reutilizables para filtros de dashboard.</li>
+                  <li>Campos requeridos: monto, fecha, categoría, método.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-row">
+          <div class="ui-mobile">
+            <div class="m-bar"></div>
+            <div class="m-body">
+              <div class="m-head"><span class="badge">Gasto</span><span style="font-size:11px;color:var(--ink4);">Offline ready</span></div>
+              <div class="m-title">Registrar gasto</div>
+              <div class="m-field"><div class="m-ctrl">$ 180.000</div></div>
+              <div class="m-field"><div class="m-ctrl">Alimentación</div></div>
+              <div class="m-field"><div class="m-ctrl">Domicilios</div></div>
+              <div class="m-field"><div class="m-ctrl">Débito · COP</div></div>
+              <button class="m-btn">Guardar</button>
+              <div class="ui-pill-row"><span class="ui-pill">Tags</span><span class="ui-pill">Arista obligatoria</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Catálogos</div>
+    <h2 class="title">Categorías, subcategorías y aristas</h2>
+    <div class="grid-2">
+      <div class="card">
+        <b>Tabla de categorías</b>
+        <table class="table">
+          <thead><tr><th>Categoría</th><th>Subcategoría</th><th>Arista</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td>Gastos</td><td>Alimentación</td><td>Domicilios</td><td><span class="pill" style="color:#047857;border-color:rgba(16,185,129,.35);">Activa</span></td></tr>
+            <tr><td>Gastos</td><td>Transporte</td><td>Gasolina</td><td><span class="pill" style="background:#FFF3E5;border-color:rgba(249,115,22,.35);color:#C05621;">Pendiente</span></td></tr>
+            <tr><td>Ahorro</td><td>Ahorros</td><td>Fondo emergencia</td><td><span class="pill">Activa</span></td></tr>
+          </tbody>
+        </table>
+        <div class="pills"><span class="pill">US-BP-05</span><span class="pill">RN-BP-03</span><span class="pill">RN-RG-03</span></div>
+      </div>
+      <div class="card" style="background:var(--paper2);">
+        <b>Acciones rápidas</b>
+        <div class="pills"><span class="pill" style="background:var(--primary);color:white;border:none;">Nueva categoría</span><span class="pill" style="background:var(--primary-2);color:white;border:none;">Agregar arista</span><span class="pill" style="background:var(--success);color:white;border:none;">Publicar</span></div>
+        <div class="status warn" style="margin-top:10px;">Advertencia: Subcategoría con transacciones históricas.</div>
+        <div class="status ok" style="margin-top:6px;">Cambios aplican en móvil y dashboard.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Mobile</div>
+    <h2 class="title">Login, registro y gasto (mobile)</h2>
+    <div class="stack">
+      <div class="mobile">
+        <div class="m-bar"></div>
+        <div class="m-body">
+          <div class="badge">Login</div>
+          <div class="m-title">Entra y sigue</div>
+          <input class="input" placeholder="Correo">
+          <input class="input" type="password" placeholder="Contraseña">
+          <button class="btn-primary" style="width:100%;">Entrar</button>
+          <div class="pills"><span class="pill">Face ID</span><span class="pill">Recuperar</span></div>
+        </div>
+      </div>
+      <div class="mobile">
+        <div class="m-bar"></div>
+        <div class="m-body">
+          <div class="badge">Registro</div>
+          <div class="m-title">En menos de 2 min</div>
+          <input class="input" placeholder="Correo">
+          <input class="input" placeholder="Contraseña" type="password">
+          <select class="input select"><option>COP</option><option>USD</option></select>
+          <button class="btn-primary" style="width:100%;">Crear cuenta</button>
+        </div>
+      </div>
+      <div class="mobile">
+        <div class="m-bar"></div>
+        <div class="m-body">
+          <div class="badge">Gasto</div>
+          <div class="m-title">Registrar gasto</div>
+          <input class="input" placeholder="$ 180.000">
+          <select class="input select"><option>Alimentación</option><option>Transporte</option></select>
+          <select class="input select"><option>Domicilios</option><option>Gasolina</option></select>
+          <button class="btn-primary" style="width:100%;">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Errores y estados</div>
+    <div class="stack">
+      <div class="card" style="background:var(--paper2);">
+        <div class="badge">404</div>
+        <div class="title" style="font-size:24px;">No pudimos encontrar la página</div>
+        <div class="p">CTA: volver al inicio o login.</div>
+        <button class="btn-ghost">Volver al dashboard</button>
+      </div>
+      <div class="card" style="background:var(--paper2);">
+        <div class="badge" style="background:rgba(249,115,22,.18);">500</div>
+        <div class="title" style="font-size:24px;">Algo salió mal</div>
+        <div class="p">Reintenta o revisa estatus del sistema.</div>
+        <button class="btn-primary">Reintentar</button>
+      </div>
+      <div class="card" style="background:var(--paper2);">
+        <div class="badge" style="background:rgba(37,99,235,.18);">503</div>
+        <div class="title" style="font-size:24px;">Mantenimiento</div>
+        <div class="p">Estimamos volver en 15 minutos. Guardamos tus datos.</div>
+        <button class="btn-ghost">Volver</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Cobertura de casos</div>
+    <table class="table">
+      <thead><tr><th>Módulo</th><th>Cobertura</th><th>Referencia</th></tr></thead>
+      <tbody>
+        <tr><td>Login</td><td>UC-10, RF-14, WCAG AA</td><td>Sección Auth Web</td></tr>
+        <tr><td>Registro</td><td>UC-11, perfil sugerido, país/divisa</td><td>Sección Auth Web</td></tr>
+        <tr><td>Recuperación / 2FA</td><td>UC-12, UC-13, códigos backup</td><td>Recuperación y 2FA</td></tr>
+        <tr><td>Sesión expirada</td><td>401, revocar dispositivos</td><td>Recuperación y 2FA</td></tr>
+        <tr><td>Perfil</td><td>UC-18, bancos, seguridad</td><td>Cuenta y perfil</td></tr>
+        <tr><td>Registro de gasto</td><td>UC-BP-06, RN-RG-01..10</td><td>Registro de gasto</td></tr>
+        <tr><td>Catálogos</td><td>US-BP-05, RN-BP-03/04</td><td>Catálogos</td></tr>
+        <tr><td>Errores</td><td>404 / 500 / 503</td><td>Errores y estados</td></tr>
+      </tbody>
+    </table>
+    <div class="status ok">Documento listo para implementación: pantallas web + mobile con paleta oficial y fuentes finales.</div>
+  </section>
+
+  <section class="section">
+    <div class="label">Marca</div>
+    <h2 class="title">Manual rápido de marca y tipografía</h2>
+    <div class="grid-2">
+      <div class="card">
+        <b>Logos</b>
+        <div class="p">Logo oficial: <code>logo_9_transparent.png</code>. Alterno: <code>logo_4_transparent.png</code> (solo material comercial).</div>
+        <table class="table">
+          <thead><tr><th>Uso</th><th>Archivo</th><th>Tamaño</th></tr></thead>
+          <tbody>
+            <tr><td>App header</td><td>/assets/images/logo_9_transparent.png</td><td>34×34 px</td></tr>
+            <tr><td>Favicon</td><td>/assets/images/logo_9_transparent.png</td><td>32×32 px</td></tr>
+            <tr><td>Docs UX/UI</td><td>documentation/assets/images/logo_9_transparent.png</td><td>64–86 px</td></tr>
+          </tbody>
+        </table>
+        <div class="pills"><span class="pill">Área segura 25%</span><span class="pill">Fondo claro</span><span class="pill">No deformar</span></div>
+      </div>
+      <div class="card">
+        <b>Tipografía</b>
+        <ul class="small" style="display:grid;gap:6px;list-style:disc;padding-left:16px;">
+          <li>Syne 700–800 para títulos (H1-H3) y cifras clave.</li>
+          <li>DM Sans 400–700 para textos, inputs, botones.</li>
+          <li>JetBrains Mono para URLs, códigos y tokens técnicos.</li>
+          <li>Interlineado 1.5, tracking -0.01em en titulares.</li>
+        </ul>
+        <div class="pills"><span class="pill">AA</span><span class="pill">Case sentence</span><span class="pill">No all caps en cuerpo</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Producto web</div>
+    <h2 class="title">Dashboard, presupuesto y reportes</h2>
+    <div class="stack">
+      <div class="browser">
+        <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/dashboard</div></div>
+        <div class="screen">
+          <div class="ui-shell">
+            <div class="ui-side">
+              <div class="brand"><div class="brand-mark">B</div>BudgetApp</div>
+              <div class="nav-title">Dashboard</div>
+              <div class="nav"><div class="nav-item active">Presupuesto</div><div class="nav-item">Movimientos</div><div class="nav-item">Reportes</div></div>
+              <div class="nav-title">Acciones</div>
+              <div class="nav"><div class="nav-item">Registrar gasto</div><div class="nav-item">Importar</div></div>
+            </div>
+            <div class="ui-main">
+              <div class="ui-top">
+                <div class="path">Dashboard · Feb 2026</div>
+                <div class="actions"><div class="btn">Exportar</div><div class="btn primary">Nuevo gasto</div></div>
+              </div>
+              <div class="ui-grid">
+                <div class="ui-card white" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;">
+                  <div class="ui-card white" style="border:1px solid var(--paper3);">
+                    <b>Disponible</b><div style="font-size:24px;font-weight:800;color:var(--primary);">$ 3.450.000</div><div class="p">+6% vs mes anterior</div>
+                  </div>
+                  <div class="ui-card white" style="border:1px solid var(--paper3);">
+                    <b>Ahorro</b><div style="font-size:24px;font-weight:800;color:var(--success);">$ 850.000</div><div class="p">Meta 1.000.000</div>
+                  </div>
+                  <div class="ui-card white" style="border:1px solid var(--paper3);">
+                    <b>Gasto crítico</b><div style="font-size:24px;font-weight:800;color:var(--warning);">+18%</div><div class="p">Transporte</div>
+                  </div>
+                  <div class="ui-card white" style="border:1px solid var(--paper3);">
+                    <b>Deuda</b><div style="font-size:24px;font-weight:800;color:var(--error);">$ 1.200.000</div><div class="p">Próximo pago 02/28</div>
+                  </div>
+                </div>
+                <div class="ui-card">
+                  <b>Presupuesto vs Real</b>
+                  <div class="ui-chart">Barras agrupadas (Primario = plan, Warning = real)</div>
+                </div>
+              </div>
+              <div class="ui-card white">
+                <b>Movimientos recientes</b>
+                <div class="ui-table">
+                  <table>
+                    <thead><tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th>Monto</th></tr></thead>
+                    <tbody>
+                      <tr><td>25 Feb</td><td>Domicilio</td><td>Gastos · Alimentación</td><td style="color:var(--error);">- $42.000</td></tr>
+                      <tr><td>25 Feb</td><td>Luz</td><td>Servicios</td><td style="color:var(--error);">- $120.000</td></tr>
+                      <tr><td>24 Feb</td><td>Nómina</td><td>Ingreso</td><td style="color:var(--success);">+ $3.500.000</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/presupuesto/nuevo</div></div>
+        <div class="screen">
+          <div class="ui-shell">
+            <div class="ui-side">
+              <div class="brand"><div class="brand-mark">B</div>BudgetApp</div>
+              <div class="nav-title">Wizard</div>
+              <div class="nav"><div class="nav-item active">Paso 1</div><div class="nav-item">Paso 2</div><div class="nav-item">Paso 3</div><div class="nav-item">Resumen</div></div>
+            </div>
+            <div class="ui-main">
+              <div class="ui-top">
+                <div class="path">Presupuesto · Paso 3 de 5</div>
+                <div class="actions"><div class="btn">Anterior</div><div class="btn primary">Siguiente</div></div>
+              </div>
+              <div class="ui-grid">
+                <div class="ui-card white">
+                  <div class="badge">UC-01</div>
+                  <div class="h1">Asignar montos</div>
+                  <div class="ui-field"><label>Alimentación</label><input class="ui-input" value="$ 450.000" /></div>
+                  <div class="ui-field"><label>Transporte</label><input class="ui-input" value="$ 320.000" /></div>
+                  <div class="ui-field"><label>Ahorro meta</label><input class="ui-input" value="$ 700.000" /></div>
+                  <div class="ui-pill-row"><span class="ui-pill">Validación en vivo</span><span class="ui-pill">No exceder ingresos</span></div>
+                </div>
+                <div class="ui-card">
+                  <b>Simulador rápido</b>
+                  <div class="ui-chart">Impacto escenarios (OK/Warn/Error)</div>
+                  <div class="ui-alert warn">Ocio supera el 15% del presupuesto</div>
+                  <div class="ui-alert ok">Ahorro cumple 10% recomendado</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/reportes</div></div>
+        <div class="screen">
+          <div class="ui-shell">
+            <div class="ui-side">
+              <div class="brand"><div class="brand-mark">B</div>BudgetApp</div>
+              <div class="nav-title">Reportes</div>
+              <div class="nav"><div class="nav-item active">Mensual</div><div class="nav-item">Anual</div><div class="nav-item">Custom</div></div>
+            </div>
+            <div class="ui-main">
+              <div class="ui-top">
+                <div class="path">Reportes / Feb 2026</div>
+                <div class="actions"><div class="btn">CSV</div><div class="btn primary">Exportar XLS</div></div>
+              </div>
+              <div class="ui-grid">
+                <div class="ui-card white">
+                  <b>Gasto por categoría</b>
+                  <div class="ui-chart">Dona: Alimentación, Transporte, Servicios</div>
+                </div>
+                <div class="ui-card white">
+                  <b>Filtros aplicados</b>
+                  <div class="ui-pill-row"><span class="ui-pill">Tag: gasolina</span><span class="ui-pill">Banco: Bancolombia</span><span class="ui-pill">Arista: Domicilios</span></div>
+                  <div class="ui-table">
+                    <table>
+                      <thead><tr><th>Fecha</th><th>Cat</th><th>Tag</th><th>Monto</th></tr></thead>
+                      <tbody>
+                        <tr><td>12 Feb</td><td>Alimentación</td><td>domicilio</td><td style="color:var(--error);">- $42.000</td></tr>
+                        <tr><td>10 Feb</td><td>Transporte</td><td>gasolina</td><td style="color:var(--error);">- $160.000</td></tr>
+                        <tr><td>05 Feb</td><td>Ahorro</td><td>inversión</td><td style="color:var(--success);">+ $500.000</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Onboarding y simulador</div>
+    <h2 class="title">Onboarding, simulador de escenarios y cierre</h2>
+    <div class="stack">
+      <div class="browser">
+        <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/onboarding</div></div>
+        <div class="screen">
+          <div class="badge">RF-01</div>
+          <div class="h1">Onboarding 3 pasos</div>
+          <div class="p">Ingreso mensual, deudas, perfil sugerido y meta de ahorro. Barra de progreso con Primario y validaciones.</div>
+        </div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/simulador</div></div>
+        <div class="screen">
+          <div class="badge">RF-20</div>
+          <div class="h1">Simulador de escenarios</div>
+          <div class="p">Escenarios “Reducir ocio 10%”, “Aumentar ahorro 15%” con impacto en saldo. Estado OK/Warn/Error con paleta oficial.</div>
+        </div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/cierre</div></div>
+        <div class="screen">
+          <div class="badge">RN-BP-CI-02</div>
+          <div class="h1">Cierre e historial</div>
+          <div class="p">Bloqueo de periodo, resumen vs presupuesto, alertas de desvíos y exportación firmada. Registro de auditoría visible.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Importación</div>
+    <h2 class="title">Importar CSV/XLS con colores finales</h2>
+    <div class="browser">
+      <div class="browser-bar"><div class="dots"><div class="d d-r"></div><div class="d d-y"></div><div class="d d-g"></div></div><div class="url">app.budgetapp.co/importar</div></div>
+      <div class="screen" style="display:grid;gap:10px;">
+        <div class="badge">RF-07</div>
+        <div class="h1">Importación con validación</div>
+        <div class="p">Estado de filas: OK (verde), Warn (naranja), Error (rojo) usando la misma escala de estados del registro de gastos.</div>
+        <div class="pills"><span class="pill">Preview</span><span class="pill">Ignorar duplicados</span><span class="pill">Mapeo columnas</span></div>
+        <div class="status ok">50 filas válidas</div>
+        <div class="status warn">3 filas requieren revisión</div>
+        <div class="status err">1 fila rechazada</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Componentes clave</div>
+    <h2 class="title">Estados vacíos y skeleton</h2>
+    <div class="grid-2">
+      <div class="card">
+        <b>Estados vacíos</b>
+        <div class="p">Aplicar fondo Surface1, icono lineal y botón primario.</div>
+        <div class="pills"><span class="pill">Sin gastos</span><span class="pill">Sin bancos</span><span class="pill">Sin presets</span></div>
+      </div>
+      <div class="card">
+        <b>Skeleton</b>
+        <div class="p">Barras de carga en Surface2 con animación suave; no usar colores fuera de la paleta.</div>
+        <div class="pills"><span class="pill">Cards</span><span class="pill">Tabla</span><span class="pill">Mobile</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="label">Checklist final</div>
+    <div class="p">Todo lo que se implementará está cubierto con la paleta y tipografía finales:</div>
+    <div class="pills">
+      <span class="pill">Auth completo</span>
+      <span class="pill">Perfil + bancos</span>
+      <span class="pill">Registro de gasto</span>
+      <span class="pill">Catálogos</span>
+      <span class="pill">Onboarding</span>
+      <span class="pill">Simulador</span>
+      <span class="pill">Cierre</span>
+      <span class="pill">Reportes</span>
+      <span class="pill">Errores</span>
+      <span class="pill">Importación</span>
+      <span class="pill">Mobile</span>
+      <span class="pill">Manual de marca</span>
+    </div>
+  </section>
+</main>
+</body>
+</html>
