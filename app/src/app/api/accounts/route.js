@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
+
 import { createAccount, listAccounts } from "../../../lib/server/accounts-repository";
+import { getSessionUser } from "../../../lib/server/session-user";
 
 export async function GET() {
   try {
-    const data = await listAccounts();
+    const user = await getSessionUser();
+    if (!user?.id) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
+    const data = await listAccounts({ userId: user.id });
     return NextResponse.json({ data });
   } catch (error) {
     console.error("GET /api/accounts failed", error);
@@ -13,11 +20,17 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    const user = await getSessionUser();
+    if (!user?.id) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
     const body = await request.json();
     const accountName = (body?.accountName || "").trim();
     if (!accountName) return NextResponse.json({ error: "Nombre requerido" }, { status: 400 });
 
     const account = await createAccount({
+      userId: user.id,
       accountName,
       accountType: body.accountType || "checking",
       currency: body.currency || "COP",

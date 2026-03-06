@@ -5,12 +5,30 @@ import BudgetWizard from "../../components/budget-wizard";
 import DashboardSidebar from "../../components/dashboard-sidebar";
 import MobileMenuBackdrop from "../../components/mobile-menu-backdrop";
 import MobileMenuToggle from "../../components/mobile-menu-toggle";
+import { getFinancialRealitySnapshot } from "../../lib/server/financial-reality-repository";
 import { getSessionUser } from "../../lib/server/session-user";
 
 export default async function BudgetPage() {
   const user = await getSessionUser();
   if (!user) {
     redirect("/login?next=/presupuesto");
+  }
+
+  let financialReality = {
+    counts: { accounts: 0, debts: 0, recurringBills: 0, savingsGoals: 0 },
+    totals: { accountBalance: 0, debtPrincipal: 0, debtMonthly: 0, recurringBillsMonthly: 0, savingsMonthlyTarget: 0 },
+    missing: { accounts: true, debts: true, recurringBills: true, savingsGoals: true },
+    needsRealitySetup: true,
+    accounts: [],
+    debts: [],
+    recurringBills: [],
+    savingsGoals: [],
+  };
+
+  try {
+    financialReality = await getFinancialRealitySnapshot({ userId: user.id });
+  } catch (error) {
+    console.error("Unable to load financial reality snapshot", error);
   }
 
   const hasActiveBudget = false;
@@ -48,7 +66,7 @@ export default async function BudgetPage() {
           </section>
 
           <section className="budget-grid">
-            <BudgetWizard />
+            <BudgetWizard initialReality={financialReality} />
           </section>
 
           <section className="panel budget-table-panel">

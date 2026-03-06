@@ -5,24 +5,30 @@ import { useMemo, useState } from "react";
 const steps = [
   {
     id: 1,
+    label: "Realidad actual",
+    title: "Conoce tu realidad financiera",
+    subtitle: "Antes de presupuestar, registra cuentas, deudas, pagos fijos y metas si aun no existen.",
+  },
+  {
+    id: 2,
     label: "Periodo",
     title: "Periodo y nombre",
     subtitle: "Selecciona el mes y el anio del presupuesto.",
   },
   {
-    id: 2,
+    id: 3,
     label: "Perfil financiero",
     title: "Perfil financiero",
     subtitle: "Definimos limites y lineamientos base.",
   },
   {
-    id: 3,
+    id: 4,
     label: "Valores planificados",
     title: "Registra tus ingresos y valores planificados",
     subtitle: "Completa tus valores planificados para este mes.",
   },
   {
-    id: 4,
+    id: 5,
     label: "Revision",
     title: "Revision",
     subtitle: "Confirma el resumen final antes de activar.",
@@ -142,7 +148,157 @@ const initialPlanData = {
   ],
 };
 
-export default function BudgetWizard() {
+function toAmountString(value) {
+  const amount = Number(value || 0);
+  if (!Number.isFinite(amount)) return "0";
+  return String(Math.round(amount));
+}
+
+function createLocalRowId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
+
+function buildRealityCounts(initialReality = {}) {
+  const fromCounts = initialReality?.counts;
+  if (fromCounts) {
+    return {
+      accounts: Number(fromCounts.accounts || 0),
+      debts: Number(fromCounts.debts || 0),
+      recurringBills: Number(fromCounts.recurringBills || 0),
+      savingsGoals: Number(fromCounts.savingsGoals || 0),
+    };
+  }
+
+  return {
+    accounts: Array.isArray(initialReality?.accounts) ? initialReality.accounts.length : 0,
+    debts: Array.isArray(initialReality?.debts) ? initialReality.debts.length : 0,
+    recurringBills: Array.isArray(initialReality?.recurringBills) ? initialReality.recurringBills.length : 0,
+    savingsGoals: Array.isArray(initialReality?.savingsGoals) ? initialReality.savingsGoals.length : 0,
+  };
+}
+
+function buildPlanDataFromReality(initialReality = {}) {
+  const next = JSON.parse(JSON.stringify(initialPlanData));
+  const debts = Array.isArray(initialReality?.debts)
+    ? initialReality.debts.filter((item) => item?.status !== "closed")
+    : [];
+  const recurringBills = Array.isArray(initialReality?.recurringBills)
+    ? initialReality.recurringBills.filter((item) => item?.isActive !== false)
+    : [];
+  const savingsGoals = Array.isArray(initialReality?.savingsGoals)
+    ? initialReality.savingsGoals.filter((item) => item?.status !== "cancelled")
+    : [];
+
+  const debtSection = next.expenses.find((item) => item.id === "exp-5");
+  if (debtSection && debts.length > 0) {
+    debtSection.details = debts.map((item, index) => {
+      const minimum = Number(item.minimumPayment || 0);
+      const suggested = Number(item.suggestedMonthlyPayment || 0);
+      const amount = minimum > 0 ? minimum : suggested > 0 ? suggested : Number(item.principal || 0);
+      return {
+        id: `exp-5-det-auto-${index + 1}`,
+        name: item.debtName || `Deuda ${index + 1}`,
+        amount: toAmountString(amount),
+      };
+    });
+  }
+
+  if (recurringBills.length > 0) {
+    next.expenses.push({
+      id: "exp-6",
+      name: "Pagos recurrentes (Bills)",
+      amount: "0",
+      recommendation: "Importado desde tu realidad financiera.",
+      expanded: true,
+      details: recurringBills.map((item, index) => ({
+        id: `exp-6-det-auto-${index + 1}`,
+        name: item.billName || `Bill ${index + 1}`,
+        amount: toAmountString(item.amount),
+      })),
+    });
+  }
+
+  const savingsSection = next.savings[0];
+  if (savingsSection && savingsGoals.length > 0) {
+    savingsSection.details = savingsGoals.map((item, index) => {
+      const monthly = Number(item.monthlyTarget || 0);
+      const target = Number(item.targetAmount || 0);
+      const monthlyFallback = target > 0 ? target / 12 : 0;
+      return {
+        id: `sav-1-det-auto-${index + 1}`,
+        name: item.goalName || `Meta ${index + 1}`,
+        amount: toAmountString(monthly > 0 ? monthly : monthlyFallback),
+      };
+    });
+  }
+
+  return next;
+}
+
+function buildRealityForm(initialReality = {}) {
+  const toRows = (items, mapRow, fallback) =>
+    Array.isArray(items) && items.length > 0 ? items.map(mapRow) : [fallback];
+
+  return {
+    accounts: toRows(
+      initialReality.accounts,
+      (item) => ({
+        id: createLocalRowId("acc"),
+        accountName: item.accountName || "",
+        balance: toAmountString(item.balance),
+        currency: item.currency || "COP",
+      }),
+      { id: createLocalRowId("acc"), accountName: "", balance: "", currency: "COP" },
+    ),
+    debts: toRows(
+      initialReality.debts,
+      (item) => ({
+        id: createLocalRowId("debt"),
+        debtName: item.debtName || "",
+        principal: toAmountString(item.principal),
+        interestRateEa: item.interestRateEa === null || item.interestRateEa === undefined ? "" : String(item.interestRateEa),
+        minimumPayment: item.minimumPayment === null || item.minimumPayment === undefined ? "" : toAmountString(item.minimumPayment),
+        currency: item.currency || "COP",
+        debtType: item.debtType || "other",
+      }),
+      {
+        id: createLocalRowId("debt"),
+        debtName: "",
+        principal: "",
+        interestRateEa: "",
+        minimumPayment: "",
+        currency: "COP",
+        debtType: "other",
+      },
+    ),
+    recurringBills: toRows(
+      initialReality.recurringBills,
+      (item) => ({
+        id: createLocalRowId("bill"),
+        billName: item.billName || "",
+        amount: toAmountString(item.amount),
+        frequency: item.frequency || "monthly",
+        dueDay: item.dueDay === null || item.dueDay === undefined ? "" : String(item.dueDay),
+        currency: item.currency || "COP",
+      }),
+      { id: createLocalRowId("bill"), billName: "", amount: "", frequency: "monthly", dueDay: "", currency: "COP" },
+    ),
+    savingsGoals: toRows(
+      initialReality.savingsGoals,
+      (item) => ({
+        id: createLocalRowId("goal"),
+        goalName: item.goalName || "",
+        targetAmount: toAmountString(item.targetAmount),
+        monthlyTarget: item.monthlyTarget === null || item.monthlyTarget === undefined ? "" : toAmountString(item.monthlyTarget),
+        targetDate: item.targetDate || "",
+        currency: item.currency || "COP",
+      }),
+      { id: createLocalRowId("goal"), goalName: "", targetAmount: "", monthlyTarget: "", targetDate: "", currency: "COP" },
+    ),
+  };
+}
+
+export default function BudgetWizard({ initialReality = {} }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [profileId, setProfileId] = useState("tilbury");
   const [profileRows, setProfileRows] = useState(() =>
@@ -150,7 +306,14 @@ export default function BudgetWizard() {
   );
   const [incomeValue, setIncomeValue] = useState("0");
   const [planEdit, setPlanEdit] = useState(false);
-  const [planData, setPlanData] = useState(() => initialPlanData);
+  const [planData, setPlanData] = useState(() => buildPlanDataFromReality(initialReality));
+  const [realityCounts, setRealityCounts] = useState(() => buildRealityCounts(initialReality));
+  const [realityChoice, setRealityChoice] = useState(initialReality?.needsRealitySetup ? "" : "skip");
+  const [realitySaved, setRealitySaved] = useState(!initialReality?.needsRealitySetup);
+  const [realitySaving, setRealitySaving] = useState(false);
+  const [realityFeedback, setRealityFeedback] = useState(null);
+  const [realityForm, setRealityForm] = useState(() => buildRealityForm(initialReality));
+  const needsRealitySetup = Boolean(initialReality?.needsRealitySetup);
   const totalSteps = steps.length;
 
   const stepMeta = useMemo(() => steps.find((s) => s.id === currentStep) || steps[0], [currentStep]);
@@ -196,6 +359,164 @@ export default function BudgetWizard() {
 
   function createId(prefix) {
     return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  }
+
+  function updateRealityRow(section, rowId, field, value) {
+    setRealityForm((prev) => ({
+      ...prev,
+      [section]: prev[section].map((row) =>
+        row.id === rowId ? { ...row, [field]: value } : row,
+      ),
+    }));
+  }
+
+  function addRealityRow(section) {
+    const baseRows = {
+      accounts: { id: createLocalRowId("acc"), accountName: "", balance: "", currency: "COP" },
+      debts: {
+        id: createLocalRowId("debt"),
+        debtName: "",
+        principal: "",
+        interestRateEa: "",
+        minimumPayment: "",
+        currency: "COP",
+        debtType: "other",
+      },
+      recurringBills: { id: createLocalRowId("bill"), billName: "", amount: "", frequency: "monthly", dueDay: "", currency: "COP" },
+      savingsGoals: { id: createLocalRowId("goal"), goalName: "", targetAmount: "", monthlyTarget: "", targetDate: "", currency: "COP" },
+    };
+
+    setRealityForm((prev) => ({
+      ...prev,
+      [section]: [...prev[section], baseRows[section]],
+    }));
+  }
+
+  function removeRealityRow(section, rowId) {
+    setRealityForm((prev) => {
+      const nextRows = prev[section].filter((row) => row.id !== rowId);
+      return {
+        ...prev,
+        [section]: nextRows.length > 0 ? nextRows : prev[section],
+      };
+    });
+  }
+
+  function buildRealityPayload() {
+    const accounts = realityForm.accounts
+      .map((row) => ({
+        accountName: String(row.accountName || "").trim(),
+        balance: Number(row.balance),
+        currency: row.currency || "COP",
+      }))
+      .filter((row) => row.accountName && Number.isFinite(row.balance));
+
+    const debts = realityForm.debts
+      .map((row) => {
+        const principal = Number(row.principal);
+        const interestRateEa =
+          row.interestRateEa === null || row.interestRateEa === undefined || row.interestRateEa === ""
+            ? null
+            : Number(row.interestRateEa);
+        const minimumPayment =
+          row.minimumPayment === null || row.minimumPayment === undefined || row.minimumPayment === ""
+            ? null
+            : Number(row.minimumPayment);
+        return {
+          debtName: String(row.debtName || "").trim(),
+          debtType: row.debtType || "other",
+          principal,
+          interestRateEa,
+          minimumPayment,
+          currency: row.currency || "COP",
+        };
+      })
+      .filter((row) => row.debtName && Number.isFinite(row.principal) && row.principal > 0);
+
+    const recurringBills = realityForm.recurringBills
+      .map((row) => {
+        const amount = Number(row.amount);
+        const dueDay = row.dueDay === "" ? null : Number(row.dueDay);
+        return {
+          billName: String(row.billName || "").trim(),
+          amount,
+          frequency: row.frequency || "monthly",
+          dueDay: dueDay === null || Number.isInteger(dueDay) ? dueDay : null,
+          currency: row.currency || "COP",
+        };
+      })
+      .filter((row) => row.billName && Number.isFinite(row.amount) && row.amount >= 0);
+
+    const savingsGoals = realityForm.savingsGoals
+      .map((row) => {
+        const targetAmount = Number(row.targetAmount);
+        const monthlyTarget =
+          row.monthlyTarget === null || row.monthlyTarget === undefined || row.monthlyTarget === ""
+            ? null
+            : Number(row.monthlyTarget);
+        return {
+          goalName: String(row.goalName || "").trim(),
+          targetAmount,
+          monthlyTarget,
+          targetDate: row.targetDate || null,
+          currency: row.currency || "COP",
+        };
+      })
+      .filter((row) => row.goalName && Number.isFinite(row.targetAmount) && row.targetAmount > 0);
+
+    return { accounts, debts, recurringBills, savingsGoals };
+  }
+
+  async function saveRealityData() {
+    setRealityFeedback(null);
+    const payload = buildRealityPayload();
+    const totalRows =
+      payload.accounts.length +
+      payload.debts.length +
+      payload.recurringBills.length +
+      payload.savingsGoals.length;
+
+    if (totalRows === 0) {
+      setRealityFeedback({
+        type: "error",
+        text: "Agrega al menos un dato valido (cuenta, deuda, bill o meta).",
+      });
+      return;
+    }
+
+    try {
+      setRealitySaving(true);
+      const res = await fetch("/api/financial-reality/bootstrap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json?.error || "No se pudo guardar");
+      }
+
+      const snapshot = json?.data?.snapshot;
+      if (snapshot) {
+        setPlanData(buildPlanDataFromReality(snapshot));
+        setRealityCounts(buildRealityCounts(snapshot));
+        setRealityForm(buildRealityForm(snapshot));
+      }
+
+      setRealitySaved(true);
+      setRealityChoice("now");
+      setRealityFeedback({
+        type: "ok",
+        text: "Realidad financiera guardada. Se precargaron deudas y pagos recurrentes para el presupuesto.",
+      });
+    } catch (error) {
+      setRealityFeedback({
+        type: "error",
+        text: error?.message || "No se pudo guardar la realidad financiera.",
+      });
+    } finally {
+      setRealitySaving(false);
+    }
   }
 
   function updateIncomeRow(id, field, value) {
@@ -316,6 +637,7 @@ export default function BudgetWizard() {
     };
   }, [planData]);
   const plannedDifference = incomeTotal - plannedTotals.total;
+  const canContinueRealityStep = !needsRealitySetup || realityChoice === "skip" || realitySaved;
 
   return (
     <article className="panel budget-wizard">
@@ -365,6 +687,218 @@ export default function BudgetWizard() {
           <div className="wizard-step-panel">
             {currentStep === 1 && (
               <div className="wizard-form">
+                <div className="info-list" style={{ marginBottom: 16 }}>
+                  <div className="info-item"><span>Cuentas</span><strong>{realityCounts.accounts}</strong></div>
+                  <div className="info-item"><span>Deudas</span><strong>{realityCounts.debts}</strong></div>
+                  <div className="info-item"><span>Bills</span><strong>{realityCounts.recurringBills}</strong></div>
+                  <div className="info-item"><span>Metas</span><strong>{realityCounts.savingsGoals}</strong></div>
+                </div>
+
+                <div className="panel-soft" style={{ marginBottom: 16 }}>
+                  <p className="wizard-hint" style={{ marginBottom: 8 }}>
+                    {needsRealitySetup
+                      ? "Para un presupuesto limpio, te recomendamos registrar primero tu realidad financiera."
+                      : "Ya tienes datos base. Puedes actualizarlos aqui o continuar al presupuesto."}
+                  </p>
+                  <div className="dashboard-actions" style={{ marginTop: 8 }}>
+                    <button
+                      type="button"
+                      className={`btn ${realityChoice === "now" ? "btn-primary" : "btn-secondary"}`}
+                      onClick={() => setRealityChoice("now")}
+                    >
+                      Registrar ahora
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn ${realityChoice === "skip" ? "btn-primary" : "btn-secondary"}`}
+                      onClick={() => {
+                        setRealityChoice("skip");
+                        setRealitySaved(false);
+                      }}
+                    >
+                      Continuar sin registrar
+                    </button>
+                  </div>
+                </div>
+
+                {realityChoice === "now" && (
+                  <>
+                    <div className="panel-soft" style={{ marginBottom: 16 }}>
+                      <div className="dashboard-actions" style={{ justifyContent: "space-between", marginBottom: 8 }}>
+                        <strong>Cuentas bancarias (nombre y saldo)</strong>
+                        <button className="btn btn-ghost" type="button" onClick={() => addRealityRow("accounts")}>
+                          + Cuenta
+                        </button>
+                      </div>
+                      {realityForm.accounts.map((row) => (
+                        <div key={row.id} className="form-grid" style={{ marginBottom: 8 }}>
+                          <input
+                            className="input"
+                            placeholder="Nombre de cuenta"
+                            value={row.accountName}
+                            onChange={(event) => updateRealityRow("accounts", row.id, "accountName", event.target.value)}
+                          />
+                          <input
+                            className="input"
+                            placeholder="Saldo"
+                            value={row.balance}
+                            onChange={(event) => updateRealityRow("accounts", row.id, "balance", event.target.value)}
+                          />
+                          <input
+                            className="input"
+                            placeholder="Moneda"
+                            value={row.currency}
+                            onChange={(event) => updateRealityRow("accounts", row.id, "currency", event.target.value)}
+                          />
+                          <button className="btn btn-ghost" type="button" onClick={() => removeRealityRow("accounts", row.id)}>
+                            Quitar
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="panel-soft" style={{ marginBottom: 16 }}>
+                      <div className="dashboard-actions" style={{ justifyContent: "space-between", marginBottom: 8 }}>
+                        <strong>Deudas (saldo e interes EA opcional)</strong>
+                        <button className="btn btn-ghost" type="button" onClick={() => addRealityRow("debts")}>
+                          + Deuda
+                        </button>
+                      </div>
+                      {realityForm.debts.map((row) => (
+                        <div key={row.id} className="form-grid" style={{ marginBottom: 8 }}>
+                          <input
+                            className="input"
+                            placeholder="Nombre deuda"
+                            value={row.debtName}
+                            onChange={(event) => updateRealityRow("debts", row.id, "debtName", event.target.value)}
+                          />
+                          <input
+                            className="input"
+                            placeholder="Saldo actual"
+                            value={row.principal}
+                            onChange={(event) => updateRealityRow("debts", row.id, "principal", event.target.value)}
+                          />
+                          <input
+                            className="input"
+                            placeholder="Interes EA (opcional)"
+                            value={row.interestRateEa}
+                            onChange={(event) => updateRealityRow("debts", row.id, "interestRateEa", event.target.value)}
+                          />
+                          <input
+                            className="input"
+                            placeholder="Pago mensual (opcional)"
+                            value={row.minimumPayment}
+                            onChange={(event) => updateRealityRow("debts", row.id, "minimumPayment", event.target.value)}
+                          />
+                          <button className="btn btn-ghost" type="button" onClick={() => removeRealityRow("debts", row.id)}>
+                            Quitar
+                          </button>
+                        </div>
+                      ))}
+                      <p className="wizard-hint">Si no indicas interes, el sistema usara 23% EA para estimar cuota mensual.</p>
+                    </div>
+
+                    <div className="panel-soft" style={{ marginBottom: 16 }}>
+                      <div className="dashboard-actions" style={{ justifyContent: "space-between", marginBottom: 8 }}>
+                        <strong>Pagos recurrentes (Bills)</strong>
+                        <button className="btn btn-ghost" type="button" onClick={() => addRealityRow("recurringBills")}>
+                          + Bill
+                        </button>
+                      </div>
+                      {realityForm.recurringBills.map((row) => (
+                        <div key={row.id} className="form-grid" style={{ marginBottom: 8 }}>
+                          <input
+                            className="input"
+                            placeholder="Concepto"
+                            value={row.billName}
+                            onChange={(event) => updateRealityRow("recurringBills", row.id, "billName", event.target.value)}
+                          />
+                          <input
+                            className="input"
+                            placeholder="Monto"
+                            value={row.amount}
+                            onChange={(event) => updateRealityRow("recurringBills", row.id, "amount", event.target.value)}
+                          />
+                          <select
+                            className="input"
+                            value={row.frequency}
+                            onChange={(event) => updateRealityRow("recurringBills", row.id, "frequency", event.target.value)}
+                          >
+                            <option value="monthly">Mensual</option>
+                            <option value="weekly">Semanal</option>
+                            <option value="biweekly">Quincenal</option>
+                            <option value="yearly">Anual</option>
+                          </select>
+                          <input
+                            className="input"
+                            placeholder="Dia pago (1-31)"
+                            value={row.dueDay}
+                            onChange={(event) => updateRealityRow("recurringBills", row.id, "dueDay", event.target.value)}
+                          />
+                          <button className="btn btn-ghost" type="button" onClick={() => removeRealityRow("recurringBills", row.id)}>
+                            Quitar
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="panel-soft" style={{ marginBottom: 16 }}>
+                      <div className="dashboard-actions" style={{ justifyContent: "space-between", marginBottom: 8 }}>
+                        <strong>Metas de ahorro</strong>
+                        <button className="btn btn-ghost" type="button" onClick={() => addRealityRow("savingsGoals")}>
+                          + Meta
+                        </button>
+                      </div>
+                      {realityForm.savingsGoals.map((row) => (
+                        <div key={row.id} className="form-grid" style={{ marginBottom: 8 }}>
+                          <input
+                            className="input"
+                            placeholder="Nombre meta"
+                            value={row.goalName}
+                            onChange={(event) => updateRealityRow("savingsGoals", row.id, "goalName", event.target.value)}
+                          />
+                          <input
+                            className="input"
+                            placeholder="Valor objetivo"
+                            value={row.targetAmount}
+                            onChange={(event) => updateRealityRow("savingsGoals", row.id, "targetAmount", event.target.value)}
+                          />
+                          <input
+                            className="input"
+                            placeholder="Aporte mensual (opcional)"
+                            value={row.monthlyTarget}
+                            onChange={(event) => updateRealityRow("savingsGoals", row.id, "monthlyTarget", event.target.value)}
+                          />
+                          <input
+                            className="input"
+                            type="date"
+                            value={row.targetDate}
+                            onChange={(event) => updateRealityRow("savingsGoals", row.id, "targetDate", event.target.value)}
+                          />
+                          <button className="btn btn-ghost" type="button" onClick={() => removeRealityRow("savingsGoals", row.id)}>
+                            Quitar
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="dashboard-actions" style={{ marginTop: 8 }}>
+                      <button className="btn btn-primary" type="button" onClick={saveRealityData} disabled={realitySaving}>
+                        {realitySaving ? "Guardando..." : "Guardar realidad financiera"}
+                      </button>
+                    </div>
+                    {realityFeedback ? (
+                      <p className="wizard-hint" style={{ color: realityFeedback.type === "error" ? "#ef4444" : "#059669", marginTop: 8 }}>
+                        {realityFeedback.text}
+                      </p>
+                    ) : null}
+                  </>
+                )}
+              </div>
+            )}
+
+            {currentStep === 2 && (
+              <div className="wizard-form">
                 <div className="form-grid">
                   <div className="form-field">
                     <label className="form-label" htmlFor="budget-month">Mes</label>
@@ -398,7 +932,7 @@ export default function BudgetWizard() {
               </div>
             )}
 
-            {currentStep === 2 && (
+            {currentStep === 3 && (
               <div className="wizard-step-grid">
                 <div className="wizard-form">
                   <div className="form-grid">
@@ -454,7 +988,7 @@ export default function BudgetWizard() {
               </div>
             )}
 
-            {currentStep === 3 && (
+            {currentStep === 4 && (
               <div className="wizard-form">
                 <div className="plan-toolbar">
                   <div>
@@ -817,13 +1351,13 @@ export default function BudgetWizard() {
               </div>
             )}
 
-            {currentStep === 4 && (
+            {currentStep === 5 && (
               <div className="wizard-form">
                 <div className="info-list">
                   <div className="info-item"><span>Periodo</span><strong>Sin definir</strong></div>
-                  <div className="info-item"><span>Ingreso mensual</span><strong>$ 0</strong></div>
-                  <div className="info-item"><span>Ahorro objetivo</span><strong>$ 0</strong></div>
-                  <div className="info-item"><span>Metodo</span><strong>Sin definir</strong></div>
+                  <div className="info-item"><span>Ingreso mensual</span><strong>{formatMoney(incomeTotal)}</strong></div>
+                  <div className="info-item"><span>Ahorro objetivo</span><strong>{formatMoney(plannedTotals.savingsTotal)}</strong></div>
+                  <div className="info-item"><span>Compromisos base</span><strong>{realityCounts.debts + realityCounts.recurringBills}</strong></div>
                 </div>
                 <label className="inline-check">
                   <input type="checkbox" defaultChecked />
@@ -841,6 +1375,7 @@ export default function BudgetWizard() {
             <button
               className="btn btn-primary"
               type="button"
+              disabled={currentStep === 1 && !canContinueRealityStep}
               onClick={() => {
                 if (currentStep < totalSteps) {
                   goTo(currentStep + 1);

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createDebt, listDebts } from "../../../lib/server/debts-repository";
+import { getSessionUser } from "../../../lib/server/session-user";
 
 function toNullableId(value) {
   if (value === null || value === undefined || value === "") {
@@ -11,7 +12,12 @@ function toNullableId(value) {
 
 export async function GET() {
   try {
-    const data = await listDebts();
+    const user = await getSessionUser();
+    if (!user?.id) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
+    const data = await listDebts({ userId: user.id });
     return NextResponse.json({ data });
   } catch (error) {
     console.error("GET /api/debts failed", error);
@@ -21,22 +27,31 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    const user = await getSessionUser();
+    if (!user?.id) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
     const body = await request.json();
     const debtName = (body?.debtName || "").trim();
     const debtType = (body?.debtType || "").trim();
     const principal = Number(body?.principal);
-    const interestRateEa = Number(body?.interestRateEa);
+    const interestRateEa = body?.interestRateEa;
 
     if (!debtName) return NextResponse.json({ error: "Nombre de deuda requerido" }, { status: 400 });
     if (!debtType) return NextResponse.json({ error: "Tipo de deuda requerido" }, { status: 400 });
     if (!Number.isFinite(principal) || principal <= 0) {
       return NextResponse.json({ error: "Principal invalido" }, { status: 400 });
     }
-    if (!Number.isFinite(interestRateEa) || interestRateEa < 0) {
-      return NextResponse.json({ error: "Interes EA invalido" }, { status: 400 });
+    if (interestRateEa !== null && interestRateEa !== undefined && interestRateEa !== "") {
+      const parsedRate = Number(interestRateEa);
+      if (!Number.isFinite(parsedRate) || parsedRate < 0) {
+        return NextResponse.json({ error: "Interes EA invalido" }, { status: 400 });
+      }
     }
 
     const data = await createDebt({
+      userId: user.id,
       debtName,
       debtType,
       principal,
