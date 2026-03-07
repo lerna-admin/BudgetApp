@@ -40,3 +40,17 @@ export function logout() {
     method: "POST",
   });
 }
+
+export function forgotPassword(values) {
+  return requestJson("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify(values),
+  });
+}
+
+export function resetPassword(values) {
+  return requestJson("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(values),
+  });
+}

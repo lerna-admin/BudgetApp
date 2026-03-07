@@ -67,3 +67,16 @@ export async function createUser({ name, email, passwordHash, countryCode }) {
 
   return mapUserRow(rows[0]);
 }
+
+export async function updateUserPassword(userId, passwordHash) {
+  const { rows } = await query(
+    `UPDATE users
+        SET password_hash = $2,
+            updated_at = NOW()
+      WHERE id = $1
+      RETURNING id, name, email, country_code, role, status, created_at, updated_at, password_hash`,
+    [userId, passwordHash],
+  );
+
+  return mapUserRow(rows[0]);
+}
