@@ -1,0 +1,2 @@
+ALTER TABLE split_bills
+  ADD COLUMN IF NOT EXISTS settlements_json JSONB NOT NULL DEFAULT '[]';

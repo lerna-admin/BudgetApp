@@ -14,7 +14,7 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
 | Capa | Componentes | Responsabilidades clave |
 |------|-------------|-------------------------|
 | Presentación | Web App Next.js, Mobile App React Native, Design System compartido | Experiencia omnicanal, localización, autenticación, invocación de APIs, almacenamiento offline básico. |
-| API/Backend | API Gateway/BFF, Servicios de Dominio (Onboarding, Presupuestos, Transacciones, Finanzas Familiares, Notificaciones), Servicio de Integraciones | Exponer APIs REST/GraphQL, aplicar validaciones/reglas de negocio, orquestar flujos de integración bancaria y alertas. |
+| API/Backend | API Gateway/BFF, Servicios de Dominio (Onboarding, Presupuestos, Transacciones, Finanzas Familiares, División de Cuentas Compartidas, Notificaciones), Servicio de Integraciones | Exponer APIs REST/GraphQL, aplicar validaciones/reglas de negocio, orquestar flujos de integración bancaria y alertas. |
 | Datos/Analítica | PostgreSQL (OLTP), Redis (cache/sesiones), almacén analítico futuro (BigQuery/Redshift) | Persistencia de usuarios, presupuestos, transacciones, auditorías; agregaciones para dashboards y métricas de salud financiera. |
 | Integraciones | Conector Bancario (Belvo/Minka), Mensajería (FCM/Twilio), Pagos (Stripe), Observabilidad (Datadog/Sentry) | Sincronización de movimientos, envíos de notificaciones multi-canal, cobro de planes, monitoreo y trazabilidad. |
 
@@ -25,7 +25,8 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
 4. **Integración bancaria**: usuario inicia flujo OAuth/Belvo Link; el Servicio de Integraciones suscribe webhooks y encola movimientos en una cola (p. ej. SQS). El Servicio de Transacciones procesa eventos, ejecuta reglas de categorización y actualiza dashboards.
 5. **Alertas**: reglas configurables se evalúan (cron + eventos); se envían push/email/WhatsApp via Notificaciones.
 6. **Planes de pago**: Stripe gestiona suscripciones; backend sincroniza beneficios (familia, alertas avanzadas) mediante webhooks.
-7. A futuro incluir opciones de accesibilidad
+7. **División de cuentas compartidas**: usuario crea una división (título, moneda, participantes), el sistema persiste al ingresar al paso de ítems, calcula balances y permite agregar/editar ítems con reparto validado al 100%.
+8. A futuro incluir opciones de accesibilidad
 
 ## 5. Modelo de datos (alto nivel)
 - `users`: perfil, preferencias, país/región, tipo de plan.
@@ -33,6 +34,8 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
 - `budgets`: registros mensuales/anuales con moneda, `start_balance`, bandera `start_with_money` y metas por categoría/subcategoría.
 - `categories` / `subcategories`: catálogo jerárquico configurable.
 - `transactions`: origen (manual/bancario), estado, etiquetas, vínculo a cuentas.
+- `friends`: contactos reutilizables para dividir cuentas.
+- `split_bills`: división de cuenta (título, moneda, pagador, participantes, ítems, liquidaciones/settlements, totales, timestamps).
 - `accounts`: tarjetas/cuentas bancarias conectadas (proveedor, país, currency).
 - `alerts` y `notifications`: reglas configuradas y bitácora de envíos.
 - `integrations`: tokens/estados para proveedores bancarios, mensajería y pagos.
@@ -240,6 +243,11 @@ sequenceDiagram
 | Transacciones (importadas) | `GET /api/transactions?source=bank&status=pending` | — | Lista de movimientos pendientes de confirmar | Permite reconciliar manualmente. |
 | Integraciones bancarias | `POST /api/integrations/banks/link-token` | `{ institutionId, country }` | `{ linkToken }` | Token efímero para iniciar flujo con proveedor. |
 | Alertas | `POST /api/alerts` | `{ type, threshold, channels[] }` | `201` | Reglas guardadas y asociadas al usuario/household. |
+| División de cuentas | `GET /api/split-bills` | Headers `Authorization` | `{ data: [] }` | Lista de divisiones con metadatos, participantes, ítems y timestamps. |
+| División de cuentas | `POST /api/split-bills` | `{ title, currency, payerType, payerFriendId, participantFriendIds, items[], settlements[] }` | `201` + `{ data }` | Persiste la división, ítems y liquidaciones. |
+| División de cuentas | `GET /api/split-bills/{id}` | — | `{ data }` | Obtiene una división específica. |
+| División de cuentas | `PUT /api/split-bills/{id}` | `{ title, currency, payerType, payerFriendId, participantFriendIds, items[], settlements[] }` | `{ data }` | Actualiza división, ítems y liquidaciones. |
+| División de cuentas | `DELETE /api/split-bills/{id}` | — | `{ ok: true }` | Elimina la división. |
 
 > Todas las APIs devolverán errores estructurados (`code`, `message`, `details`) y se documentarán en OpenAPI v3 para facilitar SDKs.
 

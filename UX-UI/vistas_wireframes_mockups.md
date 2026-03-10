@@ -29,5 +29,9 @@
 - Importacion de movimientos (CSV/XLS)
 - Alertas y recomendaciones (perfil)
 - Historial de cambios (presupuesto)
-- Division de cuentas
-- Division de cuentas (detalle por item)
+- Division de cuentas (lista + creacion)
+- Division de cuentas (paso 2: datos generales y participantes)
+- Division de cuentas (paso 3: balances + agregar items)
+- Division de cuentas (resumen de items y total acumulado)
+- Division de cuentas (modal editar item)
+- Division de cuentas (modal agregar amigo)

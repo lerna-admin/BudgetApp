@@ -14,11 +14,13 @@ Este modelo amplía la documentación RUP existente y recoge las decisiones reci
 | `cards` | `id`, `user_id`, `bank_id`, `card_name`, `card_type`, `limit`, `available_credit`, `currency`, `expiration`, `created_at` | Representa tarjetas de crédito/débito; permite calcular disponiblidad y enlazar pagos a presupuestos/transacciones. |
 | `debts` | `id`, `user_id`, `bank_id`, `card_id`, `account_id`, `debt_type`, `principal`, `interest_rate`, `minimum_payment`, `currency`, `status`, `due_date`, `created_at` | Registra obligaciones (tarjetas, préstamos, líneas de crédito); se relaciona con los perfiles orientados a pago de deudas y genera recordatorios/alertas. |
 | `debt_payments` | `id`, `debt_id`, `user_id`, `amount`, `currency`, `payment_date`, `method`, `notes`, `created_at` | Trail de pagos realizados sobre cada deuda para mantener metas de pago y liquidación. |
+| `friends` | `id`, `user_id`, `name`, `contact`, `created_at` | Contactos guardados por el usuario para usarlos en división de cuentas. |
 | `profiles` | `id`, `slug`, `name`, `description`, `objective`, `primary_goal`, `tags`, `status`, `created_at` | Cada perfil (ahorro, pago de deudas, inversión, mentalidad Tilbury) describe la intención. El `primary_goal` se usa para guiar acciones y notificaciones. |
 | `profile_objectives` | `id`, `profile_id`, `metric`, `target_value`, `frequency`, `created_at` | Desglosa metas subyacentes a cada perfil (ej.: `savings_percent`, `debt_reduction`, `investment_contribution`). |
 | `profile_selections` | `id`, `user_id`, `profile_id`, `selected_at`, `active`, `notes` | Historial de selección; cuando el usuario cambia de perfil el backend registra la intención actual. |
 | `budgets` | `id`, `owner_type`, `owner_id`, `household_id`, `period`, `country_code`, `currency`, `status`, `start_balance`, `categories_json`, `totals_json`, `created_at`, `updated_at` | `status` controla `draft`, `active`, `closed`. Los borradores se guardan automáticamente durante el simulador y solo se consolidan al guardado manual. |
 | `transactions` | `id`, `budget_id`, `account_id`, `country_code`, `date`, `amount`, `currency`, `category_id`, `method`, `status`, `source`, `notes`, `tags_json`, `created_at` | Incluye metadata de banco, tarjeta y moneda; el campo `source` distingue entre `manual`, `bank`, `investment`. `status` puede ser `pending`, `posted`, `archived`. |
+| `split_bills` | `id`, `user_id`, `title`, `currency`, `payer_type`, `payer_friend_id`, `participant_friend_ids[]`, `items_json`, `settlements_json`, `created_at`, `updated_at` | División de cuentas compartidas con ítems en JSONB (incluye `payerIds`, `payerMode`, `payerAllocations`, `participantIds`, `allocations`) y liquidaciones en `settlements_json`. Participantes referenciados en `friends`. |
 | `alerts` | `id`, `user_id`, `household_id`, `type`, `triggered_at`, `payload_json`, `status` | Alerta por presupuesto excedido, chequeo de metas o movimientos sospechosos. |
 | `achievements` | `id`, `slug`, `title`, `description`, `category`, `icon`, `criteria_json`, `created_at` | Badges/insignias para gamificación. Cada una tiene criterios (p.ej., `balance > 10k COP`, `5 drafts guardados`). |
 | `profile_achievements` | `id`, `user_id`, `achievement_id`, `awarded_at`, `metadata_json` | Registro de badges entregadas, expone la “vista de juego” que se podrá mostrar en el desktop o mobile. |
@@ -30,10 +32,12 @@ Este modelo amplía la documentación RUP existente y recoge las decisiones reci
 1. `users` 1:N `households` (un `family_admin` puede crear varios hogares). `households` también puede tener múltiples presupuestos y members.
 2. `users` 1:N `accounts`; cada cuenta referencia un `bank` y una `country`. Este vínculo alimenta el seguimiento “por cuenta” (Bancolombia→Lulo, Bancolombia→Bolsillo, etc.).
 3. `users` 1:N `cards`; las tarjetas se relacionan con `banks` y generan `transactions`/`debts` específicos para el seguimiento de crédito. `debts` y `debt_payments` sirven para los perfiles orientados a pago de deudas y encadenan con los `alerts` y `gamification_logs`.
-3. `profiles` 1:N `profile_objectives`; `profile_selections` mantiene la intención activa de cada usuario y permite evaluar si un presupuesto sigue la estrategia actual.
-4. `budgets` 1:N `transactions`; `transactions.account_id` permite mostrar movimientos por cuenta en el dashboard. `transactions` también alimenta eventos de `achievements` y `alerts`.
-5. `users` 1:N `profile_achievements` y `gamification_logs`; estos datos alimentan la vista de juego (desktop) y las notificaciones motivacionales.
-6. `notifications` se disparan de `profile_selections`, `achievements`, `alerts` y `budget` (especialmente en el cierre con toast).
+4. `users` 1:N `friends`; los contactos se reutilizan en la división de cuentas.
+5. `users` 1:N `split_bills`; `split_bills.payer_friend_id` referencia `friends` y `participant_friend_ids` guarda los participantes.
+6. `profiles` 1:N `profile_objectives`; `profile_selections` mantiene la intención activa de cada usuario y permite evaluar si un presupuesto sigue la estrategia actual.
+7. `budgets` 1:N `transactions`; `transactions.account_id` permite mostrar movimientos por cuenta en el dashboard. `transactions` también alimenta eventos de `achievements` y `alerts`.
+8. `users` 1:N `profile_achievements` y `gamification_logs`; estos datos alimentan la vista de juego (desktop) y las notificaciones motivacionales.
+9. `notifications` se disparan de `profile_selections`, `achievements`, `alerts` y `budget` (especialmente en el cierre con toast).
 
 ## 3. Consideraciones de gamificación y futuro “Desktop game view”
 

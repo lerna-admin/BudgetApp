@@ -38,6 +38,25 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 | RF-24 | Alta | Al crear presupuesto, el sistema debe precargar automáticamente deudas y pagos recurrentes (ej.: casa, carro, servicios, celular, administración) como compromisos editables para evitar omisiones de fin de mes. |
 | RF-25 | Media | Durante la creación del presupuesto, el usuario podrá crear nuevas metas de ahorro, deudas o cuentas bancarias sin salir del flujo; estos datos se sincronizan con su realidad financiera. |
 
+### Detalle RF-19: División de cuentas compartidas
+- La división se crea con título obligatorio y único (sin duplicados por mayúsculas/minúsculas), moneda y participantes (incluye al usuario).
+- Se puede crear la división sin ítems: al pasar al paso de ítems se persiste en base de datos.
+- Ítems con campos obligatorios: descripción, valor (> 0), pagó, participantes.
+- Validación estricta: la suma de los participantes debe ser 100% del ítem. Si solo hay 1 participante, debe ser 100%.
+- Reparto por defecto exacto y en partes iguales (ajuste automático de centavos).
+- “Quién pagó” permite seleccionar varias personas; por defecto se divide en partes iguales y, mediante toggle, se puede definir valor y porcentaje por pagador.
+- Edición manual de valores y porcentajes con recalculo automático del resto.
+- Agregar amigos existentes directamente en el paso de ítems (no solo en la creación de la división).
+- Guardar ítems en BD, limpiar formulario tras guardar, mostrar resumen de ítems debajo del formulario y total acumulado.
+- Mostrar balances en el paso de ítems por encima del formulario y a todo el ancho.
+- Formato numérico en la moneda seleccionada con separadores `.` para miles y `,` para decimales.
+- Resumen de divisiones con fecha de creación, número de integrantes, número de ítems y valor total.
+- Permitir editar y eliminar ítems; permitir eliminar divisiones.
+- Persistencia de la vista de ítems al refrescar (restaurar división y paso desde la URL).
+- Interfaz responsive optimizada para web y con proyección a móvil.
+- Desde la lista de divisiones existe un botón de Balancear que abre un modal con el detalle de quién debe a quién.
+- El balance permite saldar deudas totales o parciales por cada relación, persistiendo los pagos y actualizando los balances.
+
 ## 4. Requisitos no funcionales
 - **Disponibilidad**: 99 % mensual para servicios web/móvil.
 - **Seguridad**: autenticación multifactor, cifrado de datos sensibles (en reposo y tránsito), cumplimiento normativo por país (Habeas Data/Ley 1581 en Colombia, equivalentes LATAM y lineamientos internacionales) y RBAC con roles `user`, `family_admin`, `admin`, `compliance`.

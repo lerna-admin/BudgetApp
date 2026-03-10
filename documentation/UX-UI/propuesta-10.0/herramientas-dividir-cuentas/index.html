@@ -81,14 +81,55 @@
               <p class="dashboard-path">Herramientas / Dividir cuentas</p>
               <h1 class="dashboard-title">Dividir cuenta compartida</h1>
             </div>
+            <div class="dashboard-actions" style="justify-content:flex-end;">
+              <a href="#" class="btn btn-secondary" style="min-width:170px;justify-content:center;"><span style="font-size:16px;line-height:1;">👥</span><span>Agregar amigos</span></a>
+              <a href="#" class="btn btn-primary" style="min-width:170px;justify-content:center;">+ Nueva division</a>
+            </div>
           </header>
 
           <section class="expense-intro panel-soft">
-            <p class="expense-intro-title">Herramienta</p>
+            <p class="expense-intro-title">Paso 1</p>
             <p class="expense-intro-copy">
               Flujo estilo Splitwise: agrega participantes, items, define quien pago y revisa balances al instante.
               Incluye base para factura por foto (OCR en fase futura).
             </p>
+            <p class="expense-intro-copy">
+              Selecciona una division existente o crea una nueva. Al entrar en una division podras agregar items y
+              repartir los montos entre los integrantes.
+            </p>
+          </section>
+
+          <section class="panel dashboard-card">
+            <div class="dashboard-card-head">
+              <h2>Divisiones creadas</h2>
+              <a href="#">Ver mas</a>
+            </div>
+            <div class="movement-list">
+              <div class="movement-item">
+                <div>
+                  <p class="movement-name">Apartamento marzo</p>
+                  <p class="movement-meta">4 integrantes · 9 items · $ 540.000</p>
+                </div>
+                <p class="movement-amount">En reparto</p>
+              </div>
+              <div class="movement-item">
+                <div>
+                  <p class="movement-name">Viaje fin de semana</p>
+                  <p class="movement-meta">6 integrantes · 12 items · $ 1.320.000</p>
+                </div>
+                <p class="movement-amount pos">Listo</p>
+              </div>
+              <div class="movement-item">
+                <div>
+                  <p class="movement-name">Cena del viernes</p>
+                  <p class="movement-meta">3 integrantes · 5 items · $ 210.000</p>
+                </div>
+                <p class="movement-amount neg">Pendiente</p>
+              </div>
+            </div>
+            <div class="dashboard-empty" style="margin-top:10px">
+              Selecciona una division para continuar o crea una nueva desde el boton superior.
+            </div>
           </section>
 
           <section class="expense-workspace">

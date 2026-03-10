@@ -29,14 +29,6 @@ export default async function SplitAccountsPage() {
             </div>
           </header>
 
-          <section className="expense-intro panel-soft">
-            <p className="expense-intro-title">Herramienta</p>
-            <p className="expense-intro-copy">
-              Flujo estilo Splitwise: agrega participantes, items, define quien pago y revisa balances al instante.
-              Incluye base para factura por foto (OCR en fase futura).
-            </p>
-          </section>
-
           <SplitBillManager defaultPayerName={user?.name || "Tu"} />
         </main>
 

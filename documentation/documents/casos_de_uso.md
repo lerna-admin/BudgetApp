@@ -123,6 +123,12 @@
 
 ---
 
+## Módulo: División de cuentas compartidas
+
+| ID | Nombre | Prioridad | Actor Primario | Enlace |
+|----|--------|-----------|----------------|--------|
+| UC-DC-01 | Dividir cuenta de compras compartidas | Media | Usuario | [Ver detalle](./casos_de_uso/division_de_cuentas/division_de_cuentas.md) |
+
 ---
 
 ## Módulo: Gestión de Usuarios y Autenticación
