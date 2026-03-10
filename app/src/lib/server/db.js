@@ -21,3 +21,29 @@ export async function query(text, params = []) {
 
   return pool.query(text, params);
 }
+
+export async function withTransaction(handler) {
+  if (!pool) {
+    throw new Error("DATABASE_URL no configurada en app/.env");
+  }
+  if (typeof handler !== "function") {
+    throw new Error("transaction_handler_invalid");
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const result = await handler(client);
+    await client.query("COMMIT");
+    return result;
+  } catch (error) {
+    try {
+      await client.query("ROLLBACK");
+    } catch (_rollbackError) {
+      // Ignore rollback errors and rethrow the original one.
+    }
+    throw error;
+  } finally {
+    client.release();
+  }
+}

@@ -1,0 +1,362 @@
+{
+  "name": "supervisor-routing-template",
+  "nodes": [
+    {
+      "id": "8f8bcf32-4f22-44ef-a5cb-a73f91f3ac00",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        220,
+        260
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "ab9ba6ca-6252-4d7b-9495-bf0708ddf808",
+      "name": "Normalize Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        470,
+        260
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d26f4ec5-2150-49d2-8dfa-dd038a644468",
+              "name": "venture_id",
+              "type": "string",
+              "value": "={{ $json.venture_id || 'replace-me' }}"
+            },
+            {
+              "id": "3664f1af-dafd-4d04-8326-40ee58d79ab4",
+              "name": "task_id",
+              "type": "string",
+              "value": "={{ $json.task_id || 'TASK-000' }}"
+            },
+            {
+              "id": "91f4de53-2733-49ce-83e3-f5a3e535eab5",
+              "name": "task_type",
+              "type": "string",
+              "value": "={{ $json.task_type || 'market_research' }}"
+            },
+            {
+              "id": "7936652c-cdc0-4115-a8d6-c131f9f3ec82",
+              "name": "input_payload",
+              "type": "object",
+              "value": "={{ $json.input_payload || {} }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "f8354f04-bc5b-4234-baf8-0ba3a5d9f79b",
+      "name": "Route by task_type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        730,
+        260
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.task_type }}",
+                    "rightValue": "market_research",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.task_type }}",
+                    "rightValue": "competitor_analysis",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.task_type }}",
+                    "rightValue": "product_design",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.task_type }}",
+                    "rightValue": "web_development",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.task_type }}",
+                    "rightValue": "content_seo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.task_type }}",
+                    "rightValue": "ops_automation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.task_type }}",
+                    "rightValue": "qa_review",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "fallbackOutput": 7
+      }
+    },
+    {
+      "id": "43b114d7-44c0-4904-81a0-45bad2dd845a",
+      "name": "Run Worker Market Research",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        80
+      ],
+      "parameters": {
+        "workflowId": "worker-market-research",
+        "mode": "each",
+        "options": {}
+      }
+    },
+    {
+      "id": "f6a49c1f-c0dc-4208-9cbf-5cf2469d420f",
+      "name": "Run Worker Product Design",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        200
+      ],
+      "parameters": {
+        "workflowId": "worker-product-design",
+        "mode": "each",
+        "options": {}
+      }
+    },
+    {
+      "id": "65e39cf5-185e-4135-8f9f-cf6294b203a2",
+      "name": "Run Worker Web Dev",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        320
+      ],
+      "parameters": {
+        "workflowId": "worker-web-dev",
+        "mode": "each",
+        "options": {}
+      }
+    },
+    {
+      "id": "5f4bd88b-8ca5-4d4f-b4f2-d7c0f618f58b",
+      "name": "Run Worker Content SEO",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        440
+      ],
+      "parameters": {
+        "workflowId": "worker-content-seo",
+        "mode": "each",
+        "options": {}
+      }
+    },
+    {
+      "id": "13d3614f-7fab-4525-8991-186f24f0262f",
+      "name": "Run Worker Ops Automation",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        560
+      ],
+      "parameters": {
+        "workflowId": "worker-ops-automation",
+        "mode": "each",
+        "options": {}
+      }
+    },
+    {
+      "id": "d95f4345-5e68-46b0-b70a-3d0edc9d753a",
+      "name": "Run Worker QA Review",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        680
+      ],
+      "parameters": {
+        "workflowId": "worker-qa-review",
+        "mode": "each",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Context": {
+      "main": [
+        [
+          {
+            "node": "Route by task_type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by task_type": {
+      "main": [
+        [
+          {
+            "node": "Run Worker Market Research",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run Worker Market Research",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run Worker Product Design",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run Worker Web Dev",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run Worker Content SEO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run Worker Ops Automation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run Worker QA Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run Worker Ops Automation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "template": "Replace workflowId values with real n8n workflow IDs before enabling."
+  }
+}

@@ -22,6 +22,20 @@ function initialsFor(name) {
   return `${first}${second}`.toUpperCase();
 }
 
+function formatCurrency(value, currency = "COP") {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return "-";
+  try {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch (_error) {
+    return `${currency} ${amount.toLocaleString("es-CO")}`;
+  }
+}
+
 async function fetchJSON(url) {
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(res.statusText);
@@ -198,7 +212,7 @@ export default function ProfilePage() {
                       <article key={acc.id} className="bank-item">
                         <h3>{acc.accountName}</h3>
                         <p>{acc.accountType} · {acc.currency}</p>
-                        <span className="tag tag-soft">Saldo: {acc.balance}</span>
+                        <span className="tag tag-soft">Saldo: {formatCurrency(acc.balance, acc.currency)}</span>
                       </article>
                     ))}
                   </div>
@@ -220,7 +234,9 @@ export default function ProfilePage() {
                       <article key={card.id} className="bank-item">
                         <h3>{card.cardName}</h3>
                         <p>{card.cardType} · {card.currency}</p>
-                        <span className="tag tag-soft">Cupo: {card.creditLimit ?? "-"}</span>
+                        <span className="tag tag-soft">
+                          Cupo: {card.creditLimit === null || card.creditLimit === undefined ? "-" : formatCurrency(card.creditLimit, card.currency)}
+                        </span>
                       </article>
                     ))}
                   </div>

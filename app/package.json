@@ -6,13 +6,27 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "migrate": "node scripts/migrate.js"
+    "migrate": "node scripts/migrate.js",
+    "venture:init": "node scripts/init-venture.js",
+    "memory:log": "node scripts/memory-log.js",
+    "memory:search": "node scripts/memory-search.js",
+    "storage:check": "node scripts/storage-check.js",
+    "clickup:pull": "node scripts/clickup-pull-ready.js",
+    "clickup:dispatch": "node scripts/clickup-dispatch-plan.js",
+    "clickup:update": "node scripts/clickup-update-task.js",
+    "clickup:webhook:create": "node scripts/clickup-webhook-create.js",
+    "clickup:webhook:list": "node scripts/clickup-webhook-list.js",
+    "clickup:scan": "node scripts/clickup-scan.js",
+    "telegram:discover": "node scripts/telegram-discover.js",
+    "telegram:bot": "node scripts/telegram-agent-bot.js"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
     "next": "15.3.3",
+    "nodemailer": "^8.0.1",
     "pg": "^8.18.0",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "sweetalert2": "^11.26.22"
   }
 }

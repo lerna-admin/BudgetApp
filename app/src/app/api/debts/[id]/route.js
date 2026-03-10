@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { deleteDebt, findDebt, updateDebt } from "../../../../lib/server/debts-repository";
+import { getSessionUser } from "../../../../lib/server/session-user";
 
 function toNullableId(value) {
   if (value === null || value === undefined || value === "") {
@@ -11,7 +12,12 @@ function toNullableId(value) {
 
 export async function GET(_request, { params }) {
   try {
-    const data = await findDebt(params.id);
+    const user = await getSessionUser();
+    if (!user?.id) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
+    const data = await findDebt(params.id, { userId: user.id });
     if (!data) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
     return NextResponse.json({ data });
   } catch (error) {
@@ -22,7 +28,19 @@ export async function GET(_request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
+    const user = await getSessionUser();
+    if (!user?.id) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
     const patch = await request.json();
+    if (patch?.interestRateEa !== undefined && patch?.interestRateEa !== null && patch?.interestRateEa !== "") {
+      const parsedRate = Number(patch.interestRateEa);
+      if (!Number.isFinite(parsedRate) || parsedRate < 0) {
+        return NextResponse.json({ error: "Interes EA invalido" }, { status: 400 });
+      }
+    }
+
     const data = await updateDebt(params.id, {
       debtName: patch?.debtName,
       debtType: patch?.debtType,
@@ -36,7 +54,7 @@ export async function PUT(request, { params }) {
       bankId: toNullableId(patch?.bankId),
       accountId: toNullableId(patch?.accountId),
       cardId: toNullableId(patch?.cardId),
-    });
+    }, { userId: user.id });
     if (!data) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
     return NextResponse.json({ data });
   } catch (error) {
@@ -50,7 +68,12 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(_request, { params }) {
   try {
-    const data = await deleteDebt(params.id);
+    const user = await getSessionUser();
+    if (!user?.id) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    }
+
+    const data = await deleteDebt(params.id, { userId: user.id });
     if (!data) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
     return NextResponse.json({ data });
   } catch (error) {

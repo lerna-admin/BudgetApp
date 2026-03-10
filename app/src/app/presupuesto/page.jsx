@@ -5,15 +5,115 @@ import BudgetWizard from "../../components/budget-wizard";
 import DashboardSidebar from "../../components/dashboard-sidebar";
 import MobileMenuBackdrop from "../../components/mobile-menu-backdrop";
 import MobileMenuToggle from "../../components/mobile-menu-toggle";
+import { getBudgetPerformanceForPeriod, getCurrentBudgetPerformance } from "../../lib/server/budgets-repository";
+import { getFinancialRealitySnapshot } from "../../lib/server/financial-reality-repository";
 import { getSessionUser } from "../../lib/server/session-user";
 
-export default async function BudgetPage() {
+const MONTHS = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+
+function formatPeriod(period) {
+  const hit = String(period || "").match(/^(\d{4})-(\d{2})$/);
+  if (!hit) {
+    return "Sin periodo";
+  }
+  const year = Number(hit[1]);
+  const month = Number(hit[2]);
+  if (!Number.isInteger(month) || month < 1 || month > 12) {
+    return period;
+  }
+  return `${MONTHS[month - 1]} ${year}`;
+}
+
+function parsePeriodValue(rawValue) {
+  const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+  const hit = String(value || "").match(/^(\d{4})-(\d{2})$/);
+  if (!hit) {
+    return "";
+  }
+  const year = Number(hit[1]);
+  const month = Number(hit[2]);
+  if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
+    return "";
+  }
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+function formatMoney(value, currency = "COP") {
+  try {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(Number(value || 0));
+  } catch (_error) {
+    return `${currency} ${Number(value || 0)}`;
+  }
+}
+
+function balanceStyle(value) {
+  if (value >= 0) {
+    return "budget-pill ok";
+  }
+  return "budget-pill warn";
+}
+
+function typeLabel(kind) {
+  if (kind === "income") return "Ingreso";
+  if (kind === "saving") return "Ahorro";
+  return "Gasto";
+}
+
+export default async function BudgetPage({ searchParams }) {
   const user = await getSessionUser();
   if (!user) {
     redirect("/login?next=/presupuesto");
   }
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const requestedPeriod = parsePeriodValue(resolvedSearchParams?.period);
 
-  const hasActiveBudget = false;
+  let financialReality = {
+    counts: { accounts: 0, debts: 0, recurringBills: 0, savingsGoals: 0 },
+    totals: { accountBalance: 0, debtPrincipal: 0, debtMonthly: 0, recurringBillsMonthly: 0, savingsMonthlyTarget: 0 },
+    missing: { accounts: true, debts: true, recurringBills: true, savingsGoals: true },
+    needsRealitySetup: true,
+    accounts: [],
+    debts: [],
+    recurringBills: [],
+    savingsGoals: [],
+  };
+
+  let budgetPerformance = null;
+
+  try {
+    const [reality, budgetDataByPeriod, currentBudgetData] = await Promise.all([
+      getFinancialRealitySnapshot({ userId: user.id }),
+      requestedPeriod ? getBudgetPerformanceForPeriod({ userId: user.id, period: requestedPeriod }) : Promise.resolve(null),
+      getCurrentBudgetPerformance({ userId: user.id }),
+    ]);
+    financialReality = reality;
+    budgetPerformance = budgetDataByPeriod || currentBudgetData;
+  } catch (error) {
+    console.error("Unable to load budget page data", error);
+  }
+
+  const currentBudget = budgetPerformance?.budget || null;
+  const rows = Array.isArray(budgetPerformance?.categories) ? budgetPerformance.categories : [];
+  const hasBudget = Boolean(currentBudget);
+  const periodLabel = currentBudget ? formatPeriod(currentBudget.period) : "Sin presupuesto";
+  const overview = budgetPerformance?.overview || null;
 
   return (
     <AppShell>
@@ -25,48 +125,53 @@ export default async function BudgetPage() {
             <div className="dashboard-topbar-left">
               <MobileMenuToggle />
               <div className="dashboard-heading">
-                <p className="dashboard-path">Presupuesto / Febrero 2026</p>
+                <p className="dashboard-path">Presupuesto / {periodLabel}</p>
                 <h1 className="dashboard-title">Plan mensual</h1>
               </div>
             </div>
             <div className="dashboard-actions">
-              <a href="#" className="btn btn-secondary">Exportar</a>
-              <a href="#" className="btn btn-primary">Crear presupuesto</a>
+              <a href={requestedPeriod ? `/presupuesto?period=${requestedPeriod}` : "/presupuesto"} className="btn btn-secondary">Recalcular</a>
+              <a href="#wizard" className="btn btn-primary">Ir al wizard</a>
             </div>
           </header>
 
           <section className="panel-soft budget-intro">
             <div>
-              <strong>Objetivo de este mes</strong>
-              <p>Define metas realistas y revisa el avance por categoria.</p>
+              <strong>{hasBudget ? currentBudget.budgetName : "Objetivo de este mes"}</strong>
+              <p>
+                {hasBudget
+                  ? `Estado: ${currentBudget.status === "active" ? "Activo" : "Borrador"}. Revisa variaciones del plan contra tus movimientos reales.`
+                  : "Define metas realistas y revisa el avance por categoria."}
+              </p>
             </div>
             <div className="chip-row">
-              <span className="chip chip-live">Mes actual</span>
-              <span className="chip">Revision semanal</span>
-              <span className="chip">Alertas activas</span>
+              <span className="chip chip-live">{periodLabel}</span>
+              <span className="chip">{currentBudget?.currency || "COP"}</span>
+              <span className="chip">{hasBudget ? currentBudget.status : "Sin estado"}</span>
             </div>
           </section>
 
-          <section className="budget-grid">
-            <BudgetWizard />
+          <section className="budget-grid" id="wizard">
+            <BudgetWizard initialReality={financialReality} initialBudget={currentBudget} />
           </section>
 
           <section className="panel budget-table-panel">
             <div className="budget-table-head">
-              <h2>Presupuesto por categoria</h2>
+              <h2>Presupuesto vs real</h2>
               <div className="chip-row">
-                <span className="chip chip-live">Febrero</span>
-                <span className="chip">COP</span>
-                <span className="chip">Auto-ajuste</span>
+                <span className="chip chip-live">{periodLabel}</span>
+                <span className="chip">{currentBudget?.currency || "COP"}</span>
+                <span className="chip">Movimientos: {overview?.movementCount || 0}</span>
               </div>
             </div>
 
-            {hasActiveBudget ? (
+            {hasBudget ? (
               <>
                 <table className="budget-table">
                   <thead>
                     <tr>
                       <th>Categoria</th>
+                      <th>Tipo</th>
                       <th>Planificado</th>
                       <th>Real</th>
                       <th>Balance</th>
@@ -74,87 +179,63 @@ export default async function BudgetPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>
-                        <div className="budget-cat">
-                          <span className="budget-dot" style={{ background: "var(--violet)" }}></span>
-                          <div>
-                            <div className="budget-cat-name">Alimentacion</div>
-                            <div className="budget-cat-note">6 subcategorias</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>$ 0</td>
-                      <td>$ 0</td>
-                      <td><span className="budget-pill ok">$ 0</span></td>
-                      <td>
-                        <div className="budget-progress"><span style={{ width: "0%" }}></span></div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="budget-cat">
-                          <span className="budget-dot" style={{ background: "var(--amber)" }}></span>
-                          <div>
-                            <div className="budget-cat-name">Transporte</div>
-                            <div className="budget-cat-note">Gasolina + apps</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>$ 0</td>
-                      <td>$ 0</td>
-                      <td><span className="budget-pill warn">$ 0</span></td>
-                      <td>
-                        <div className="budget-progress"><span style={{ width: "0%", background: "var(--amber)" }}></span></div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="budget-cat">
-                          <span className="budget-dot" style={{ background: "var(--mint)" }}></span>
-                          <div>
-                            <div className="budget-cat-name">Servicios</div>
-                            <div className="budget-cat-note">Internet + energia</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>$ 0</td>
-                      <td>$ 0</td>
-                      <td><span className="budget-pill ok">$ 0</span></td>
-                      <td>
-                        <div className="budget-progress"><span style={{ width: "0%", background: "var(--mint)" }}></span></div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="budget-cat">
-                          <span className="budget-dot" style={{ background: "#ec4899" }}></span>
-                          <div>
-                            <div className="budget-cat-name">Entretenimiento</div>
-                            <div className="budget-cat-note">Salidas + streaming</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>$ 0</td>
-                      <td>$ 0</td>
-                      <td><span className="budget-pill ok">$ 0</span></td>
-                      <td>
-                        <div className="budget-progress"><span style={{ width: "0%", background: "#ec4899" }}></span></div>
-                      </td>
-                    </tr>
+                    {rows.map((row) => {
+                      const isIncome = row.kind === "income";
+                      const balance = isIncome
+                        ? Number(row.actual || 0) - Number(row.planned || 0)
+                        : Number(row.planned || 0) - Number(row.actual || 0);
+
+                      const progress = Number.isFinite(Number(row.progress))
+                        ? Math.min(100, Math.max(0, Number(row.progress)))
+                        : 0;
+
+                      const dotColor =
+                        row.kind === "income"
+                          ? "var(--mint)"
+                          : row.kind === "saving"
+                            ? "var(--violet)"
+                            : "var(--amber)";
+
+                      return (
+                        <tr key={row.id}>
+                          <td>
+                            <div className="budget-cat">
+                              <span className="budget-dot" style={{ background: dotColor }}></span>
+                              <div>
+                                <div className="budget-cat-name">{row.name}</div>
+                                <div className="budget-cat-note">{row.detailCount > 0 ? `${row.detailCount} detalle(s)` : row.recommendation || "Sin detalle"}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>{typeLabel(row.kind)}</td>
+                          <td>{formatMoney(row.planned, currentBudget.currency)}</td>
+                          <td>{formatMoney(row.actual, currentBudget.currency)}</td>
+                          <td>
+                            <span className={balanceStyle(balance)}>{formatMoney(balance, currentBudget.currency)}</span>
+                          </td>
+                          <td>
+                            <div className="budget-progress"><span style={{ width: `${progress}%`, background: dotColor }}></span></div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
 
                 <div className="budget-footer">
-                  <p className="lead">Ultima actualizacion: hoy 09:32 AM</p>
+                  <p className="lead">
+                    Planeado: {formatMoney(overview?.planned?.outflow || 0, currentBudget.currency)} ·
+                    Real: {formatMoney(overview?.actual?.outflow || 0, currentBudget.currency)} ·
+                    Variacion: {formatMoney(overview?.variance?.outflow || 0, currentBudget.currency)}
+                  </p>
                   <div className="dashboard-actions">
-                    <button className="btn btn-secondary" type="button">Recalcular</button>
-                    <button className="btn btn-primary" type="button">Guardar cambios</button>
+                    <a className="btn btn-secondary" href="/gastos">Registrar movimiento</a>
+                    <a className="btn btn-primary" href="#wizard">Editar presupuesto</a>
                   </div>
                 </div>
               </>
             ) : (
-              <div className="dashboard-empty">Por ahora no tienes un presupuesto activo para mostrar</div>
+              <div className="dashboard-empty">Aun no tienes presupuesto guardado para comparar.</div>
             )}
           </section>
         </main>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BudgetApp · Registro de Gastos</title>
+    <title>BudgetApp · Registro de movimientos</title>
     <link rel="stylesheet" href="../shared/globals.css" />
     <script src="../shared/screen.js" defer></script>
     <script src="./app.js" defer></script>
@@ -47,6 +47,7 @@
 	            <p class="menu-title">Config.</p>
 	            <div class="menu-list">
 	              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+              <a class="menu-item" href="../deudas/index.html"><span>💳</span><span>Deudas</span></a>
 	              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
 	              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
 	              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
@@ -78,7 +79,7 @@
         <main class="dashboard-main">
           <header class="dashboard-topbar">
             <div>
-              <p class="dashboard-path">Registro de Gastos / Febrero 2026</p>
+              <p class="dashboard-path">Registro de movimientos / Febrero 2026</p>
               <h1 class="dashboard-title">Historial mensual + registro</h1>
             </div>
             <div class="dashboard-actions">
@@ -98,10 +99,6 @@
           <section class="expense-workspace">
             <article class="panel expense-log">
               <div class="expense-summary-strip">
-                <div class="expense-summary-card">
-                  <p>Ingresos</p>
-                  <strong id="sum-income" class="pos">$ 0</strong>
-                </div>
                 <div class="expense-summary-card">
                   <p>Ingresos</p>
                   <strong id="sum-income" class="pos">$ 0</strong>

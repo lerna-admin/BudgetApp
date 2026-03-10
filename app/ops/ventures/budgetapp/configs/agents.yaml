@@ -1,0 +1,28 @@
+supervisor:
+  enabled: true
+  model: primary
+  fallback: true
+  memory:
+    required: true
+    read_before_action: true
+    write_after_action: true
+
+workers:
+  - id: market-research
+    task_types: [market_research, competitor_analysis]
+    memory_required: true
+  - id: product-design
+    task_types: [product_design]
+    memory_required: true
+  - id: web-dev
+    task_types: [web_development]
+    memory_required: true
+  - id: content-seo
+    task_types: [content_seo]
+    memory_required: true
+  - id: ops-automation
+    task_types: [ops_automation]
+    memory_required: true
+  - id: qa-review
+    task_types: [qa_review]
+    memory_required: true

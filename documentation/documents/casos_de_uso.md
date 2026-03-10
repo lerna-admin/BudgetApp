@@ -6,35 +6,46 @@
 
 ---
 
-## UC-01: Realizar Diagnóstico de Salud Financiera
+## UC-01: Registrar Realidad Financiera Inicial
 - **Actor primario**: UI/UF (nuevo usuario)
-- **Prioridad**: Alta (RF-01)
-- **Descripción**: Durante el onboarding el sistema recopila ingresos, gastos, deudas y metas para calcular un índice de salud financiera y recomendar próximos pasos.
+- **Prioridad**: Alta (RF-01, RF-21, RF-22, RF-23)
+- **Descripción**: Antes de crear presupuesto, el sistema propone registrar la realidad financiera del usuario para partir de datos reales y reducir omisiones.
 - **Precondiciones**: El usuario creó una cuenta y confirmó su correo/teléfono.
 - **Flujo básico**:
-  1. Usuario inicia el wizard de diagnóstico.
-  2. Sistema solicita información (ingresos fijos/variables, gastos promedio, deudas activas, ahorros, metas).
-  3. Usuario ingresa datos y confirma.
-  4. Sistema calcula puntaje, clasifica (ej. crítico, en riesgo, saludable) y muestra recomendaciones + CTA para configurar presupuesto.
+  1. Usuario inicia onboarding.
+  2. Sistema valida si existen cuentas, deudas, metas y gastos recurrentes registrados.
+  3. Si faltan datos, sistema pregunta: "Para un presupuesto más limpio, ¿quieres registrar tu realidad financiera ahora?".
+  4. Usuario acepta y registra cuentas bancarias (nombre y saldo actual).
+  5. Usuario registra deudas (origen, saldo actual, tasa EA opcional).
+  6. Si falta tasa en una deuda, sistema aplica 23 % EA por defecto (configurable), estima interés y sugiere cuota mensual de salida.
+  7. Usuario registra gastos recurrentes/bills (casa, carro, servicios, celular, administración, etc.).
+  8. Usuario registra metas de ahorro base.
+  9. Sistema calcula diagnóstico de salud financiera y muestra recomendaciones para el presupuesto.
 - **Flujos alternos**:
-  - 2a. Usuario omite algún dato → sistema estimará valores basados en promedios nacionales y marcará datos faltantes.
-- **Postcondiciones**: Se registra el perfil financiero inicial y se generan metas sugeridas.
+  - 3a. Usuario responde "ahora no" → sistema permite continuar a creación de presupuesto y deja recordatorio para completar la realidad financiera luego.
+  - 4a. Datos incompletos → sistema guarda borrador y marca campos faltantes para completar después.
+- **Postcondiciones**: Queda guardado un snapshot inicial de realidad financiera y se generan sugerencias de priorización (deuda, ahorro, pagos fijos).
 
 ## UC-02: Configurar Presupuesto Mensual
 - **Actor primario**: UI/UF
-- **Prioridad**: Alta (RF-02)
-- **Descripción**: El usuario define montos por categorías/subcategorías para un mes específico usando la plantilla base.
-- **Precondiciones**: Diagnóstico completado o datos de ingresos/gastos disponibles.
+- **Prioridad**: Alta (RF-02, RF-24, RF-25)
+- **Descripción**: El usuario define montos por categorías/subcategorías para un mes específico usando la plantilla base y, cuando exista información previa, aprovecha precargas automáticas de obligaciones.
+- **Precondiciones**: El usuario tiene sesión activa; puede tener o no la realidad financiera completada.
 - **Flujo básico**:
   1. Usuario selecciona mes/año.
-  0.1. Si es la primera vez o no ha guardado la plantilla Start Here, el sistema muestra dicha configuración antes de continuar.
-  2. Sistema carga la plantilla Start Here (moneda, Start Balance, bandera “¿Inicias con dinero?” y las subcategorías base) y muestra montos sugeridos.
-  3. Usuario ajusta valores, crea nuevas subcategorías si es necesario.
-  4. Sistema valida suma total vs ingresos, muestra “Left to Budget”.
-  5. Usuario guarda presupuesto.
+  2. Si es la primera vez o no ha guardado la plantilla Start Here, el sistema muestra dicha configuración antes de continuar.
+  3. Sistema carga la plantilla Start Here (moneda, Start Balance, bandera "¿Inicias con dinero?" y subcategorías base).
+  4. Si existe realidad financiera, sistema precarga automáticamente:
+     - cuotas de deudas (casa, carro, tarjetas y otras obligaciones),
+     - gastos recurrentes (servicios, celular, administración, suscripciones).
+  5. Usuario ajusta valores y crea nuevas subcategorías si es necesario.
+  6. Usuario puede crear una nueva meta de ahorro, deuda o cuenta bancaria sin salir del flujo.
+  7. Sistema valida suma total vs ingresos y muestra "Left to Budget".
+  8. Usuario guarda presupuesto.
 - **Flujos alternos**:
-  - 3a. Usuario importa configuración desde Excel/CSV → sistema mapea columnas y confirma.
-- **Postcondiciones**: Presupuesto del mes queda activo y alimenta dashboards y alertas.
+  - 4a. No existe realidad financiera → sistema no precarga obligaciones y muestra CTA para completar datos después.
+  - 5a. Usuario importa configuración desde Excel/CSV → sistema mapea columnas y confirma.
+- **Postcondiciones**: Presupuesto del mes queda activo, con compromisos fijos visibles desde el inicio, y alimenta dashboards y alertas.
 
 ## UC-03: Registrar Transacción Manual
 - **Actor primario**: UI/UF

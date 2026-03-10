@@ -2,6 +2,9 @@ import crypto from "node:crypto";
 
 import { query } from "./db";
 
+export const DEFAULT_DEBT_INTEREST_EA = 23;
+const DEFAULT_DEBT_PAYOFF_MONTHS = 36;
+
 const DEBT_SELECT = `
 SELECT d.id,
        d.user_id,
@@ -62,8 +65,37 @@ function parseTotals(value) {
   return parsed;
 }
 
+function toMonthlyRate(interestRateEa) {
+  const ea = Number(interestRateEa || 0);
+  if (!Number.isFinite(ea) || ea < 0) return null;
+  if (ea === 0) return 0;
+  return Math.pow(1 + ea / 100, 1 / 12) - 1;
+}
+
+function estimateSuggestedMonthlyPayment({ principal, interestRateEa, months = DEFAULT_DEBT_PAYOFF_MONTHS }) {
+  const p = Number(principal || 0);
+  const n = Number(months || 0);
+  if (!Number.isFinite(p) || p <= 0 || !Number.isFinite(n) || n <= 0) {
+    return 0;
+  }
+
+  const monthlyRate = toMonthlyRate(interestRateEa);
+  if (monthlyRate === null) return 0;
+  if (monthlyRate === 0) return Number((p / n).toFixed(2));
+
+  const denominator = 1 - Math.pow(1 + monthlyRate, -n);
+  if (!Number.isFinite(denominator) || denominator <= 0) {
+    return 0;
+  }
+  return Number(((p * monthlyRate) / denominator).toFixed(2));
+}
+
 function mapRow(row) {
   if (!row) return null;
+  const interestRateEa = Number(row.interest_rate_ea ?? row.interest_rate ?? DEFAULT_DEBT_INTEREST_EA);
+  const principal = Number(row.principal || 0);
+  const minimumPayment = row.minimum_payment === null ? null : Number(row.minimum_payment);
+  const suggestedMonthlyPayment = estimateSuggestedMonthlyPayment({ principal, interestRateEa });
   return {
     id: row.id,
     userId: row.user_id,
@@ -72,9 +104,11 @@ function mapRow(row) {
     accountId: row.account_id,
     debtName: row.debt_name || row.debt_type || "Deuda",
     debtType: row.debt_type || "other",
-    principal: Number(row.principal || 0),
-    interestRateEa: Number(row.interest_rate_ea ?? row.interest_rate ?? 0),
-    minimumPayment: row.minimum_payment === null ? null : Number(row.minimum_payment),
+    principal,
+    interestRateEa,
+    minimumPayment,
+    suggestedMonthlyPayment,
+    isDefaultInterestEa: interestRateEa === DEFAULT_DEBT_INTEREST_EA,
     currency: row.currency || "COP",
     status: row.status || "open",
     dueDate: toIsoDate(row.due_date),
@@ -93,6 +127,10 @@ function currentPeriod() {
 }
 
 function debtBudgetEntry(debt) {
+  const suggestedMonthlyPayment = estimateSuggestedMonthlyPayment({
+    principal: Number(debt.principal || 0),
+    interestRateEa: Number(debt.interestRateEa || DEFAULT_DEBT_INTEREST_EA),
+  });
   return {
     kind: "debt",
     debtId: debt.id,
@@ -100,7 +138,8 @@ function debtBudgetEntry(debt) {
     debtType: debt.debtType,
     principal: Number(debt.principal || 0),
     minimumPayment: debt.minimumPayment === null ? null : Number(debt.minimumPayment || 0),
-    interestRateEa: Number(debt.interestRateEa || 0),
+    suggestedMonthlyPayment,
+    interestRateEa: Number(debt.interestRateEa || DEFAULT_DEBT_INTEREST_EA),
     currency: debt.currency || "COP",
     dueDate: debt.dueDate || null,
     status: debt.status || "open",
@@ -114,8 +153,9 @@ function withDebtTotals(categories, currentTotals) {
   const debtItems = categories.filter((item) => item?.kind === "debt" && item?.status !== "closed");
   const debt = debtItems.reduce((sum, item) => {
     const minimumPayment = Number(item.minimumPayment || 0);
+    const suggestedMonthlyPayment = Number(item.suggestedMonthlyPayment || 0);
     const principal = Number(item.principal || 0);
-    return sum + (minimumPayment > 0 ? minimumPayment : principal);
+    return sum + (minimumPayment > 0 ? minimumPayment : suggestedMonthlyPayment > 0 ? suggestedMonthlyPayment : principal);
   }, 0);
   const debtPrincipal = debtItems.reduce((sum, item) => sum + Number(item.principal || 0), 0);
 
@@ -127,15 +167,20 @@ function withDebtTotals(categories, currentTotals) {
   };
 }
 
-async function ensureCurrentBudget(currency = "COP") {
+async function ensureCurrentBudget({ userId, currency = "COP" } = {}) {
+  if (!userId) {
+    return null;
+  }
   const period = currentPeriod();
   const { rows } = await query(
     `SELECT id, currency, categories_json, totals_json
        FROM budgets
-      WHERE owner_type = 'user' AND period = $1
+      WHERE owner_type = 'user'
+        AND owner_id = $1
+        AND period = $2
       ORDER BY created_at DESC
       LIMIT 1`,
-    [period],
+    [userId, period],
   );
 
   if (rows[0]) {
@@ -150,27 +195,34 @@ async function ensureCurrentBudget(currency = "COP") {
        id, owner_type, owner_id, household_id, period, country_code,
        currency, status, start_balance, categories_json, totals_json
      ) VALUES (
-       $1, 'user', NULL, NULL, $2, NULL,
-       $3, 'draft', 0, $4::jsonb, $5::jsonb
+       $1, 'user', $2, NULL, $3, NULL,
+       $4, 'draft', 0, $5::jsonb, $6::jsonb
      )
      RETURNING id, currency, categories_json, totals_json`,
-    [id, period, currency || "COP", JSON.stringify(categories), JSON.stringify(totals)],
+    [id, userId, period, currency || "COP", JSON.stringify(categories), JSON.stringify(totals)],
   );
 
   return inserted.rows[0];
 }
 
 async function upsertBudgetDebtTransaction(budgetId, debt) {
+  const suggestedMonthlyPayment = estimateSuggestedMonthlyPayment({
+    principal: Number(debt.principal || 0),
+    interestRateEa: Number(debt.interestRateEa || DEFAULT_DEBT_INTEREST_EA),
+  });
   const amount = Number(debt.minimumPayment || 0) > 0
     ? Number(debt.minimumPayment)
-    : Number(debt.principal || 0);
+    : suggestedMonthlyPayment > 0
+      ? suggestedMonthlyPayment
+      : Number(debt.principal || 0);
   const notes = `Registro de deuda: ${debt.debtName}`;
   const tags = {
     debtId: debt.id,
     debtType: debt.debtType,
-    interestRateEa: Number(debt.interestRateEa || 0),
+    interestRateEa: Number(debt.interestRateEa || DEFAULT_DEBT_INTEREST_EA),
     principal: Number(debt.principal || 0),
     minimumPayment: debt.minimumPayment === null ? null : Number(debt.minimumPayment || 0),
+    suggestedMonthlyPayment,
   };
 
   const existing = await query(
@@ -229,7 +281,13 @@ async function upsertBudgetDebtTransaction(budgetId, debt) {
 }
 
 async function syncDebtIntoBudget(debt) {
-  const budget = await ensureCurrentBudget(debt.currency || "COP");
+  const budget = await ensureCurrentBudget({
+    userId: debt?.userId,
+    currency: debt?.currency || "COP",
+  });
+  if (!budget) {
+    return;
+  }
   const categories = parseCategories(budget.categories_json);
   const totals = parseTotals(budget.totals_json);
 
@@ -253,7 +311,7 @@ async function syncDebtIntoBudget(debt) {
   await upsertBudgetDebtTransaction(budget.id, debt);
 }
 
-async function removeDebtFromBudgets(debtId) {
+async function removeDebtFromBudgets(debtId, { userId = null } = {}) {
   await query(
     `DELETE FROM transactions
       WHERE source = 'debt_registry'
@@ -261,11 +319,18 @@ async function removeDebtFromBudgets(debtId) {
     [debtId],
   );
 
+  const params = [];
+  let where = "WHERE owner_type = 'user'";
+  if (userId) {
+    params.push(userId);
+    where += ` AND owner_id = $${params.length}`;
+  }
   const { rows } = await query(
     `SELECT id, categories_json, totals_json
        FROM budgets
-      WHERE owner_type = 'user'
+       ${where}
       ORDER BY created_at DESC`,
+    params,
   );
 
   for (const budget of rows) {
@@ -335,14 +400,22 @@ function normalizeMinimumPayment(value) {
   return parsed;
 }
 
+function normalizeInterestRateEa(value) {
+  if (value === null || value === undefined || value === "") {
+    return DEFAULT_DEBT_INTEREST_EA;
+  }
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error("interest_rate_invalid");
+  }
+  return parsed;
+}
+
 function normalizeDebtPayload(data) {
   const principal = Number(data.principal);
-  const interestRateEa = Number(data.interestRateEa);
+  const interestRateEa = normalizeInterestRateEa(data.interestRateEa);
   if (!Number.isFinite(principal) || principal <= 0) {
     throw new Error("principal_invalid");
-  }
-  if (!Number.isFinite(interestRateEa) || interestRateEa < 0) {
-    throw new Error("interest_rate_invalid");
   }
 
   const debtType = String(data.debtType || "other").trim() || "other";
@@ -488,6 +561,6 @@ export async function deleteDebt(id, { userId = null } = {}) {
     return null;
   }
 
-  await removeDebtFromBudgets(id);
+  await removeDebtFromBudgets(id, { userId });
   return { id: rows[0].id };
 }
