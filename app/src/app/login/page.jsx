@@ -84,7 +84,7 @@ export default function LoginPage() {
                 />
                 <span>Recordarme</span>
               </label>
-              <a href="#" className="helper-link">Recuperar acceso</a>
+              <a href="/forgot-password" className="helper-link">Recuperar acceso</a>
             </div>
 
             <button className="btn btn-primary" style={{ width: "100%" }} type="submit" disabled={loading}>

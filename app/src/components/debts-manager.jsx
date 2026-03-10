@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  confirmDestructiveAction,
+  showErrorMessage,
+  showInfoMessage,
+  showSuccessMessage,
+} from "../lib/swal";
 
 const DEBT_TYPES = [
   { id: "credit_card", label: "Tarjeta de credito" },
@@ -134,7 +140,6 @@ export default function DebtsManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [feedback, setFeedback] = useState(null);
   const [editingId, setEditingId] = useState("");
   const [form, setForm] = useState(createInitialForm);
 
@@ -161,6 +166,10 @@ export default function DebtsManager() {
         setError("");
       } catch (_error) {
         setError("No se pudo cargar el modulo de deudas.");
+        showErrorMessage({
+          title: "No se pudo cargar",
+          text: "No se pudo cargar el modulo de deudas.",
+        });
       } finally {
         setLoading(false);
       }
@@ -212,7 +221,6 @@ export default function DebtsManager() {
 
   function editDebt(item) {
     setEditingId(item.id);
-    setFeedback(null);
     setForm({
       debtName: item.debtName || "",
       debtType: item.debtType || "other",
@@ -231,7 +239,6 @@ export default function DebtsManager() {
 
   async function submitDebt(event) {
     event.preventDefault();
-    setFeedback(null);
 
     const debtName = form.debtName.trim();
     const debtType = form.debtType;
@@ -240,31 +247,31 @@ export default function DebtsManager() {
     const minimumPayment = form.minimumPayment === "" ? null : Number(form.minimumPayment);
 
     if (!debtName) {
-      setFeedback({ type: "error", text: "El nombre de la deuda es obligatorio." });
+      await showInfoMessage({ title: "Dato requerido", text: "El nombre de la deuda es obligatorio." });
       return;
     }
     if (!debtType) {
-      setFeedback({ type: "error", text: "Selecciona un tipo de deuda." });
+      await showInfoMessage({ title: "Dato requerido", text: "Selecciona un tipo de deuda." });
       return;
     }
     if (!Number.isFinite(principal) || principal <= 0) {
-      setFeedback({ type: "error", text: "Ingresa un principal mayor a 0." });
+      await showInfoMessage({ title: "Principal invalido", text: "Ingresa un principal mayor a 0." });
       return;
     }
     if (!Number.isFinite(interestRateEa) || interestRateEa < 0) {
-      setFeedback({ type: "error", text: "Ingresa una tasa EA valida." });
+      await showInfoMessage({ title: "Tasa invalida", text: "Ingresa una tasa EA valida." });
       return;
     }
     if (minimumPayment !== null && (!Number.isFinite(minimumPayment) || minimumPayment < 0)) {
-      setFeedback({ type: "error", text: "El pago minimo debe ser mayor o igual a 0." });
+      await showInfoMessage({ title: "Cuota invalida", text: "El pago minimo debe ser mayor o igual a 0." });
       return;
     }
     if (form.linkType === "account" && !form.accountId) {
-      setFeedback({ type: "error", text: "Selecciona una cuenta para vincular la deuda." });
+      await showInfoMessage({ title: "Vinculo requerido", text: "Selecciona una cuenta para vincular la deuda." });
       return;
     }
     if (form.linkType === "card" && !form.cardId) {
-      setFeedback({ type: "error", text: "Selecciona una tarjeta para vincular la deuda." });
+      await showInfoMessage({ title: "Vinculo requerido", text: "Selecciona una tarjeta para vincular la deuda." });
       return;
     }
 
@@ -308,32 +315,48 @@ export default function DebtsManager() {
       setDebts((current) =>
         editingId ? current.map((item) => (item.id === editingId ? data : item)) : [data, ...current],
       );
-      setFeedback({
-        type: "ok",
+      await showSuccessMessage({
+        title: editingId ? "Deuda actualizada" : "Deuda creada",
         text: editingId
-          ? "Deuda actualizada y sincronizada con presupuesto."
-          : "Deuda creada. Se registro automaticamente en presupuesto.",
+          ? "La deuda fue actualizada y sincronizada con presupuesto."
+          : "La deuda fue creada y sincronizada con presupuesto.",
       });
       resetForm();
     } catch (submitError) {
-      setFeedback({ type: "error", text: submitError.message || "No se pudo guardar la deuda." });
+      await showErrorMessage({
+        title: "No se pudo guardar",
+        text: submitError.message || "No se pudo guardar la deuda.",
+      });
     } finally {
       setSaving(false);
     }
   }
 
   async function removeDebt(id) {
-    const ok = window.confirm("¿Eliminar deuda?");
-    if (!ok) return;
+    const confirmed = await confirmDestructiveAction({
+      title: "Eliminar deuda",
+      text: "Esta deuda se eliminara de forma permanente.",
+      confirmText: "Si, eliminar deuda",
+    });
+    if (!confirmed) return;
+
     try {
       const res = await fetch(`/api/debts/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || "No se pudo eliminar la deuda.");
       setDebts((current) => current.filter((item) => item.id !== id));
       if (editingId === id) {
         resetForm();
       }
+      await showSuccessMessage({
+        title: "Deuda eliminada",
+        text: "La deuda fue eliminada correctamente.",
+      });
     } catch (_error) {
-      setFeedback({ type: "error", text: "No se pudo eliminar la deuda." });
+      await showErrorMessage({
+        title: "No se pudo eliminar",
+        text: "No se pudo eliminar la deuda.",
+      });
     }
   }
 
@@ -511,12 +534,6 @@ export default function DebtsManager() {
                   ? "Con esa cuota e interes, la deuda no se alcanzaria a pagar. Sube la cuota mensual."
                   : "Agrega principal, interes EA y cuota mensual para estimar tiempo y total pagado."}
             </p>
-
-            {feedback ? (
-              <p className={`message ${feedback.type === "error" ? "message-error" : "message-ok"}`}>
-                {feedback.text}
-              </p>
-            ) : null}
 
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button className="btn btn-primary" type="submit" disabled={saving}>

@@ -42,7 +42,8 @@
 	          <span class="chip">Syne + DM Sans</span>
 	          <span class="chip">Menu: sidebar (Desktop) / drawer (Mobile)</span>
 	          <span class="chip">Gastos: filtros + drawer overlay</span>
-	          <span class="chip">Herramientas: dividir cuentas</span>
+	          <span class="chip">Herramientas: dividir cuentas estilo Splitwise</span>
+	          <span class="chip">Factura por foto: base lista (OCR fase 2)</span>
 	        </div>
 
         <div class="p10-divider"></div>
@@ -308,8 +309,10 @@
         <div class="p10-notes">
           <h3>Notas</h3>
           <ul>
+            <li><b>Navegacion:</b> Deudas vive dentro de la seccion <span class="p10-kbd">Config.</span> en el sidebar/drawer.</li>
             <li><b>CRUD:</b> crear, editar y eliminar deudas en un solo flujo.</li>
-            <li><b>Campo clave:</b> cada deuda solicita interes en <span class="p10-kbd">% EA</span>.</li>
+            <li><b>Campo clave:</b> cada deuda solicita interes en <span class="p10-kbd">% EA</span> y cuota mensual.</li>
+            <li><b>Proyeccion:</b> se muestra tiempo estimado para pagar y total estimado pagado.</li>
             <li><b>Sincronizacion:</b> al crear o editar, la deuda se registra en el presupuesto del periodo.</li>
           </ul>
         </div>
@@ -383,7 +386,8 @@
           <h3>Notas</h3>
           <ul>
             <li><b>Nuevo menu:</b> seccion "Herramientas" en la navegacion lateral (Desktop) / drawer (Mobile).</li>
-            <li><b>Cobertura:</b> crear division, agregar participantes y calcular reparto por item.</li>
+            <li><b>Cobertura:</b> flujo tipo Splitwise (participantes, items, quien pago, balances y liquidacion sugerida).</li>
+            <li><b>Futuro:</b> bloque listo para cargar factura por foto y extraer items con OCR.</li>
           </ul>
         </div>
       </section>
@@ -409,7 +413,7 @@
         <div class="p10-browser">
           <div class="p10-browser-bar">
             <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
-            <div class="p10-url">/config/bancos</div>
+            <div class="p10-url">/bancos</div>
           </div>
           <div class="p10-viewport">
             <iframe class="p10-frame" src="./bancos/index.html" name="p10-bancos-desktop" title="Bancos (Desktop)" loading="lazy"></iframe>
@@ -423,7 +427,7 @@
         <div class="p10-browser">
           <div class="p10-browser-bar">
             <div class="p10-dots"><span class="p10-dot r"></span><span class="p10-dot y"></span><span class="p10-dot g"></span></div>
-            <div class="p10-url">/config/bancos</div>
+            <div class="p10-url">/bancos</div>
           </div>
           <div class="p10-viewport mobile">
             <iframe class="p10-frame" src="./bancos/index.html" name="p10-bancos-mobile" title="Bancos (Mobile)" loading="lazy"></iframe>

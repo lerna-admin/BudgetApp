@@ -32,6 +32,11 @@ BudgetApp permitirá a personas y familias planificar, controlar y optimizar su 
 | RF-18 | Alta | Importar archivos: archivos csv y xsl con las columnas asociadas a nuestra plantilla |
 | RF-19 | Media | División de cuentas compartidas: registrar compras con ítems y participantes para calcular cuánto paga cada persona. |
 | RF-20 | Media | Selector de tema y paleta: la interfaz permitirá elegir entre propuestas (paletas de color) y modo claro/oscuro en tiempo real, persistiendo la preferencia del usuario. |
+| RF-21 | Alta | Pre-onboarding recomendado "Conoce tu realidad": cuando el usuario no tenga cuentas, deudas, metas o recurrentes, el sistema debe preguntarle si desea registrar su realidad financiera antes de crear presupuesto. |
+| RF-22 | Alta | Registro de realidad financiera mínima: cuentas bancarias (nombre, saldo), deudas (origen, saldo actual, tasa EA opcional), metas de ahorro (nombre, valor objetivo, fecha objetivo) y gastos recurrentes/bills (concepto, monto, frecuencia, día de pago). |
+| RF-23 | Alta | Si una deuda no tiene tasa reportada, el sistema usará una tasa por defecto de 23 % EA (configurable) para estimar interés y sugerir cuota mensual de salida. |
+| RF-24 | Alta | Al crear presupuesto, el sistema debe precargar automáticamente deudas y pagos recurrentes (ej.: casa, carro, servicios, celular, administración) como compromisos editables para evitar omisiones de fin de mes. |
+| RF-25 | Media | Durante la creación del presupuesto, el usuario podrá crear nuevas metas de ahorro, deudas o cuentas bancarias sin salir del flujo; estos datos se sincronizan con su realidad financiera. |
 
 ## 4. Requisitos no funcionales
 - **Disponibilidad**: 99 % mensual para servicios web/móvil.

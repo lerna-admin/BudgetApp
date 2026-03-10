@@ -31,7 +31,6 @@
               <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
               <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
               <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de movimientos</span></a>
-              <a class="menu-item active" href="../deudas/index.html"><span>💳</span><span>Deudas</span></a>
               <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
             </div>
           </div>
@@ -47,6 +46,7 @@
             <p class="menu-title">Config.</p>
             <div class="menu-list">
               <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+              <a class="menu-item active" href="../deudas/index.html"><span>💳</span><span>Deudas</span></a>
               <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
               <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
               <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
@@ -78,7 +78,7 @@
         <main class="dashboard-main">
           <header class="dashboard-topbar">
             <div>
-              <p class="dashboard-path">Deudas / Gestion</p>
+              <p class="dashboard-path">Config / Deudas</p>
               <h1 class="dashboard-title">Control de deudas</h1>
             </div>
           </header>
@@ -143,6 +143,9 @@
             </div>
             <textarea class="input" rows="3" placeholder="Notas">Prioridad alta por tasa EA.</textarea>
             <p class="expense-hint" style="margin-top: 8px;">Se registra automaticamente en presupuesto al guardar.</p>
+            <p class="expense-hint" style="margin-top: 8px;">
+              Proyeccion: 1 año y 9 meses para pagarla. Total estimado pagado: $ 8.920.000.
+            </p>
             <button class="btn btn-primary" type="button" style="margin-top: 10px;">Guardar deuda</button>
           </article>
 
@@ -157,6 +160,8 @@
                   <th>Principal</th>
                   <th>Interes EA</th>
                   <th>Pago minimo</th>
+                  <th>Tiempo estimado</th>
+                  <th>Total pagado est.</th>
                   <th>Vencimiento</th>
                   <th>Estado</th>
                   <th>Vinculo</th>
@@ -172,6 +177,8 @@
                   <td>$ 6.800.000</td>
                   <td>31.40% EA</td>
                   <td>$ 420.000</td>
+                  <td>1 año y 9 meses</td>
+                  <td>$ 8.920.000</td>
                   <td>2026-03-15</td>
                   <td><span class="chip chip-live">open</span></td>
                   <td>Visa Clasica ••••4242</td>
@@ -185,6 +192,8 @@
                   <td>$ 11.600.000</td>
                   <td>13.80% EA</td>
                   <td>$ 820.000</td>
+                  <td>1 año y 4 meses</td>
+                  <td>$ 13.180.000</td>
                   <td>2026-03-25</td>
                   <td><span class="chip chip-live">open</span></td>
                   <td>Global66 · 00893124</td>

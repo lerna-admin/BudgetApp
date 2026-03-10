@@ -3,6 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { getAristas, getSubcategories } from "../lib/expense-catalog";
+import {
+  confirmDestructiveAction,
+  showErrorMessage,
+  showInfoMessage,
+  showSuccessMessage,
+} from "../lib/swal";
 
 const movementTypes = [
   { id: "income", label: "Ingreso", icon: "💰" },
@@ -86,6 +92,7 @@ function normalizeForm(nextForm) {
     }
   } else {
     next.edge = next.edge || "";
+    next.method = "bank_transfer";
   }
 
   if (!methodNeedsBank(next.method)) {
@@ -98,6 +105,32 @@ function normalizeForm(nextForm) {
 
   if (!methodNeedsCard(next.method)) {
     next.card = "";
+  }
+
+  if (next.movementType !== "income" && next.movementType !== "transfer") {
+    next.destinationAccountId = "";
+    next.destinationNote = "";
+  }
+
+  if (next.movementType !== "expense") {
+    next.debtId = "";
+  }
+
+  if (next.movementType !== "saving" && next.movementType !== "investment") {
+    next.savingsGoalId = "";
+  }
+
+  if (next.movementType === "income") {
+    next.sourceAccountId = "";
+  }
+
+  if (next.movementType !== "transfer") {
+    next.transferFrom = "";
+    next.transferTo = "";
+  }
+
+  if (next.method !== "bank_transfer" && next.movementType !== "transfer") {
+    next.sourceAccountId = "";
   }
 
   return next;
@@ -119,8 +152,13 @@ function createInitialForm() {
     currency: "COP",
     tags: "",
     attachments: [],
+    sourceAccountId: "",
     transferFrom: "",
     transferTo: "",
+    destinationAccountId: "",
+    destinationNote: "",
+    debtId: "",
+    savingsGoalId: "",
   });
 }
 
@@ -168,7 +206,6 @@ export default function ExpenseRegister() {
   const [methodFilter, setMethodFilter] = useState("");
   const [bankFilter, setBankFilter] = useState("");
   const [attachmentsOnly, setAttachmentsOnly] = useState(false);
-  const [feedback, setFeedback] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [customSubs, setCustomSubs] = useState({ Gastos: [], Ahorro: [], Ingresos: [] });
   const [newSubOpen, setNewSubOpen] = useState(false);
@@ -178,6 +215,8 @@ export default function ExpenseRegister() {
   const [tagSuggestions, setTagSuggestions] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [cards, setCards] = useState([]);
+  const [debts, setDebts] = useState([]);
+  const [savingsGoals, setSavingsGoals] = useState([]);
   const totalAccountsBalance = accounts.reduce((acc, a) => acc + (Number(a.balance) || 0), 0);
 
   useEffect(() => {
@@ -206,17 +245,27 @@ export default function ExpenseRegister() {
     async function load() {
       try {
         setLoading(true);
-        const [expRes, accRes, cardRes] = await Promise.all([
+        const [expRes, accRes, cardRes, debtRes, goalsRes] = await Promise.all([
           fetch("/api/expenses", { cache: "no-store" }),
           fetch("/api/accounts", { cache: "no-store" }),
           fetch("/api/cards", { cache: "no-store" }),
+          fetch("/api/debts", { cache: "no-store" }),
+          fetch("/api/savings-goals", { cache: "no-store" }),
         ]);
-        if (!expRes.ok || !accRes.ok || !cardRes.ok) throw new Error();
-        const [expJson, accJson, cardJson] = await Promise.all([expRes.json(), accRes.json(), cardRes.json()]);
+        if (!expRes.ok || !accRes.ok || !cardRes.ok || !debtRes.ok || !goalsRes.ok) throw new Error();
+        const [expJson, accJson, cardJson, debtJson, goalsJson] = await Promise.all([
+          expRes.json(),
+          accRes.json(),
+          cardRes.json(),
+          debtRes.json(),
+          goalsRes.json(),
+        ]);
         if (aborted) return;
         setMovements(expJson.data || []);
         setAccounts(accJson.data || []);
         setCards(cardJson.data || []);
+        setDebts(debtJson.data || []);
+        setSavingsGoals(goalsJson.data || []);
         setApiError("");
       } catch (error) {
         if (aborted) return;
@@ -246,19 +295,6 @@ export default function ExpenseRegister() {
     }
     loadCustomSubs();
 
-    async function loadAccounts() {
-      try {
-        const res = await fetch("/api/accounts", { cache: "no-store" });
-        if (!res.ok) throw new Error();
-        const json = await res.json();
-        if (aborted) return;
-        setAccounts(json.data || []);
-      } catch (_e) {
-        /* ignore */
-      }
-    }
-    loadAccounts();
-
     async function loadTags() {
       try {
         const res = await fetch("/api/tags", { cache: "no-store" });
@@ -277,15 +313,32 @@ export default function ExpenseRegister() {
   }, []);
 
   function openDrawer() {
-    setFeedback(null);
     setTagInput("");
     setDrawerOpen(true);
   }
 
   function closeDrawer() {
-    setFeedback(null);
     setTagInput("");
     setDrawerOpen(false);
+  }
+
+  async function refreshRealityData() {
+    try {
+      const [accRes, debtRes, goalsRes] = await Promise.all([
+        fetch("/api/accounts", { cache: "no-store" }),
+        fetch("/api/debts", { cache: "no-store" }),
+        fetch("/api/savings-goals", { cache: "no-store" }),
+      ]);
+      if (!accRes.ok || !debtRes.ok || !goalsRes.ok) {
+        return;
+      }
+      const [accJson, debtJson, goalsJson] = await Promise.all([accRes.json(), debtRes.json(), goalsRes.json()]);
+      setAccounts(accJson.data || []);
+      setDebts(debtJson.data || []);
+      setSavingsGoals(goalsJson.data || []);
+    } catch (_error) {
+      // Ignore refresh failures; movement itself was already saved/deleted.
+    }
   }
 
   function clearAdvancedFilters() {
@@ -326,18 +379,30 @@ export default function ExpenseRegister() {
     return [...base, ...customEdges];
   }, [form.category, form.subcategory, customEdges]);
 
-  const incomeAccountOptions = useMemo(() => {
+  const accountSelectOptions = useMemo(() => {
     return accounts.map((acc) => ({
       id: acc.id,
       label: `${acc.accountName}${acc.accountNumber ? " · " + acc.accountNumber : ""} · ${acc.currency}`,
     }));
   }, [accounts]);
 
-  const transferAccountOptions = useMemo(
-    () =>
-      accounts.map((acc) => `${acc.accountName}${acc.accountNumber ? " · " + acc.accountNumber : ""}`),
-    [accounts],
+  const debtOptions = useMemo(
+    () => debts.filter((item) => item.status !== "closed" && Number(item.principal || 0) > 0),
+    [debts],
   );
+
+  const savingsGoalOptions = useMemo(
+    () => savingsGoals.filter((item) => item.status !== "cancelled"),
+    [savingsGoals],
+  );
+
+  const accountLabelById = useMemo(() => {
+    const map = {};
+    accountSelectOptions.forEach((item) => {
+      map[item.id] = item.label;
+    });
+    return map;
+  }, [accountSelectOptions]);
 
   useEffect(() => {
     if (form.movementType === "transfer") return;
@@ -504,10 +569,13 @@ export default function ExpenseRegister() {
     );
   }, [movements]);
 
-  const available = totalAccountsBalance + totals.income - totals.expenses - totals.savings;
+  const available = totalAccountsBalance;
   const showEdgeHelper = form.movementType !== "transfer" && edgeOptions.length === 0;
-  const bankRequired = !!form.method && methodNeedsBank(form.method);
+  const bankRequired = form.movementType !== "transfer" && !!form.method && methodNeedsBank(form.method);
   const cardRequired = !!form.method && methodNeedsCard(form.method);
+  const sourceAccountRequired =
+    form.movementType === "transfer"
+      || (form.movementType !== "income" && form.movementType !== "transfer" && form.method === "bank_transfer");
 
   function updateForm(patch) {
     setForm((current) => normalizeForm({ ...current, ...patch }));
@@ -567,6 +635,10 @@ export default function ExpenseRegister() {
       issues.push("Selecciona un banco para el metodo elegido.");
     }
 
+    if (sourceAccountRequired && !form.sourceAccountId) {
+      issues.push("Selecciona la cuenta origen.");
+    }
+
     if (cardRequired && !form.card) {
       issues.push("Selecciona una tarjeta.");
     }
@@ -576,10 +648,10 @@ export default function ExpenseRegister() {
     }
 
     if (form.movementType === "transfer") {
-      if (!form.transferFrom || !form.transferTo) {
+      if (!form.sourceAccountId || !form.destinationAccountId) {
         issues.push("Selecciona cuenta origen y destino.");
       }
-      if (form.transferFrom && form.transferTo && form.transferFrom === form.transferTo) {
+      if (form.sourceAccountId && form.destinationAccountId && form.sourceAccountId === form.destinationAccountId) {
         issues.push("La cuenta origen debe ser distinta a la cuenta destino.");
       }
     }
@@ -592,9 +664,15 @@ export default function ExpenseRegister() {
     const { issues, amount } = validateForm();
 
     if (issues.length > 0) {
-      setFeedback({ type: "error", text: issues[0] });
+      await showInfoMessage({
+        title: "Revisa el formulario",
+        text: issues[0],
+      });
       return;
     }
+
+    const transferFromLabel = form.sourceAccountId ? (accountLabelById[form.sourceAccountId] || form.transferFrom || "") : "";
+    const transferToLabel = form.destinationAccountId ? (accountLabelById[form.destinationAccountId] || form.transferTo || "") : "";
 
     const payload = {
       movementType: form.movementType,
@@ -611,9 +689,16 @@ export default function ExpenseRegister() {
       currency: form.currency,
       tags: selectedTags,
       attachments: form.attachments,
-      transferFrom: form.transferFrom,
-      transferTo: form.transferTo,
-      destinationAccountId: form.destinationAccountId || null,
+      transferFrom: form.movementType === "transfer" ? transferFromLabel : "",
+      transferTo: form.movementType === "transfer" ? transferToLabel : "",
+      sourceAccountId: form.sourceAccountId || null,
+      destinationAccountId: (form.movementType === "income" || form.movementType === "transfer")
+        ? form.destinationAccountId || null
+        : null,
+      debtId: form.movementType === "expense" ? form.debtId || null : null,
+      savingsGoalId: (form.movementType === "saving" || form.movementType === "investment")
+        ? form.savingsGoalId || null
+        : null,
       destinationNote: form.destinationNote || "",
     };
 
@@ -636,13 +721,33 @@ export default function ExpenseRegister() {
           ? current.map((item) => (item.id === editing.id ? data : item))
           : [data, ...current],
       );
-      setFeedback({
-        type: "ok",
-        text: editing
-          ? "Movimiento actualizado."
-          : payload.movementType === "transfer"
-            ? "Movimiento entre cuentas guardado. No afecta el balance."
-            : "Movimiento guardado correctamente.",
+      await refreshRealityData();
+
+      let successMessage = editing
+        ? "Movimiento actualizado."
+        : payload.movementType === "transfer"
+          ? "Movimiento entre cuentas guardado. Los saldos fueron actualizados."
+          : "Movimiento guardado correctamente.";
+
+      if (!editing && payload.movementType === "income") {
+        try {
+          const budgetRes = await fetch("/api/budgets/current", { cache: "no-store" });
+          if (budgetRes.ok) {
+            const budgetJson = await budgetRes.json();
+            const varianceIncome = Number(budgetJson?.data?.overview?.variance?.income || 0);
+            if (Number.isFinite(varianceIncome)) {
+              const signal = varianceIncome >= 0 ? "+" : "";
+              successMessage = `Ingreso guardado. Variacion contra plan: ${signal}${formatCurrency(varianceIncome, payload.currency)}.`;
+            }
+          }
+        } catch (_budgetError) {
+          // Silently ignore budget comparison errors; movement is already saved.
+        }
+      }
+
+      await showSuccessMessage({
+        title: editing ? "Movimiento actualizado" : "Movimiento guardado",
+        text: successMessage,
       });
 
       setForm((current) =>
@@ -655,21 +760,39 @@ export default function ExpenseRegister() {
       setTagInput("");
       setDrawerOpen(false);
     } catch (error) {
-      setFeedback({ type: "error", text: error.message || "No se pudo guardar" });
+      await showErrorMessage({
+        title: "No se pudo guardar",
+        text: error.message || "No se pudo guardar",
+      });
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(id) {
-    const ok = window.confirm("¿Eliminar movimiento?");
-    if (!ok) return;
+    const confirmed = await confirmDestructiveAction({
+      title: "Eliminar movimiento",
+      text: "El movimiento se eliminara de forma permanente.",
+      confirmText: "Si, eliminar movimiento",
+    });
+    if (!confirmed) return;
     try {
       const res = await fetch(`/api/expenses/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "No se pudo eliminar el movimiento.");
+      }
       setMovements((current) => current.filter((item) => item.id !== id));
-    } catch (_error) {
-      setFeedback({ type: "error", text: "No se pudo eliminar" });
+      await refreshRealityData();
+      await showSuccessMessage({
+        title: "Movimiento eliminado",
+        text: "El movimiento fue eliminado correctamente.",
+      });
+    } catch (error) {
+      await showErrorMessage({
+        title: "No se pudo eliminar",
+        text: error.message || "No se pudo eliminar el movimiento.",
+      });
     }
   }
 
@@ -915,10 +1038,22 @@ export default function ExpenseRegister() {
                           type="button"
                           className="btn btn-ghost"
                           onClick={() => {
-                            setForm(normalizeForm({ ...item, tags: (item.tags || []).join(", ") }));
+                            const sourceAccountId = item.sourceAccountId
+                              || Object.keys(accountLabelById).find((id) => accountLabelById[id] === item.transferFrom)
+                              || "";
+                            const destinationAccountId = item.destinationAccountId
+                              || Object.keys(accountLabelById).find((id) => accountLabelById[id] === item.transferTo)
+                              || "";
+                            setForm(
+                              normalizeForm({
+                                ...item,
+                                sourceAccountId,
+                                destinationAccountId,
+                                tags: (item.tags || []).join(", "),
+                              }),
+                            );
                             setTagInput("");
                             setDrawerOpen(true);
-                            setFeedback(null);
                           }}
                         >
                           Editar
@@ -1129,9 +1264,15 @@ export default function ExpenseRegister() {
                           setNewSubName("");
                           setNewEdge("");
                           setNewSubOpen(false);
-                          setFeedback({ type: "ok", text: "Subcategoria creada" });
+                          await showSuccessMessage({
+                            title: "Subcategoria creada",
+                            text: "La subcategoria se creo correctamente.",
+                          });
                         } catch (_e) {
-                          setFeedback({ type: "error", text: "No se pudo crear subcategoria" });
+                          await showErrorMessage({
+                            title: "No se pudo crear",
+                            text: "No se pudo crear la subcategoria.",
+                          });
                         }
                       }}
                     >
@@ -1175,10 +1316,10 @@ export default function ExpenseRegister() {
                 <select
                   className="input"
                   value={form.destinationAccountId || ""}
-                  onChange={(e) => updateForm({ destinationAccountId: e.target.value || null })}
+                  onChange={(e) => updateForm({ destinationAccountId: e.target.value || "" })}
                 >
                   <option value="">Efectivo</option>
-                  {incomeAccountOptions.map((option) => (
+                  {accountSelectOptions.map((option) => (
                     <option key={option.id} value={option.id}>{option.label}</option>
                   ))}
                 </select>
@@ -1231,6 +1372,22 @@ export default function ExpenseRegister() {
             </div>
           )}
 
+          {sourceAccountRequired && form.movementType !== "transfer" && (
+            <div className="form-field">
+              <label className="form-label">Cuenta origen bancaria</label>
+              <select
+                className="input"
+                value={form.sourceAccountId || ""}
+                onChange={(event) => updateForm({ sourceAccountId: event.target.value || "" })}
+              >
+                <option value="">Seleccionar cuenta origen</option>
+                {accountSelectOptions.map((option) => (
+                  <option key={option.id} value={option.id}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {cardRequired && (
             <div className="form-field">
               <label className="form-label">Tarjeta</label>
@@ -1258,12 +1415,12 @@ export default function ExpenseRegister() {
                 <label className="form-label">Cuenta origen</label>
                 <select
                   className="input"
-                  value={form.transferFrom}
-                  onChange={(event) => updateForm({ transferFrom: event.target.value })}
+                  value={form.sourceAccountId || ""}
+                  onChange={(event) => updateForm({ sourceAccountId: event.target.value || "" })}
                 >
                   <option value="">Seleccionar origen</option>
-                  {transferAccountOptions.map((option) => (
-                    <option key={option} value={option}>{option}</option>
+                  {accountSelectOptions.map((option) => (
+                    <option key={option.id} value={option.id}>{option.label}</option>
                   ))}
                 </select>
               </div>
@@ -1271,15 +1428,51 @@ export default function ExpenseRegister() {
                 <label className="form-label">Cuenta destino</label>
                 <select
                   className="input"
-                  value={form.transferTo}
-                  onChange={(event) => updateForm({ transferTo: event.target.value })}
+                  value={form.destinationAccountId || ""}
+                  onChange={(event) => updateForm({ destinationAccountId: event.target.value || "" })}
                 >
                   <option value="">Seleccionar destino</option>
-                  {transferAccountOptions.map((option) => (
-                    <option key={option} value={option}>{option}</option>
+                  {accountSelectOptions.map((option) => (
+                    <option key={option.id} value={option.id}>{option.label}</option>
                   ))}
                 </select>
               </div>
+            </div>
+          )}
+
+          {form.movementType === "expense" && (
+            <div className="form-field">
+              <label className="form-label">Vincular deuda (opcional)</label>
+              <select
+                className="input"
+                value={form.debtId || ""}
+                onChange={(event) => updateForm({ debtId: event.target.value || "" })}
+              >
+                <option value="">Sin vincular deuda</option>
+                {debtOptions.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.debtName} · Saldo {formatCurrency(item.principal, item.currency)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {(form.movementType === "saving" || form.movementType === "investment") && (
+            <div className="form-field">
+              <label className="form-label">Vincular meta de ahorro (opcional)</label>
+              <select
+                className="input"
+                value={form.savingsGoalId || ""}
+                onChange={(event) => updateForm({ savingsGoalId: event.target.value || "" })}
+              >
+                <option value="">Sin vincular meta</option>
+                {savingsGoalOptions.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.goalName} · Avance {formatCurrency(item.currentAmount, item.currency)}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -1346,12 +1539,6 @@ export default function ExpenseRegister() {
               <p className="expense-hint">Adjuntos: {form.attachments.join(", ")}</p>
             ) : null}
           </div>
-
-          {feedback && (
-            <p className={`message ${feedback.type === "error" ? "message-error" : "message-ok"}`}>
-              {feedback.text}
-            </p>
-          )}
 
           <button type="submit" className="btn btn-primary expense-submit-btn" disabled={saving}>
             {saving ? "Guardando..." : "Guardar movimiento"}

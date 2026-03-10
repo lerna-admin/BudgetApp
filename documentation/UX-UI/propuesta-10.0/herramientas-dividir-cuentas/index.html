@@ -30,7 +30,7 @@
             <div class="menu-list">
               <a class="menu-item" href="../dashboard/index.html"><span>🏠</span><span>Dashboard</span></a>
               <a class="menu-item" href="#"><span>📊</span><span>Presupuesto</span></a>
-              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de gastos</span></a>
+              <a class="menu-item" href="../gastos/index.html"><span>✏️</span><span>Registro de movimientos</span></a>
               <a class="menu-item" href="#"><span>🎯</span><span>Metas</span></a>
             </div>
           </div>
@@ -46,6 +46,7 @@
 	            <p class="menu-title">Config.</p>
 	            <div class="menu-list">
 	              <a class="menu-item" href="../bancos/index.html"><span>🏦</span><span>Bancos</span></a>
+              <a class="menu-item" href="../deudas/index.html"><span>💳</span><span>Deudas</span></a>
 	              <a class="menu-item" href="../categorias/index.html"><span>🗂️</span><span>Categorias</span></a>
 	              <a class="menu-item" href="../aristas/index.html"><span>🔺</span><span>Aristas</span></a>
 	              <a class="menu-item" href="../categorizacion/index.html"><span>🤖</span><span>Reglas</span></a>
@@ -80,42 +81,180 @@
               <p class="dashboard-path">Herramientas / Dividir cuentas</p>
               <h1 class="dashboard-title">Dividir cuenta compartida</h1>
             </div>
-            <div class="dashboard-actions">
-              <a href="#" class="btn btn-secondary">Ver historial</a>
-              <a href="#" class="btn btn-primary">+ Nueva division</a>
-            </div>
           </header>
 
           <section class="expense-intro panel-soft">
             <p class="expense-intro-title">Herramienta</p>
             <p class="expense-intro-copy">
-              Registra compras compartidas, agrega participantes (con o sin app) y define el reparto por item.
-              El resumen calcula cuanto debe pagar cada persona.
+              Flujo estilo Splitwise: agrega participantes, items, define quien pago y revisa balances al instante.
+              Incluye base para factura por foto (OCR en fase futura).
             </p>
           </section>
 
-          <section class="dashboard-grid">
-            <article class="panel dashboard-card">
-              <div class="dashboard-card-head">
-                <h2>Divisiones recientes</h2>
-                <a href="#">Exportar</a>
-              </div>
-              <div class="dashboard-empty">
-                Aun no hay divisiones registradas. Crea una nueva para comenzar.
-              </div>
-            </article>
+          <section class="expense-workspace">
+            <article class="panel expense-log">
+              <section class="dashboard-grid">
+                <article class="panel dashboard-card">
+                  <div class="dashboard-card-head">
+                    <h2>Nueva division</h2>
+                    <button class="btn btn-secondary" type="button">Limpiar</button>
+                  </div>
+                  <div class="expense-form-grid" style="margin-bottom: 10px;">
+                    <input class="input" placeholder="Titulo (ej: Cena viernes)" value="Cena viernes" />
+                    <select class="input"><option>COP</option></select>
+                  </div>
+                  <p class="expense-hint" style="margin-bottom: 6px;">Quien pago la cuenta</p>
+                  <select class="input" style="margin-bottom: 12px;">
+                    <option>Alex Castano</option>
+                    <option>Camila</option>
+                    <option>Juan</option>
+                  </select>
+                  <div class="expense-form-grid" style="margin-bottom: 8px;">
+                    <input class="input" placeholder="Nuevo participante" />
+                    <button class="btn btn-primary" type="button">+ Agregar participante</button>
+                  </div>
+                  <div class="chip-row" style="margin-bottom: 12px;">
+                    <span class="chip chip-live">Alex Castano</span>
+                    <span class="chip">Camila</span>
+                    <span class="chip">Juan</span>
+                  </div>
+                  <div class="dashboard-empty" style="margin-bottom: 10px;">
+                    <p class="expense-row-title" style="margin:0;">Factura por foto (proximamente)</p>
+                    <p class="expense-row-meta" style="margin:4px 0 8px;">Fase 2: OCR para extraer items automaticamente.</p>
+                    <input class="input" type="file" />
+                  </div>
+                </article>
 
-            <aside class="panel dashboard-card">
-              <div class="dashboard-card-head">
-                <h2>Reglas</h2>
-                <a href="#">Ver detalle</a>
-              </div>
-              <div class="bar-listing">
-                <div class="info-item"><span>Reparto por item segun participantes.</span></div>
-                <div class="info-item"><span>Invitar con o sin app.</span></div>
-                <div class="info-item"><span>Alerta si total no cuadra (no bloquea).</span></div>
-              </div>
-            </aside>
+                <aside class="panel dashboard-card">
+                  <div class="dashboard-card-head">
+                    <h2>Resumen rapido</h2>
+                  </div>
+                  <div class="expense-summary-strip">
+                    <div class="expense-summary-card">
+                      <p>Total cuenta</p>
+                      <strong>$ 286.000</strong>
+                    </div>
+                    <div class="expense-summary-card">
+                      <p>Items validos</p>
+                      <strong>3</strong>
+                    </div>
+                    <div class="expense-summary-card">
+                      <p>Items sin reparto</p>
+                      <strong>0</strong>
+                    </div>
+                    <div class="expense-summary-card expense-summary-card-live">
+                      <p>Pagos sugeridos</p>
+                      <strong>2</strong>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary" type="button" style="margin-top: 10px;">Guardar division</button>
+                </aside>
+              </section>
+
+              <section class="dashboard-grid">
+                <article class="panel dashboard-card">
+                  <div class="dashboard-card-head">
+                    <h2>Items de la cuenta</h2>
+                    <button class="btn btn-secondary" type="button">+ Agregar item</button>
+                  </div>
+                  <div class="movement-list">
+                    <article class="movement-item" style="display:grid;gap:8px;">
+                      <div class="expense-form-grid">
+                        <input class="input" value="Pizza grande" />
+                        <input class="input" value="96000" />
+                      </div>
+                      <div class="chip-row">
+                        <span class="chip chip-live">Alex</span>
+                        <span class="chip chip-live">Camila</span>
+                        <span class="chip chip-live">Juan</span>
+                      </div>
+                      <p class="movement-meta" style="margin:0;">Cada uno: $ 32.000</p>
+                    </article>
+                    <article class="movement-item" style="display:grid;gap:8px;">
+                      <div class="expense-form-grid">
+                        <input class="input" value="Bebidas" />
+                        <input class="input" value="54000" />
+                      </div>
+                      <div class="chip-row">
+                        <span class="chip chip-live">Alex</span>
+                        <span class="chip chip-live">Camila</span>
+                        <span class="chip chip-live">Juan</span>
+                      </div>
+                      <p class="movement-meta" style="margin:0;">Cada uno: $ 18.000</p>
+                    </article>
+                  </div>
+                </article>
+
+                <aside class="panel dashboard-card">
+                  <div class="dashboard-card-head">
+                    <h2>Balances</h2>
+                  </div>
+                  <table class="expense-table">
+                    <thead>
+                      <tr>
+                        <th>Participante</th>
+                        <th>Pago</th>
+                        <th>Consumo</th>
+                        <th>Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Alex Castano</td>
+                        <td>$ 286.000</td>
+                        <td>$ 95.333</td>
+                        <td class="amount-col pos">+$ 190.667</td>
+                      </tr>
+                      <tr>
+                        <td>Camila</td>
+                        <td>$ 0</td>
+                        <td>$ 95.333</td>
+                        <td class="amount-col neg">-$ 95.333</td>
+                      </tr>
+                      <tr>
+                        <td>Juan</td>
+                        <td>$ 0</td>
+                        <td>$ 95.333</td>
+                        <td class="amount-col neg">-$ 95.333</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="dashboard-card-head" style="margin-top: 12px;">
+                    <h2>Liquidacion sugerida</h2>
+                  </div>
+                  <div class="bar-listing">
+                    <div class="info-item">
+                      <span>Camila le paga a Alex</span>
+                      <strong>$ 95.333</strong>
+                    </div>
+                    <div class="info-item">
+                      <span>Juan le paga a Alex</span>
+                      <strong>$ 95.333</strong>
+                    </div>
+                  </div>
+                </aside>
+              </section>
+
+              <article class="panel dashboard-card">
+                <div class="dashboard-card-head">
+                  <h2>Divisiones recientes (local)</h2>
+                  <button class="btn btn-ghost" type="button">Limpiar historial</button>
+                </div>
+                <div class="movement-list">
+                  <article class="movement-item" style="display:grid;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                      <p class="movement-name" style="margin:0;">Cena viernes</p>
+                      <p class="movement-amount pos" style="margin:0;">$ 286.000</p>
+                    </div>
+                    <p class="movement-meta">Pago: Alex Castano · Items: 3 · 27/02/2026 20:45</p>
+                    <div class="chip-row">
+                      <span class="chip">Camila -&gt; Alex: $ 95.333</span>
+                      <span class="chip">Juan -&gt; Alex: $ 95.333</span>
+                    </div>
+                  </article>
+                </div>
+              </article>
+            </article>
           </section>
         </main>
       </section>
