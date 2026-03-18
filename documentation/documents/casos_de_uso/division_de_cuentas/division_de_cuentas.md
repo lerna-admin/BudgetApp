@@ -8,8 +8,8 @@
 |-------|-------|
 | **ID** | UC-DC-01 |
 | **Nombre** | Dividir cuenta de compras compartidas |
-| **Versión** | 1.3 |
-| **Fecha** | 2026-03-17 |
+| **Versión** | 1.4 |
+| **Fecha** | 2026-03-18 |
 | **Autor** | Alexandra Castano |
 | **Prioridad** | Media |
 | **Frecuencia de uso** | Media |
@@ -40,6 +40,8 @@ Permite crear divisiones de cuenta, adjuntar factura opcional, agregar ítems co
 4. Se actualiza el resumen de ítems y el total de la cuenta.
 5. La división queda disponible en la lista con su fecha de creación.
 6. Si se liquidan deudas, se registran pagos en el historial con opción de deshacer.
+7. Al saldarse completamente las deudas del usuario (balance = $0), el sistema ofrece registrar los movimientos derivados como ingresos/egresos en el presupuesto.
+8. Los IDs de los movimientos registrados se persisten en la división (campo `expenseIds` dentro de cada liquidación en `settlements_json`), garantizando que el banner no vuelva a aparecer en ningún dispositivo o navegador.
 
 #### Fallo
 1. No se registra la división o los ítems.
@@ -62,7 +64,10 @@ Permite crear divisiones de cuenta, adjuntar factura opcional, agregar ítems co
 | 10 | Usuario presiona el botón Balancear (si hay ítems). | Abre modal con Liquidar deudas e Historial de pagos. |
 | 11 | Usuario selecciona a quién pagar y salda total o parcialmente. | Persiste la liquidación, recalcula balances y marca “Cuenta liquidada”. |
 | 12 | Usuario puede exportar CSV del balance o deshacer un pago del historial. | Recalcula balances y restaura la deuda si aplica. |
-| 13 | Usuario vuelve a la lista o refresca la página. | Mantiene la vista de ítems si existe la división en la URL. |
+| 13 | - | Si el balance del usuario llega a $0, muestra un banner con la opción de registrar los movimientos derivados de la liquidación (pagos recibidos, pagos realizados y consumo propio si aplicó). |
+| 14 | Usuario abre el panel de registro de movimientos. | Muestra cada movimiento sugerido con: descripción (precompletada con el nombre del movimiento, editable y obligatoria), subcategoría (opcional), rubro (obligatorio si la subcategoría tiene rubriques), método de pago (Efectivo, Tarjeta, Transferencia), campos adicionales según método (tarjeta, banco y nombre de cuenta) y notas (precompletadas con referencia a la división). |
+| 15 | Usuario completa los datos y confirma. | Crea los movimientos en el registro de gastos/ingresos, guarda sus IDs en el campo `expenseIds` de cada liquidación dentro de `settlements_json` y oculta el banner de forma permanente en todos los dispositivos. |
+| 16 | Usuario vuelve a la lista o refresca la página. | Mantiene la vista de ítems si existe la división en la URL. El banner no vuelve a aparecer si los movimientos ya fueron registrados. |
 
 ### Flujos Alternativos
 
@@ -129,6 +134,29 @@ Permite crear divisiones de cuenta, adjuntar factura opcional, agregar ítems co
 | 12a | El usuario pulsa “Deshacer” en el historial. |
 | 12b | El sistema elimina el pago, recalcula y devuelve la deuda al balance. |
 
+#### FA-10: Descartar banner de registro de movimientos
+
+| Paso | Descripción |
+|------|-------------|
+| 13a | El usuario cierra el banner sin registrar movimientos. |
+| 13b | El banner desaparece para la sesión actual. Al reabrir el modal de balance, el banner vuelve a aparecer si los movimientos no han sido registrados. |
+
+#### FA-11: Deshacer liquidación con movimientos registrados
+
+| Paso | Descripción |
+|------|-------------|
+| 12a | El usuario pulsa “Deshacer” en una liquidación que tiene movimientos registrados en el presupuesto. |
+| 12b | El sistema muestra un diálogo de confirmación preguntando si también desea eliminar los movimientos registrados de esa liquidación. |
+| 12c | Si confirma eliminar: se borran los movimientos del presupuesto y se elimina la liquidación. |
+| 12d | Si elige solo deshacer: se elimina únicamente la liquidación sin tocar los movimientos del presupuesto. |
+
+#### FA-12: Solo consumo propio (sin liquidaciones del usuario)
+
+| Paso | Descripción |
+|------|-------------|
+| 13a | El usuario pagó exactamente su parte (balance = $0 desde el inicio, sin liquidaciones donde participe). |
+| 13b | El banner muestra únicamente el movimiento “Tu consumo en [título]” como gasto sugerido. |
+
 ### Flujos de Excepción
 
 No hay.
@@ -140,6 +168,7 @@ No hay.
 - Se almacenan participantes e ítems con su distribución y pagador.
 - Se guarda la moneda, fecha de creación y totales calculados.
 - Se actualizan ítems y balances al editar o eliminar.
+- Los IDs de los movimientos registrados se almacenan en el campo `expenseIds` de cada liquidación dentro del array `settlements_json` (JSONB). La entrada especial `__owner_consumption__` almacena el ID del movimiento de consumo propio. Esta persistencia en base de datos garantiza que el estado (registrado/no registrado) sea consistente en todos los dispositivos y navegadores.
 
 #### Seguridad
 - Solo usuarios autenticados pueden registrar divisiones de cuenta.
@@ -188,6 +217,13 @@ No hay.
 | RN-DC-18 | Cada pago se registra en el historial con fecha/hora y detalle de quién pagó a quién. |
 | RN-DC-19 | El historial permite deshacer un pago y restaurar la deuda. |
 | RN-DC-20 | Se puede exportar CSV de ítems y CSV del balance por participante. |
+| RN-DC-21 | Cuando el balance del usuario llega a $0 (todas sus deudas están saldadas), el sistema muestra un banner para registrar los movimientos derivados de la liquidación. |
+| RN-DC-22 | El banner se suprime de forma permanente una vez registrados los movimientos; el estado se persiste en base de datos (`expenseIds` en `settlements_json`). |
+| RN-DC-23 | La descripción del movimiento es obligatoria; se precomplleta con el nombre del movimiento (ej. "Juan te pagó") y es editable. |
+| RN-DC-24 | El rubro/arista es obligatorio cuando la subcategoría seleccionada tiene rubros asociados. |
+| RN-DC-25 | Si el método de pago es "Transferencia bancaria", los campos banco y nombre de cuenta son obligatorios. |
+| RN-DC-26 | El movimiento "Tu consumo" solo aparece como sugerencia si el usuario efectivamente pagó parte de la cuenta (`paidCents > 0`). |
+| RN-DC-27 | Al deshacer una liquidación con movimientos registrados, el sistema pregunta si se deben eliminar; la eliminación aplica únicamente a los movimientos de esa liquidación específica, no a los de otras. |
 
 ### Trazabilidad
 
@@ -217,6 +253,7 @@ Pendiente por validar con el usuario.
 
 | Versión | Fecha | Autor | Descripción |
 |---------|-------|-------|-------------|
+| 1.4 | 2026-03-18 | Alexandra Castano | Registro de movimientos al saldarse (banner, panel de registro, persistencia en DB con expenseIds en settlements_json, deshacer con eliminación selectiva de movimientos). |
 | 1.3 | 2026-03-17 | Alexandra Castano | Factura opcional, exportaciones CSV, balance con selección de destinatario, historial de pagos y deshacer. |
 | 1.2 | 2026-03-09 | Alexandra Castano | Actualización de flujo, validaciones, resumen, edición y persistencia. |
 | 1.1 | 2026-02-23 | Alexandra Castano | Invitaciones y regla de alerta por total. |

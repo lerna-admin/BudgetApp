@@ -3,6 +3,8 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { getAristas, getSubcategories } from "../lib/expense-catalog";
+
 const CURRENCIES = ["COP", "USD", "EUR"];
 
 function createId(prefix) {
@@ -837,6 +839,46 @@ function resolvePayerId(record) {
   return "user";
 }
 
+// Reads {settlementId, expenseId} pairs from the raw record's settlement entries
+function getRegisteredEntriesFromRecord(record) {
+  const entries = [];
+  for (const s of record?.settlements || []) {
+    if (!Array.isArray(s.expenseIds) || s.expenseIds.length === 0) continue;
+    const sId = s.id === "__owner_consumption__" ? null : s.id;
+    for (const expenseId of s.expenseIds) {
+      entries.push({ settlementId: sId, expenseId });
+    }
+  }
+  return entries;
+}
+
+// Returns a new settlements array with the given entries' expenseIds embedded
+function embedExpenseIdsInSettlements(settlements, entries) {
+  let next = (settlements || []).map((s) => {
+    if (s.id === "__owner_consumption__") return s;
+    const ids = entries.filter((e) => e.settlementId === s.id).map((e) => e.expenseId);
+    if (ids.length === 0) return s;
+    return { ...s, expenseIds: [...(s.expenseIds || []), ...ids] };
+  });
+  const consumptionIds = entries.filter((e) => e.settlementId === null).map((e) => e.expenseId);
+  if (consumptionIds.length > 0) {
+    const existing = next.find((s) => s.id === "__owner_consumption__");
+    if (existing) {
+      next = next.map((s) =>
+        s.id === "__owner_consumption__"
+          ? { ...s, expenseIds: [...(s.expenseIds || []), ...consumptionIds] }
+          : s,
+      );
+    } else {
+      next = [
+        ...next,
+        { id: "__owner_consumption__", fromId: null, toId: null, amountCents: 0, createdAt: null, expenseIds: consumptionIds },
+      ];
+    }
+  }
+  return next;
+}
+
 export default function SplitBillManager({ defaultPayerName }) {
   const initial = useMemo(() => createInitialSplit(defaultPayerName), [defaultPayerName]);
 
@@ -901,6 +943,15 @@ export default function SplitBillManager({ defaultPayerName }) {
   const [balanceLineSelections, setBalanceLineSelections] = useState({});
   const [balanceSettledLines, setBalanceSettledLines] = useState([]);
   const [balanceDetailParticipantId, setBalanceDetailParticipantId] = useState("");
+  const [showAllSplits, setShowAllSplits] = useState(false);
+  const [ownerMovementsBannerDismissed, setOwnerMovementsBannerDismissed] = useState(false);
+  const [registerMovementsOpen, setRegisterMovementsOpen] = useState(false);
+  const [movementsToRegister, setMovementsToRegister] = useState([]);
+  const [registeringMovements, setRegisteringMovements] = useState(false);
+  const [registerMovementsError, setRegisterMovementsError] = useState("");
+  const [registerCards, setRegisterCards] = useState([]);
+  const [registerAccounts, setRegisterAccounts] = useState([]);
+  const [undoConfirmState, setUndoConfirmState] = useState(null);
   const [urlSyncEnabled, setUrlSyncEnabled] = useState(false);
   const restoreAttemptedRef = useRef(false);
 
@@ -1063,6 +1114,8 @@ export default function SplitBillManager({ defaultPayerName }) {
     );
     return (friends || []).filter((friend) => !participantIds.has(String(friend.id)));
   }, [friends, participants]);
+  const visibleSplits = showAllSplits ? splits : splits.slice(0, 5);
+  const canShowMoreSplits = splits.length > 5 && !showAllSplits;
   const isListView = view === "list";
   const isSetupStep = view === "edit" && editStep === "setup";
   const isItemsStep = view === "edit" && editStep === "items";
@@ -1105,6 +1158,23 @@ export default function SplitBillManager({ defaultPayerName }) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!registerMovementsOpen) return;
+    let aborted = false;
+    Promise.all([
+      fetch("/api/cards", { cache: "no-store" }).then((r) => r.json()).catch(() => ({})),
+      fetch("/api/accounts", { cache: "no-store" }).then((r) => r.json()).catch(() => ({})),
+    ]).then(([cardsJson, accountsJson]) => {
+      if (!aborted) {
+        setRegisterCards(cardsJson.data || []);
+        setRegisterAccounts(accountsJson.data || []);
+      }
+    });
+    return () => {
+      aborted = true;
+    };
+  }, [registerMovementsOpen]);
 
   function clearDraftOverrides() {
     setIsAmountEditing(false);
@@ -1457,6 +1527,19 @@ export default function SplitBillManager({ defaultPayerName }) {
     setBalanceLineSelections({});
     setBalanceSettledLines([]);
     setBalanceError("");
+
+    const ownerBal = summaryForRecord.balances.find((b) => b.id === "user");
+    const alreadyRegistered = (record.settlements || []).some(
+      (s) => Array.isArray(s.expenseIds) && s.expenseIds.length > 0,
+    );
+    if (!alreadyRegistered && ownerBal && ownerBal.balanceCents === 0) {
+      setMovementsToRegister(buildOwnerMovements(summaryForRecord, record, recordParticipants));
+      setOwnerMovementsBannerDismissed(false);
+    } else {
+      setMovementsToRegister([]);
+      setOwnerMovementsBannerDismissed(false);
+    }
+
     setBalanceModalOpen(true);
   }
 
@@ -1471,6 +1554,8 @@ export default function SplitBillManager({ defaultPayerName }) {
     setBalanceLineSelections({});
     setBalanceSettledLines([]);
     setBalanceError("");
+    setMovementsToRegister([]);
+    setOwnerMovementsBannerDismissed(false);
   }
 
   function updateBalancePartialInput(key, value) {
@@ -1565,6 +1650,17 @@ export default function SplitBillManager({ defaultPayerName }) {
       setBalanceParticipants(recordParticipants);
       setBalanceSummary(summaryForRecord);
 
+      const ownerBal = summaryForRecord.balances.find((b) => b.id === "user");
+      const alreadyRegistered = (saved.settlements || []).some(
+        (s) => Array.isArray(s.expenseIds) && s.expenseIds.length > 0,
+      );
+      if (!alreadyRegistered && ownerBal && ownerBal.balanceCents === 0) {
+        setMovementsToRegister(buildOwnerMovements(summaryForRecord, saved, recordParticipants));
+        setOwnerMovementsBannerDismissed(false);
+      } else {
+        setMovementsToRegister([]);
+      }
+
       if (editingSplitId === saved.id) {
         setSettlements(recordSettlements);
       }
@@ -1575,8 +1671,20 @@ export default function SplitBillManager({ defaultPayerName }) {
     }
   }
 
-  async function undoBalanceSettlement(line) {
+  async function doUndoBalanceSettlement(line, deleteMovements) {
     if (!balanceRecord || !line) return;
+    if (deleteMovements) {
+      const entries = getRegisteredEntriesFromRecord(balanceRecord);
+      const toDelete = entries.filter((e) => e.settlementId === line.id);
+      for (const entry of toDelete) {
+        try {
+          await fetch(`/api/expenses/${entry.expenseId}`, { method: "DELETE" });
+        } catch (_e) {
+          /* noop */
+        }
+      }
+      // expenseIds are cleared automatically when the settlement entry is removed below
+    }
     setBalanceSaving(true);
     setBalanceError("");
     const currentSettlements = balanceRecord.settlements || [];
@@ -1662,6 +1770,201 @@ export default function SplitBillManager({ defaultPayerName }) {
       setBalanceError("No se pudo actualizar el balance.");
     } finally {
       setBalanceSaving(false);
+    }
+  }
+
+  function undoBalanceSettlement(line) {
+    if (!balanceRecord || !line) return;
+    const settlement = (balanceRecord.settlements || []).find((s) => s.id === line.id);
+    const hasRegistered = settlement && Array.isArray(settlement.expenseIds) && settlement.expenseIds.length > 0;
+    if (hasRegistered) {
+      setUndoConfirmState({ line });
+    } else {
+      doUndoBalanceSettlement(line, false);
+    }
+  }
+
+  function buildOwnerMovements(summary, record, participants) {
+    const nameMap = new Map(participants.map((p) => [p.id, p.name]));
+    const movements = [];
+    const splitNotes = `Registrado desde división de cuentas saldada: ${record.title}`;
+    const allSettlements = buildSettlementsFromStored(record.settlements || [], participants);
+    for (const settlement of allSettlements) {
+      if (settlement.toId === "user") {
+        const fromName = nameMap.get(settlement.fromId) || "Participante";
+        const label = `${fromName} te pagó`;
+        movements.push({
+          id: createId("mov"),
+          settlementId: settlement.id,
+          type: "income",
+          amountCents: settlement.amountCents,
+          label,
+          category: "Ingresos",
+          subcategory: "",
+          edge: "",
+          detail: label,
+          notes: splitNotes,
+          method: "bank_transfer",
+          card: "",
+          bank: "",
+          sourceAccountId: "",
+          currency: record.currency || "COP",
+        });
+      } else if (settlement.fromId === "user") {
+        const toName = nameMap.get(settlement.toId) || "Participante";
+        const label = `Pagaste a ${toName}`;
+        movements.push({
+          id: createId("mov"),
+          settlementId: settlement.id,
+          type: "expense",
+          amountCents: settlement.amountCents,
+          label,
+          category: "Gastos",
+          subcategory: "",
+          edge: "",
+          detail: label,
+          notes: splitNotes,
+          method: "bank_transfer",
+          card: "",
+          bank: "",
+          sourceAccountId: "",
+          currency: record.currency || "COP",
+        });
+      }
+    }
+    const ownerBal = summary.balances.find((b) => b.id === "user");
+    if (ownerBal && ownerBal.paidCents > 0 && ownerBal.owedCents > 0) {
+      const label = `Tu consumo en "${record.title}"`;
+      movements.push({
+        id: createId("mov"),
+        settlementId: null,
+        type: "expense",
+        amountCents: ownerBal.owedCents,
+        label,
+        category: "Gastos",
+        subcategory: "",
+        edge: "",
+        detail: label,
+        notes: splitNotes,
+        method: "bank_transfer",
+        card: "",
+        bank: "",
+        sourceAccountId: "",
+        currency: record.currency || "COP",
+      });
+    }
+    return movements;
+  }
+
+  function updateMovementToRegister(index, field, value) {
+    setMovementsToRegister((current) =>
+      current.map((mov, i) => {
+        if (i !== index) return mov;
+        const updated = { ...mov, [field]: value };
+        if (field === "subcategory") {
+          updated.edge = "";
+        }
+        if (field === "method") {
+          if (value !== "card") updated.card = "";
+          if (value !== "bank_transfer") {
+            updated.bank = "";
+            updated.sourceAccountId = "";
+          }
+        }
+        return updated;
+      }),
+    );
+  }
+
+  async function handleRegisterMovements() {
+    for (const mov of movementsToRegister) {
+      if (!mov.detail.trim()) {
+        setRegisterMovementsError("La descripción es obligatoria en todos los movimientos.");
+        return;
+      }
+      const aristas = getAristas(mov.category, mov.subcategory);
+      if (aristas.length > 0 && !mov.edge) {
+        setRegisterMovementsError(`Selecciona un rubro para "${mov.label}".`);
+        return;
+      }
+      if (mov.method === "bank_transfer" && !mov.bank.trim()) {
+        setRegisterMovementsError(`Selecciona un banco para "${mov.label}".`);
+        return;
+      }
+    }
+    setRegisteringMovements(true);
+    setRegisterMovementsError("");
+    try {
+      const createdEntries = [];
+      for (const mov of movementsToRegister) {
+        const body = {
+          movementType: mov.type,
+          amount: mov.amountCents / 100,
+          date: new Date().toISOString().slice(0, 10),
+          detail: mov.detail.trim(),
+          notes: mov.notes,
+          category: mov.category,
+          subcategory: mov.subcategory || undefined,
+          edge: mov.edge || undefined,
+          method: mov.method,
+          currency: mov.currency,
+        };
+        if (mov.method === "card" && mov.card) body.card = mov.card;
+        if (mov.method === "bank_transfer") {
+          if (mov.bank) body.bank = mov.bank;
+          if (mov.sourceAccountId) body.sourceAccountId = mov.sourceAccountId;
+        }
+        const res = await fetch("/api/expenses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          let data = null;
+          try {
+            data = await res.json();
+          } catch (_e) {
+            /* noop */
+          }
+          throw new Error(data?.error || "Error al registrar movimiento");
+        }
+        const json = await res.json();
+        if (json?.data?.id) {
+          createdEntries.push({ settlementId: mov.settlementId ?? null, expenseId: json.data.id });
+        }
+      }
+      if (balanceRecord?.id && createdEntries.length > 0) {
+        const updatedSettlements = embedExpenseIdsInSettlements(balanceRecord.settlements || [], createdEntries);
+        const updateRes = await fetch(`/api/split-bills/${balanceRecord.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: balanceRecord.title,
+            currency: balanceRecord.currency,
+            payerType: balanceRecord.payerType,
+            payerFriendId: balanceRecord.payerFriendId,
+            participantFriendIds: balanceRecord.participantFriendIds || [],
+            items: balanceRecord.items || [],
+            settlements: updatedSettlements,
+          }),
+        });
+        if (updateRes.ok) {
+          const updatedPayload = await updateRes.json().catch(() => null);
+          if (updatedPayload?.data) {
+            setBalanceRecord(updatedPayload.data);
+            setSplits((current) =>
+              current.map((item) => (item.id === updatedPayload.data.id ? updatedPayload.data : item)),
+            );
+          }
+        }
+      }
+      setRegisterMovementsOpen(false);
+      setOwnerMovementsBannerDismissed(true);
+      setMovementsToRegister([]);
+    } catch (error) {
+      setRegisterMovementsError(error.message || "No se pudo registrar los movimientos.");
+    } finally {
+      setRegisteringMovements(false);
     }
   }
 
@@ -2166,15 +2469,23 @@ export default function SplitBillManager({ defaultPayerName }) {
   }
 
   function exportBalanceCsv() {
-    if (!items.length) return;
+    if (!balanceRecord || balanceParticipants.length === 0) return;
+    const recordCurrency = balanceRecord.currency || currency;
+    const recordItems = buildItemsFromStored(
+      balanceRecord.items || [],
+      balanceParticipants,
+      resolvePayerId(balanceRecord),
+      recordCurrency,
+    );
+    if (recordItems.length === 0) return;
     const header = ["Participante", "Ítem", "Valor asignado", "Total ítem"];
     const rows = [];
-    participants.forEach((person) => {
+    balanceParticipants.forEach((person) => {
       const breakdown = buildParticipantBreakdown({
         participantId: person.id,
-        participants,
-        items,
-        currency,
+        participants: balanceParticipants,
+        items: recordItems,
+        currency: recordCurrency,
       });
       if (!breakdown || breakdown.items.length === 0) {
         rows.push([person.name, "Sin ítems", "0,00", ""]);
@@ -2184,15 +2495,15 @@ export default function SplitBillManager({ defaultPayerName }) {
         rows.push([
           person.name,
           entry.description,
-          formatAmountInputFromCents(entry.owedCents, currency),
-          formatAmountInputFromCents(entry.totalCents, currency),
+          formatAmountInputFromCents(entry.owedCents, recordCurrency),
+          formatAmountInputFromCents(entry.totalCents, recordCurrency),
         ]);
       });
     });
     const escapeValue = (value) => `"${String(value ?? "").replace(/\"/g, "\"\"")}"`;
     const csvRows = [header, ...rows].map((row) => row.map(escapeValue).join(";"));
     const csvContent = `\ufeff${csvRows.join("\n")}`;
-    const baseName = (title || "division").trim() || "division";
+    const baseName = (balanceRecord.title || "division").trim() || "division";
     const safeName = baseName.toLowerCase().replace(/[^\w\d]+/g, "-").replace(/^-+|-+$/g, "");
     const filename = `${safeName || "division"}-balance.csv`;
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -3046,9 +3357,6 @@ export default function SplitBillManager({ defaultPayerName }) {
             <section className="panel dashboard-card">
               <div className="dashboard-card-head">
                 <h2>Divisiones creadas</h2>
-                <button className="btn btn-ghost" type="button">
-                  Ver más
-                </button>
               </div>
 
               {splitsLoading ? (
@@ -3060,12 +3368,13 @@ export default function SplitBillManager({ defaultPayerName }) {
                   Aún no hay divisiones registradas. Crea una nueva para comenzar.
                 </div>
               ) : (
-                <div className="movement-list">
-                  {splits.map((record) => {
-                    const recordParticipants = buildParticipantsFromFriendIds(
-                      record.participantFriendIds || [],
-                      friends,
-                      defaultPayerName,
+                <>
+                  <div className="movement-list">
+                    {visibleSplits.map((record) => {
+                      const recordParticipants = buildParticipantsFromFriendIds(
+                        record.participantFriendIds || [],
+                        friends,
+                        defaultPayerName,
                     );
                     const defaultPayerId = resolvePayerId(record);
                     const recordItems = buildItemsFromStored(
@@ -3167,8 +3476,23 @@ export default function SplitBillManager({ defaultPayerName }) {
                         </div>
                       </div>
                     );
-                  })}
-                </div>
+                    })}
+                  </div>
+                  {canShowMoreSplits ? (
+                    <div className="split-more-wrap">
+                      <a
+                        href="#"
+                        className="split-more-link"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setShowAllSplits(true);
+                        }}
+                      >
+                        Ver más
+                      </a>
+                    </div>
+                  ) : null}
+                </>
               )}
 
               <div className="dashboard-empty" style={{ marginTop: 10 }}>
@@ -3382,15 +3706,6 @@ export default function SplitBillManager({ defaultPayerName }) {
                   <article className="panel dashboard-card split-items-card">
                     <div className="dashboard-card-head">
                       <h2>Agregar ítems</h2>
-                      <button
-                        type="button"
-                        className="btn btn-ghost"
-                        onClick={exportSplitItemsCsv}
-                        disabled={items.length === 0}
-                        title="Exportar ítems a CSV"
-                      >
-                        Exportar CSV
-                      </button>
                     </div>
 
                     {feedback ? (
@@ -3418,7 +3733,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                         {participants.map((item) => (
                           <div
                             key={item.id}
-                            className={`chip ${payerId === item.id ? "chip-live" : ""}`}
+                            className="chip"
                             style={{ gap: 6 }}
                           >
                             <span>{item.name}</span>
@@ -3748,7 +4063,19 @@ export default function SplitBillManager({ defaultPayerName }) {
                     })()}
 
                     <div className="split-items-summary">
-                      <p className="expense-hint" style={{ marginBottom: 6 }}>Ítems guardados</p>
+                      <div className="split-items-summary-head">
+                        <p className="expense-hint" style={{ margin: 0 }}>Ítems guardados</p>
+                        {items.length > 0 ? (
+                          <button
+                            type="button"
+                            className="btn btn-ghost split-items-export"
+                            onClick={exportSplitItemsCsv}
+                            title="Exportar ítems a CSV"
+                          >
+                            Exportar CSV
+                          </button>
+                        ) : null}
+                      </div>
                       {items.length === 0 ? (
                         <div className="dashboard-empty">Aún no hay ítems guardados.</div>
                       ) : (
@@ -4178,7 +4505,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                     type="button"
                     className="btn btn-ghost"
                     onClick={exportBalanceCsv}
-                    disabled={items.length === 0}
+                    disabled={!balanceRecord || (balanceRecord.items || []).length === 0}
                   >
                     Exportar CSV
                   </button>
@@ -4194,6 +4521,49 @@ export default function SplitBillManager({ defaultPayerName }) {
               </div>
               <div className="balance-modal-body">
                 {balanceError ? <p className="message message-error">{balanceError}</p> : null}
+                {movementsToRegister.length > 0 && !ownerMovementsBannerDismissed ? (
+                  <div style={{
+                    background: "rgba(16, 185, 129, 0.08)",
+                    border: "1.5px solid rgba(16, 185, 129, 0.35)",
+                    borderRadius: 12,
+                    padding: "14px 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    marginBottom: 4,
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: 20, lineHeight: 1 }}>✅</span>
+                      <div>
+                        <p style={{ margin: 0, fontWeight: 600, color: "var(--mint)", fontSize: 14 }}>
+                          Quedaste saldado/a
+                        </p>
+                        <p style={{ margin: "2px 0 0", color: "var(--ink3)", fontSize: 13 }}>
+                          ¿Deseas registrar los pagos como movimientos?
+                        </p>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={() => setRegisterMovementsOpen(true)}
+                      >
+                        Registrar
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        onClick={() => setOwnerMovementsBannerDismissed(true)}
+                        aria-label="Descartar"
+                        style={{ padding: "0 10px" }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 {(() => {
                   const balanceCurrency = balanceRecord?.currency || currency;
                   const nameMap = new Map(balanceParticipants.map((person) => [person.id, person.name]));
@@ -4386,6 +4756,296 @@ export default function SplitBillManager({ defaultPayerName }) {
                     </>
                   );
                 })()}
+              </div>
+            </div>
+          </>
+        ) : null}
+        {registerMovementsOpen && movementsToRegister.length > 0 ? (
+          <>
+            <button
+              type="button"
+              className="balance-modal-backdrop"
+              onClick={() => setRegisterMovementsOpen(false)}
+              aria-label="Cerrar"
+            />
+            <div className="balance-modal" role="dialog" aria-modal="true">
+              <div className="balance-modal-head">
+                <div>
+                  <h2>Registrar movimientos</h2>
+                  <p>Valores de la división saldada. Completa los campos y confirma.</p>
+                </div>
+                <button
+                  type="button"
+                  className="balance-modal-close"
+                  onClick={() => setRegisterMovementsOpen(false)}
+                  aria-label="Cerrar"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="balance-modal-body">
+                {registerMovementsError ? (
+                  <p className="message message-error">{registerMovementsError}</p>
+                ) : null}
+                <div className="balance-lines">
+                  {movementsToRegister.map((mov, i) => {
+                    const subcats = getSubcategories(mov.category);
+                    const aristas = getAristas(mov.category, mov.subcategory);
+                    const aristaRequired = aristas.length > 0;
+                    const availableCards = registerCards.map(
+                      (c) => c.cardName + (c.last4 ? ` ••••${c.last4}` : ""),
+                    );
+                    return (
+                      <div
+                        key={mov.id}
+                        className="balance-line"
+                        style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}
+                      >
+                        <div className="balance-line-info">
+                          <div>
+                            <span className="movement-name">{mov.label}</span>
+                            <span
+                              className="movement-meta"
+                              style={{ color: mov.type === "income" ? "var(--mint)" : "var(--red)", marginLeft: 6 }}
+                            >
+                              {mov.type === "income" ? "Ingreso" : "Gasto"}
+                            </span>
+                          </div>
+                          <p className="movement-amount" style={{ margin: 0 }}>
+                            {formatCurrencyFromCents(mov.amountCents, mov.currency)}
+                          </p>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          <div>
+                            <label className="form-label" style={{ display: "block", marginBottom: 4, fontSize: 12 }}>
+                              Descripción <span style={{ color: "var(--red)" }}>*</span>
+                            </label>
+                            <input
+                              className="input"
+                              type="text"
+                              placeholder="Descripción del movimiento"
+                              value={mov.detail}
+                              onChange={(e) => updateMovementToRegister(i, "detail", e.target.value)}
+                              required
+                            />
+                          </div>
+                          {subcats.length > 0 ? (
+                            <div>
+                              <label className="form-label" style={{ display: "block", marginBottom: 4, fontSize: 12 }}>
+                                Subcategoría
+                              </label>
+                              <select
+                                className="input"
+                                value={mov.subcategory}
+                                onChange={(e) => updateMovementToRegister(i, "subcategory", e.target.value)}
+                              >
+                                <option value="">Seleccionar subcategoría</option>
+                                {subcats.map((s) => (
+                                  <option key={s} value={s}>{s}</option>
+                                ))}
+                              </select>
+                            </div>
+                          ) : null}
+                          {aristaRequired ? (
+                            <div>
+                              <label className="form-label" style={{ display: "block", marginBottom: 4, fontSize: 12 }}>
+                                Rubro <span style={{ color: "var(--red)" }}>*</span>
+                              </label>
+                              <select
+                                className="input"
+                                value={mov.edge}
+                                onChange={(e) => updateMovementToRegister(i, "edge", e.target.value)}
+                                required
+                              >
+                                <option value="">Seleccionar rubro</option>
+                                {aristas.map((a) => (
+                                  <option key={a} value={a}>{a}</option>
+                                ))}
+                              </select>
+                            </div>
+                          ) : null}
+                          <div>
+                            <label className="form-label" style={{ display: "block", marginBottom: 4, fontSize: 12 }}>
+                              Método de pago
+                            </label>
+                            <div style={{ display: "flex", gap: 6 }}>
+                              {[
+                                { id: "cash", label: "Efectivo" },
+                                { id: "card", label: "Tarjeta" },
+                                { id: "bank_transfer", label: "Transferencia" },
+                              ].map((opt) => (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  className={`btn ${mov.method === opt.id ? "btn-secondary" : "btn-ghost"}`}
+                                  style={{ flex: 1, fontSize: 12, padding: "6px 4px" }}
+                                  onClick={() => updateMovementToRegister(i, "method", opt.id)}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          {mov.method === "card" ? (
+                            <div>
+                              <label className="form-label" style={{ display: "block", marginBottom: 4, fontSize: 12 }}>
+                                Tarjeta
+                              </label>
+                              <select
+                                className="input"
+                                value={mov.card}
+                                onChange={(e) => updateMovementToRegister(i, "card", e.target.value)}
+                                disabled={availableCards.length === 0}
+                              >
+                                <option value="">Seleccionar tarjeta</option>
+                                {availableCards.map((c) => (
+                                  <option key={c} value={c}>{c}</option>
+                                ))}
+                              </select>
+                            </div>
+                          ) : null}
+                          {mov.method === "bank_transfer" ? (() => {
+                            const bankOpts = (() => {
+                              const names = new Set();
+                              registerAccounts.forEach((a) => {
+                                if (a.bankName) names.add(a.bankName);
+                                else if (a.accountName) names.add(a.accountName.split(" - ")[0]);
+                              });
+                              registerCards.forEach((c) => {
+                                if (c.bankName) names.add(c.bankName);
+                                else if (c.bankId) names.add(c.bankId);
+                              });
+                              return Array.from(names).filter(Boolean);
+                            })();
+                            const acctOpts = registerAccounts.map((a) => ({
+                              id: a.id,
+                              label: a.accountName || a.id,
+                            }));
+                            return (
+                              <>
+                                <div>
+                                  <label className="form-label" style={{ display: "block", marginBottom: 4, fontSize: 12 }}>
+                                    Banco <span style={{ color: "var(--red)" }}>*</span>
+                                  </label>
+                                  <select
+                                    className="input"
+                                    value={mov.bank}
+                                    onChange={(e) => updateMovementToRegister(i, "bank", e.target.value)}
+                                  >
+                                    <option value="">Seleccionar banco</option>
+                                    {bankOpts.map((b) => (
+                                      <option key={b} value={b}>{b}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="form-label" style={{ display: "block", marginBottom: 4, fontSize: 12 }}>
+                                    Nombre de cuenta
+                                  </label>
+                                  <select
+                                    className="input"
+                                    value={mov.sourceAccountId}
+                                    onChange={(e) => updateMovementToRegister(i, "sourceAccountId", e.target.value)}
+                                    disabled={acctOpts.length === 0}
+                                  >
+                                    <option value="">Seleccionar cuenta</option>
+                                    {acctOpts.map((a) => (
+                                      <option key={a.id} value={a.id}>{a.label}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </>
+                            );
+                          })() : null}
+                          <div>
+                            <label className="form-label" style={{ display: "block", marginBottom: 4, fontSize: 12 }}>
+                              Notas
+                            </label>
+                            <input
+                              className="input"
+                              type="text"
+                              value={mov.notes}
+                              onChange={(e) => updateMovementToRegister(i, "notes", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => setRegisterMovementsOpen(false)}
+                    disabled={registeringMovements}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleRegisterMovements}
+                    disabled={registeringMovements}
+                  >
+                    {registeringMovements ? "Registrando..." : "Confirmar"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : null}
+        {undoConfirmState ? (
+          <>
+            <button
+              type="button"
+              className="balance-modal-backdrop"
+              onClick={() => setUndoConfirmState(null)}
+              aria-label="Cancelar"
+            />
+            <div className="balance-modal" role="dialog" aria-modal="true">
+              <div className="balance-modal-head">
+                <div>
+                  <h2>Deshacer liquidación</h2>
+                  <p>Se registraron movimientos para este pago.</p>
+                </div>
+                <button
+                  type="button"
+                  className="balance-modal-close"
+                  onClick={() => setUndoConfirmState(null)}
+                  aria-label="Cerrar"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="balance-modal-body">
+                <p style={{ color: "var(--ink3)", fontSize: 14, margin: "0 0 16px" }}>
+                  ¿Deseas eliminar también los movimientos registrados para este pago?
+                </p>
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => {
+                      const { line } = undoConfirmState;
+                      setUndoConfirmState(null);
+                      doUndoBalanceSettlement(line, false);
+                    }}
+                  >
+                    No, solo deshacer
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      const { line } = undoConfirmState;
+                      setUndoConfirmState(null);
+                      doUndoBalanceSettlement(line, true);
+                    }}
+                  >
+                    Sí, eliminar también
+                  </button>
+                </div>
               </div>
             </div>
           </>

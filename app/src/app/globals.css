@@ -882,6 +882,23 @@ body.nav-open {
   gap: 8px;
 }
 
+.split-items-summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.split-items-export {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--violet);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .split-items-total {
   display: flex;
   align-items: center;
@@ -899,6 +916,20 @@ body.nav-open {
   width: 100%;
   text-align: left;
   cursor: pointer;
+}
+
+.split-more-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.split-more-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--violet);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .split-add-friend {

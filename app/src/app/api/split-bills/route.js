@@ -50,14 +50,35 @@ function normalizeParticipantFriendIds(rawIds) {
 function normalizeSettlements(rawSettlements) {
   if (!Array.isArray(rawSettlements)) return [];
   return rawSettlements
-    .map((entry) => ({
-      id: entry?.id || null,
-      fromId: entry?.fromId ? String(entry.fromId) : null,
-      toId: entry?.toId ? String(entry.toId) : null,
-      amountCents: Math.max(0, Math.round(Number(entry?.amountCents) || 0)),
-      createdAt: entry?.createdAt ? String(entry.createdAt) : null,
-    }))
-    .filter((entry) => entry.fromId && entry.toId && entry.amountCents > 0);
+    .map((entry) => {
+      if (entry?.id === "__owner_consumption__") {
+        return {
+          id: "__owner_consumption__",
+          fromId: null,
+          toId: null,
+          amountCents: 0,
+          createdAt: null,
+          expenseIds: Array.isArray(entry?.expenseIds)
+            ? entry.expenseIds.filter((id) => id && typeof id === "string")
+            : [],
+        };
+      }
+      return {
+        id: entry?.id || null,
+        fromId: entry?.fromId ? String(entry.fromId) : null,
+        toId: entry?.toId ? String(entry.toId) : null,
+        amountCents: Math.max(0, Math.round(Number(entry?.amountCents) || 0)),
+        createdAt: entry?.createdAt ? String(entry.createdAt) : null,
+        expenseIds: Array.isArray(entry?.expenseIds)
+          ? entry.expenseIds.filter((id) => id && typeof id === "string")
+          : [],
+      };
+    })
+    .filter(
+      (entry) =>
+        entry.id === "__owner_consumption__" ||
+        (entry.fromId && entry.toId && entry.amountCents > 0),
+    );
 }
 
 export async function GET() {
