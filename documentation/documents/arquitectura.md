@@ -25,7 +25,7 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
 4. **Integración bancaria**: usuario inicia flujo OAuth/Belvo Link; el Servicio de Integraciones suscribe webhooks y encola movimientos en una cola (p. ej. SQS). El Servicio de Transacciones procesa eventos, ejecuta reglas de categorización y actualiza dashboards.
 5. **Alertas**: reglas configurables se evalúan (cron + eventos); se envían push/email/WhatsApp via Notificaciones.
 6. **Planes de pago**: Stripe gestiona suscripciones; backend sincroniza beneficios (familia, alertas avanzadas) mediante webhooks.
-7. **División de cuentas compartidas**: usuario crea una división (título, moneda, participantes), el sistema persiste al ingresar al paso de ítems, calcula balances y permite agregar/editar ítems con reparto validado al 100%.
+7. **División de cuentas compartidas**: usuario crea una división (título único y obligatorio, moneda, participantes). Al ingresar al paso de ítems la división se persiste. Se permiten adjuntar facturas (imagen/PDF) y seleccionar quiénes pagaron la factura (solo si hay archivo). En el paso de ítems se calculan balances, se agregan/editar ítems con reparto validado al 100%, y se muestra el historial de pagos/ajustes.
 8. A futuro incluir opciones de accesibilidad
 
 ## 5. Modelo de datos (alto nivel)
@@ -119,6 +119,12 @@ Definir la arquitectura de referencia para BudgetApp (web/móvil) a fin de guiar
       "premium": { "maxAccounts": 10, "familyMembers": 5 }
     }
   }
+
+## 12. División de cuentas compartidas (detalle funcional)
+- Creación de división (Paso 2): título **obligatorio** y **único** por usuario, moneda seleccionable, participantes (usuario + amigos guardados) con opción de agregar/quitar. Se puede **adjuntar factura** (imagen/PDF); al existir archivo aparece la selección de quiénes pagaron la factura. La división se persiste al pasar al Paso 3.
+- Ítems (Paso 3): campos obligatorios **Descripción**, **Valor**, **Pagó** (uno o varios), **Se reparte entre** (mínimo 1). El valor acepta solo números positivos con hasta 2 decimales y formato local (`.` miles, `,` decimales). Reparto por defecto en partes iguales con edición de **valor** y **%**. Validaciones: suma de participantes = **100%** del ítem; si hay 1 participante, debe ser 100%. **Congelar** fija un participante (valor/%), recalculando el resto. Selector **Todos** activa o desactiva todos los participantes. El resumen de ítems muestra **Participantes** (o “Todos”) y total de la cuenta.
+- Balance: tabla con Pago, Consumo y Balance por participante y detalle por participante (popup con ítems y total). En **Liquidar deudas** cada línea permite seleccionar a quién se paga (dropdown) y aplicar pago total o parcial. El pago parcial usa el mismo formato de input que “Valor”. Al liquidar, la línea queda deshabilitada como **Cuenta liquidada**. **Historial de pagos** muestra quién pagó a quién, valor y fecha/hora, con botón **Deshacer**.
+- Exportaciones: CSV de ítems (ítem, valor, participantes) y CSV de balance (ítems por participante con valor asignado y total del ítem).
   ```
 - Cada nuevo país agregará su propia entrada con moneda, normativa y proveedor bancario (ej. Plaid en EE. UU., Open Banking UK en Reino Unido). Las UI deben solicitar el país durante el onboarding y bloquear funcionalidades no permitidas por región.
 - Se recomienda exponer este catálogo vía `GET /api/countries` (con cache busting y versión) para que el frontend se hidrate al cargar la sesión en lugar de depender de constantes internas. El mock server debe derivar sus respuestas de este catálogo para mantener coherencia en moneda, textos legales y proveedores.

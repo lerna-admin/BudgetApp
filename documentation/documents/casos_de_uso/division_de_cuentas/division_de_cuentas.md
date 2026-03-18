@@ -8,8 +8,8 @@
 |-------|-------|
 | **ID** | UC-DC-01 |
 | **Nombre** | Dividir cuenta de compras compartidas |
-| **Versión** | 1.2 |
-| **Fecha** | 2026-03-09 |
+| **Versión** | 1.3 |
+| **Fecha** | 2026-03-17 |
 | **Autor** | Alexandra Castano |
 | **Prioridad** | Media |
 | **Frecuencia de uso** | Media |
@@ -17,7 +17,7 @@
 
 ### Descripción Breve
 
-Permite crear divisiones de cuenta, agregar ítems con participantes y calcular cuánto debe cada persona. Incluye balances en tiempo real, resumen de ítems, edición posterior y persistencia completa de la división. Permite agregar amigos existentes en el paso de ítems y mantener el historial de divisiones con su fecha de creación.
+Permite crear divisiones de cuenta, adjuntar factura opcional, agregar ítems con participantes y calcular cuánto debe cada persona. Incluye balances en tiempo real, resumen de ítems con participantes, edición posterior, exportación CSV y persistencia completa de la división. Permite agregar amigos existentes en el paso de ítems, liquidar deudas con historial y deshacer pagos, y mantener el listado de divisiones con su fecha de creación.
 
 ### Actores
 
@@ -39,6 +39,7 @@ Permite crear divisiones de cuenta, agregar ítems con participantes y calcular 
 3. Se calculan balances por participante.
 4. Se actualiza el resumen de ítems y el total de la cuenta.
 5. La división queda disponible en la lista con su fecha de creación.
+6. Si se liquidan deudas, se registran pagos en el historial con opción de deshacer.
 
 #### Fallo
 1. No se registra la división o los ítems.
@@ -49,18 +50,19 @@ Permite crear divisiones de cuenta, agregar ítems con participantes y calcular 
 
 | Paso | Actor | Sistema |
 |------|-------|---------|
-| 1 | Usuario entra a la sección de división de cuentas. | Muestra lista de divisiones con fecha de creación, integrantes, ítems y total. |
-| 2 | Usuario selecciona “Nueva división”. | Muestra formulario de título, moneda y participantes. |
-| 3 | Usuario completa el título (obligatorio y único), moneda y selecciona participantes. | - |
+| 1 | Usuario entra a la sección de división de cuentas. | Muestra lista de divisiones con fecha de creación, integrantes, ítems, total y acciones (balancear/eliminar). |
+| 2 | Usuario selecciona “Nueva división”. | Muestra formulario de título, moneda, participantes y adjunto de factura (opcional). |
+| 3 | Usuario completa el título (obligatorio y único), moneda y selecciona participantes. | Si adjunta factura (imagen/PDF), habilita selección de quiénes pagaron la factura. |
 | 4 | Usuario continúa al paso de ítems. | Crea la división en base de datos y muestra confirmación. |
-| 5 | - | Muestra balances a todo el ancho y el formulario de ítems. |
+| 5 | - | Muestra balances a todo el ancho, formulario de ítems y opción de exportar CSV de ítems. |
 | 6 | Usuario agrega un ítem con descripción, valor, pagó (uno o varios) y participantes. | Calcula reparto por defecto en partes iguales y exactas. |
-| 7 | Usuario ajusta manualmente valores o porcentajes si lo necesita. | Recalcula automáticamente el resto para mantener 100%. |
-| 8 | Usuario guarda el ítem. | Persiste el ítem, limpia el formulario y actualiza el resumen debajo con el total acumulado. |
+| 7 | Usuario ajusta manualmente valores o porcentajes y/o congela participantes. | Recalcula automáticamente el resto para mantener 100%. |
+| 8 | Usuario guarda el ítem. | Persiste el ítem, limpia el formulario y actualiza el resumen con participantes (o “Todos”) y total acumulado. |
 | 9 | Usuario edita o elimina ítems desde el resumen. | Abre modal de edición, actualiza balances y resumen. |
-| 10 | Usuario presiona el botón Balancear en la lista. | Abre modal con el detalle de quién debe a quién y opciones para saldar. |
-| 11 | Usuario salda total o parcialmente una deuda. | Persiste la liquidación y recalcula balances. |
-| 12 | Usuario vuelve a la lista o refresca la página. | Mantiene la vista de ítems si existe la división en la URL. |
+| 10 | Usuario presiona el botón Balancear (si hay ítems). | Abre modal con Liquidar deudas e Historial de pagos. |
+| 11 | Usuario selecciona a quién pagar y salda total o parcialmente. | Persiste la liquidación, recalcula balances y marca “Cuenta liquidada”. |
+| 12 | Usuario puede exportar CSV del balance o deshacer un pago del historial. | Recalcula balances y restaura la deuda si aplica. |
+| 13 | Usuario vuelve a la lista o refresca la página. | Mantiene la vista de ítems si existe la división en la URL. |
 
 ### Flujos Alternativos
 
@@ -99,6 +101,34 @@ Permite crear divisiones de cuenta, agregar ítems con participantes y calcular 
 | 6a | El usuario presiona “+ Agregar amigo”. |
 | 6b | El sistema agrega el amigo a participantes de la división y del ítem. |
 
+#### FA-6: Adjuntar factura
+
+| Paso | Descripción |
+|------|-------------|
+| 3a | El usuario adjunta una factura (imagen/PDF). |
+| 3b | El sistema habilita la selección de quiénes pagaron la factura. |
+
+#### FA-7: Exportar CSV
+
+| Paso | Descripción |
+|------|-------------|
+| 5a | El usuario exporta CSV desde ítems o balance. |
+| 5b | El sistema descarga el archivo con ítems/participantes o balance por persona. |
+
+#### FA-8: Congelar participante
+
+| Paso | Descripción |
+|------|-------------|
+| 7a | El usuario activa “Congelar” en un participante. |
+| 7b | El sistema recalcula el resto manteniendo fijo ese valor/% . |
+
+#### FA-9: Deshacer pago
+
+| Paso | Descripción |
+|------|-------------|
+| 12a | El usuario pulsa “Deshacer” en el historial. |
+| 12b | El sistema elimina el pago, recalcula y devuelve la deuda al balance. |
+
 ### Flujos de Excepción
 
 No hay.
@@ -121,6 +151,8 @@ No hay.
 - El usuario puede seleccionar participantes por ítem con facilidad.
 - Debe permitir agregar amigos existentes en el paso de ítems.
 - El resumen de ítems se muestra debajo del formulario con el total acumulado.
+- Debe permitir exportar CSV de ítems y del balance.
+- En el balance el usuario puede seleccionar a quién pagar y ver el historial de pagos con opción de deshacer.
 - La vista debe ser responsive y preparada para móvil.
 
 #### Cumplimiento
@@ -149,7 +181,13 @@ No hay.
 | RN-DC-11 | Se permite editar y eliminar ítems; se permite eliminar divisiones. |
 | RN-DC-12 | Al refrescar, se restaura la vista de ítems si la división está referenciada en la URL. |
 | RN-DC-13 | El ítem puede tener varios pagadores; por defecto se divide en partes iguales y puede activarse un modo manual para definir valor y porcentaje por pagador. |
-| RN-DC-14 | El balance muestra quién debe a quién y permite saldar total o parcialmente cada deuda, persistiendo los pagos. |
+| RN-DC-14 | El balance permite seleccionar a quién pagar por cada línea y saldar total o parcialmente, persistiendo los pagos. |
+| RN-DC-15 | La factura adjunta solo admite imagen/PDF; la selección de pagadores de factura aparece solo si hay archivo. |
+| RN-DC-16 | El selector “Todos” activa o desactiva todos los participantes; no se permite guardar si no hay participantes. |
+| RN-DC-17 | “Congelar” fija el valor/% del participante y recalcula el resto. |
+| RN-DC-18 | Cada pago se registra en el historial con fecha/hora y detalle de quién pagó a quién. |
+| RN-DC-19 | El historial permite deshacer un pago y restaurar la deuda. |
+| RN-DC-20 | Se puede exportar CSV de ítems y CSV del balance por participante. |
 
 ### Trazabilidad
 
@@ -179,6 +217,7 @@ Pendiente por validar con el usuario.
 
 | Versión | Fecha | Autor | Descripción |
 |---------|-------|-------|-------------|
+| 1.3 | 2026-03-17 | Alexandra Castano | Factura opcional, exportaciones CSV, balance con selección de destinatario, historial de pagos y deshacer. |
 | 1.2 | 2026-03-09 | Alexandra Castano | Actualización de flujo, validaciones, resumen, edición y persistencia. |
 | 1.1 | 2026-02-23 | Alexandra Castano | Invitaciones y regla de alerta por total. |
 | 1.0 | 2026-02-23 | Alexandra Castano | Creación inicial |
