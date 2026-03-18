@@ -99,6 +99,47 @@ function formatPercentInput(value) {
   return formatter.format(Number(value));
 }
 
+function getItemParticipantsLabel(item, participants) {
+  const participantIds = Array.isArray(item?.participantIds) ? item.participantIds : [];
+  if (participantIds.length === 0) return "Sin participantes";
+  const participantSet = new Set(participantIds);
+  if (participants.length > 0 && participants.every((person) => participantSet.has(person.id))) {
+    return "Todos";
+  }
+  const orderedNames = participants.filter((person) => participantSet.has(person.id)).map((person) => person.name);
+  if (orderedNames.length > 0) {
+    return orderedNames.join(", ");
+  }
+  return participantIds.join(", ");
+}
+
+function buildParticipantBreakdown({ participantId, participants, items, currency }) {
+  const participant = participants.find((person) => person.id === participantId);
+  if (!participant) return null;
+  const participantIds = new Set(participants.map((person) => person.id));
+  const breakdownItems = [];
+  let totalCents = 0;
+
+  items.forEach((item, index) => {
+    const amountCents = amountToCents(item.amount, currency);
+    if (amountCents <= 0) return;
+    const selected = (item.participantIds || []).filter((id) => participantIds.has(id));
+    if (selected.length === 0 || !selected.includes(participantId)) return;
+    const allocationMap = getAllocationMapForItem(item, selected, amountCents);
+    const owedCents = allocationMap[participantId] || 0;
+    if (owedCents <= 0) return;
+    breakdownItems.push({
+      id: item.id || `item-${index}`,
+      description: item.description?.trim() || "Ítem sin descripción",
+      owedCents,
+      totalCents: amountCents,
+    });
+    totalCents += owedCents;
+  });
+
+  return { participant, items: breakdownItems, totalCents };
+}
+
 function normalizeContact(value) {
   return String(value || "").trim().toLowerCase().replace(/\s+/g, "");
 }
@@ -323,6 +364,62 @@ function mapToAllocations(map, participantIds) {
   }));
 }
 
+function buildPercentMap(allocationMap, participantIds, totalCents) {
+  const result = {};
+  if (!participantIds.length || totalCents <= 0) {
+    participantIds.forEach((id) => {
+      result[id] = 0;
+    });
+    return result;
+  }
+  const rows = participantIds.map((id) => {
+    const raw = ((allocationMap[id] || 0) / totalCents) * 100;
+    const base = Math.floor(raw * 100) / 100;
+    return { id, base, remainder: raw - base };
+  });
+  let sum = rows.reduce((acc, row) => acc + row.base, 0);
+  let diff = Math.round((100 - sum) * 100);
+  const sorted = [...rows].sort((a, b) =>
+    diff >= 0 ? b.remainder - a.remainder : a.remainder - b.remainder,
+  );
+  let index = 0;
+  while (diff !== 0 && sorted.length) {
+    const row = sorted[index % sorted.length];
+    row.base = Math.max(0, row.base + (diff > 0 ? 0.01 : -0.01));
+    diff += diff > 0 ? -1 : 1;
+    index += 1;
+    if (index > sorted.length * 200) break;
+  }
+  sorted.forEach((row) => {
+    result[row.id] = Number(row.base.toFixed(2));
+  });
+  return result;
+}
+
+function isEqualAllocation(allocationMap, participantIds, totalCents) {
+  if (!participantIds.length || totalCents <= 0) return true;
+  const expected = buildEqualAllocations(participantIds, totalCents);
+  return participantIds.every((id) => (allocationMap[id] || 0) === (expected[id] || 0));
+}
+
+function buildAllocationMapForMode({
+  currentAllocations,
+  participantIds,
+  totalCents,
+  mode,
+  frozenMap,
+}) {
+  const hasFrozen = frozenMap && Object.keys(frozenMap).length > 0;
+  if (mode === "equal" && !hasFrozen) {
+    return normalizeAllocationMap({}, participantIds, totalCents);
+  }
+  return normalizeAllocationMap(
+    allocationsToMap(currentAllocations, participantIds),
+    participantIds,
+    totalCents,
+  );
+}
+
 function formatCurrencyFromCents(cents, currency = "COP") {
   const value = Number(cents || 0) / 100;
   const decimals = 2;
@@ -444,6 +541,45 @@ function buildSettlements(balances) {
     if (debtor.remaining <= 0) debtorIndex += 1;
     if (creditor.remaining <= 0) creditorIndex += 1;
   }
+
+  return settlements;
+}
+
+function buildSettlementsWithPreferences(balances, preferences = {}) {
+  const debtors = balances
+    .filter((item) => item.balanceCents < 0)
+    .map((item) => ({ id: item.id, name: item.name, remaining: -item.balanceCents }));
+  const creditors = balances
+    .filter((item) => item.balanceCents > 0)
+    .map((item) => ({ id: item.id, name: item.name, remaining: item.balanceCents }));
+  const creditorMap = new Map(creditors.map((item) => [item.id, item]));
+  const settlements = [];
+
+  debtors.forEach((debtor) => {
+    if (debtor.remaining <= 0) return;
+    const preferredId = preferences[debtor.id];
+    if (preferredId && creditorMap.has(preferredId)) {
+      const preferred = creditorMap.get(preferredId);
+      if (preferred.remaining > 0) {
+        const amount = Math.min(debtor.remaining, preferred.remaining);
+        if (amount > 0) {
+          settlements.push({ fromId: debtor.id, toId: preferred.id, amountCents: amount });
+          debtor.remaining -= amount;
+          preferred.remaining -= amount;
+        }
+      }
+    }
+
+    creditors.forEach((creditor) => {
+      if (debtor.remaining <= 0) return;
+      if (creditor.remaining <= 0) return;
+      const amount = Math.min(debtor.remaining, creditor.remaining);
+      if (amount <= 0) return;
+      settlements.push({ fromId: debtor.id, toId: creditor.id, amountCents: amount });
+      debtor.remaining -= amount;
+      creditor.remaining -= amount;
+    });
+  });
 
   return settlements;
 }
@@ -715,6 +851,7 @@ export default function SplitBillManager({ defaultPayerName }) {
   const [allocationInputOverrides, setAllocationInputOverrides] = useState({});
   const [percentInputOverrides, setPercentInputOverrides] = useState({});
   const [draftFrozenParticipantIds, setDraftFrozenParticipantIds] = useState({});
+  const [draftAllocationMode, setDraftAllocationMode] = useState("equal");
   const [payerAllocationInputOverrides, setPayerAllocationInputOverrides] = useState({});
   const [payerPercentInputOverrides, setPayerPercentInputOverrides] = useState({});
   const [splits, setSplits] = useState([]);
@@ -736,6 +873,9 @@ export default function SplitBillManager({ defaultPayerName }) {
   const [friendSaving, setFriendSaving] = useState(false);
   const [friendFeedback, setFriendFeedback] = useState(null);
   const [friendPickerOpen, setFriendPickerOpen] = useState(false);
+  const [invoiceFile, setInvoiceFile] = useState(null);
+  const [invoicePayerIds, setInvoicePayerIds] = useState([]);
+  const invoiceInputRef = useRef(null);
   const [itemModalOpen, setItemModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [editingItemIndex, setEditingItemIndex] = useState(-1);
@@ -743,6 +883,7 @@ export default function SplitBillManager({ defaultPayerName }) {
   const [editAllocationInputOverrides, setEditAllocationInputOverrides] = useState({});
   const [editPercentInputOverrides, setEditPercentInputOverrides] = useState({});
   const [editFrozenParticipantIds, setEditFrozenParticipantIds] = useState({});
+  const [editAllocationMode, setEditAllocationMode] = useState("equal");
   const [editPayerAllocationInputOverrides, setEditPayerAllocationInputOverrides] = useState({});
   const [editPayerPercentInputOverrides, setEditPayerPercentInputOverrides] = useState({});
   const [confirmDeleteItem, setConfirmDeleteItem] = useState(false);
@@ -756,6 +897,10 @@ export default function SplitBillManager({ defaultPayerName }) {
   const [balanceError, setBalanceError] = useState("");
   const [balancePartialInputs, setBalancePartialInputs] = useState({});
   const [balancePartialOpen, setBalancePartialOpen] = useState({});
+  const [balancePartialEditing, setBalancePartialEditing] = useState({});
+  const [balanceLineSelections, setBalanceLineSelections] = useState({});
+  const [balanceSettledLines, setBalanceSettledLines] = useState([]);
+  const [balanceDetailParticipantId, setBalanceDetailParticipantId] = useState("");
   const [urlSyncEnabled, setUrlSyncEnabled] = useState(false);
   const restoreAttemptedRef = useRef(false);
 
@@ -899,6 +1044,15 @@ export default function SplitBillManager({ defaultPayerName }) {
     () => calculateSummary({ participants, items, currency, settlements }),
     [participants, items, currency, settlements],
   );
+  const balanceDetail = useMemo(() => {
+    if (!balanceDetailParticipantId) return null;
+    return buildParticipantBreakdown({
+      participantId: balanceDetailParticipantId,
+      participants,
+      items,
+      currency,
+    });
+  }, [balanceDetailParticipantId, participants, items, currency]);
   const itemsTotalCents = useMemo(
     () => items.reduce((acc, item) => acc + amountToCents(item.amount, currency), 0),
     [items, currency],
@@ -978,7 +1132,11 @@ export default function SplitBillManager({ defaultPayerName }) {
     setSettlements([]);
     setDraftItem(buildDraftItem(next.participants, next.payerId));
     setDraftFrozenParticipantIds({});
+    setDraftAllocationMode("equal");
+    setEditAllocationMode("equal");
     setEditFrozenParticipantIds({});
+    setInvoiceFile(null);
+    setInvoicePayerIds([]);
     clearDraftOverrides();
     setFriendPickerOpen(false);
     closeItemEditor();
@@ -1295,6 +1453,9 @@ export default function SplitBillManager({ defaultPayerName }) {
     setBalanceSummary(summaryForRecord);
     setBalancePartialInputs({});
     setBalancePartialOpen({});
+    setBalancePartialEditing({});
+    setBalanceLineSelections({});
+    setBalanceSettledLines([]);
     setBalanceError("");
     setBalanceModalOpen(true);
   }
@@ -1306,17 +1467,25 @@ export default function SplitBillManager({ defaultPayerName }) {
     setBalanceSummary(null);
     setBalancePartialInputs({});
     setBalancePartialOpen({});
+    setBalancePartialEditing({});
+    setBalanceLineSelections({});
+    setBalanceSettledLines([]);
     setBalanceError("");
   }
 
   function updateBalancePartialInput(key, value) {
-    setBalancePartialInputs((current) => ({ ...current, [key]: value }));
+    const sanitized = normalizePositiveDecimalInput(value);
+    setBalancePartialInputs((current) => ({ ...current, [key]: sanitized }));
     if (balanceError) {
       setBalanceError("");
     }
   }
 
-  async function persistBalanceSettlement(line, amountCents) {
+  function setBalancePartialEditingState(key, isEditing) {
+    setBalancePartialEditing((current) => ({ ...current, [key]: isEditing }));
+  }
+
+  async function persistBalanceSettlement(line, amountCents, { markSettled = false } = {}) {
     if (!balanceRecord || amountCents <= 0) return;
     setBalanceSaving(true);
     setBalanceError("");
@@ -1375,9 +1544,116 @@ export default function SplitBillManager({ defaultPayerName }) {
         settlements: recordSettlements,
       });
 
+      if (markSettled) {
+        setBalanceSettledLines((current) => {
+          const key = `${line.fromId}-${line.toId}`;
+          const filtered = current.filter((entry) => entry.key !== key);
+          return [
+            ...filtered,
+            {
+              key,
+              settlementId: newEntry.id,
+              fromId: line.fromId,
+              toId: line.toId,
+              amountCents,
+            },
+          ];
+        });
+      }
+
       setBalanceRecord(saved);
       setBalanceParticipants(recordParticipants);
       setBalanceSummary(summaryForRecord);
+
+      if (editingSplitId === saved.id) {
+        setSettlements(recordSettlements);
+      }
+    } catch (_error) {
+      setBalanceError("No se pudo actualizar el balance.");
+    } finally {
+      setBalanceSaving(false);
+    }
+  }
+
+  async function undoBalanceSettlement(line) {
+    if (!balanceRecord || !line) return;
+    setBalanceSaving(true);
+    setBalanceError("");
+    const currentSettlements = balanceRecord.settlements || [];
+    let nextSettlements = currentSettlements.filter((entry) => entry?.id !== line.id);
+    if (nextSettlements.length === currentSettlements.length) {
+      const storedFromId = toStoredParticipantId(line.fromId);
+      const storedToId = toStoredParticipantId(line.toId);
+      const lineAmount = Math.max(0, Math.round(Number(line.amountCents) || 0));
+      const lineCreatedAt = line.createdAt ? String(line.createdAt) : "";
+      let removed = false;
+      nextSettlements = currentSettlements.filter((entry) => {
+        if (removed) return true;
+        const entryAmount = Math.max(0, Math.round(Number(entry?.amountCents) || 0));
+        const entryCreatedAt = entry?.createdAt ? String(entry.createdAt) : "";
+        const matches =
+          String(entry?.fromId || "") === storedFromId &&
+          String(entry?.toId || "") === storedToId &&
+          entryAmount === lineAmount &&
+          (!lineCreatedAt || entryCreatedAt === lineCreatedAt);
+        if (matches) {
+          removed = true;
+          return false;
+        }
+        return true;
+      });
+    }
+    try {
+      const res = await fetch(`/api/split-bills/${balanceRecord.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: balanceRecord.title,
+          currency: balanceRecord.currency,
+          payerType: balanceRecord.payerType,
+          payerFriendId: balanceRecord.payerFriendId,
+          participantFriendIds: balanceRecord.participantFriendIds || [],
+          items: balanceRecord.items || [],
+          settlements: nextSettlements,
+        }),
+      });
+      let payload = null;
+      try {
+        payload = await res.json();
+      } catch (_error) {
+        payload = null;
+      }
+      if (!res.ok) {
+        setBalanceError(payload?.error || "No se pudo actualizar el balance.");
+        return;
+      }
+      const saved = payload?.data;
+      if (!saved) {
+        setBalanceError("No se pudo actualizar el balance.");
+        return;
+      }
+
+      setSplits((current) => current.map((item) => (item.id === saved.id ? saved : item)));
+
+      const recordParticipants = buildParticipantsFromFriendIds(
+        saved.participantFriendIds || [],
+        friends,
+        defaultPayerName,
+      );
+      const defaultPayerId = resolvePayerId(saved);
+      const recordItems = buildItemsFromStored(saved.items, recordParticipants, defaultPayerId, saved.currency);
+      const recordSettlements = buildSettlementsFromStored(saved.settlements, recordParticipants);
+      const summaryForRecord = calculateSummary({
+        participants: recordParticipants,
+        items: recordItems,
+        currency: saved.currency,
+        settlements: recordSettlements,
+      });
+
+      setBalanceRecord(saved);
+      setBalanceParticipants(recordParticipants);
+      setBalanceSummary(summaryForRecord);
+      setBalanceSettledLines((current) => current.filter((entry) => entry.settlementId !== line.id));
 
       if (editingSplitId === saved.id) {
         setSettlements(recordSettlements);
@@ -1580,11 +1856,13 @@ export default function SplitBillManager({ defaultPayerName }) {
       const rawParticipantIds = (current.participantIds || []).filter((id) => id !== participantId);
       const nextParticipantIds = rawParticipantIds.length ? rawParticipantIds : fallbackParticipantIds;
       const totalCents = amountToCents(current.amount, currency);
-      const allocationMap = normalizeAllocationMap(
-        allocationsToMap(current.allocations, nextParticipantIds),
-        nextParticipantIds,
+      const allocationMap = buildAllocationMapForMode({
+        currentAllocations: current.allocations,
+        participantIds: nextParticipantIds,
         totalCents,
-      );
+        mode: "equal",
+        frozenMap: draftFrozenParticipantIds,
+      });
       const filteredPayerIds = getRawPayerIds(current).filter((id) => nextParticipantIds.includes(id));
       const nextPayerIds = filteredPayerIds.length ? filteredPayerIds : [nextParticipantIds[0] || "user"];
       const nextDraftPayerId = nextPayerIds[0];
@@ -1628,6 +1906,33 @@ export default function SplitBillManager({ defaultPayerName }) {
   function resetDraftItem(nextParticipants = participants, fallbackPayerId = payerId) {
     setDraftItem(buildDraftItem(nextParticipants, fallbackPayerId));
     setDraftFrozenParticipantIds({});
+    setDraftAllocationMode("equal");
+    clearDraftOverrides();
+  }
+
+  function resetDraftItemKeepingPayers(nextParticipants, nextPayerIds, nextPayerMode) {
+    const participantIds = nextParticipants.map((person) => person.id);
+    const base = buildDraftItem(nextParticipants, nextPayerIds[0] || payerId);
+    const normalizedPayerIds = normalizePayerIds(
+      { payerIds: nextPayerIds },
+      participantIds,
+      base.payerId,
+    );
+    const normalizedMode =
+      nextPayerMode === "manual" && normalizedPayerIds.length > 1 ? "manual" : "equal";
+    const payerAllocations =
+      normalizedMode === "manual"
+        ? mapToAllocations(buildEqualAllocations(normalizedPayerIds, 0), normalizedPayerIds)
+        : [];
+    setDraftItem({
+      ...base,
+      payerId: normalizedPayerIds[0] || base.payerId,
+      payerIds: normalizedPayerIds,
+      payerMode: normalizedMode,
+      payerAllocations,
+    });
+    setDraftFrozenParticipantIds({});
+    setDraftAllocationMode("equal");
     clearDraftOverrides();
   }
 
@@ -1777,6 +2082,130 @@ export default function SplitBillManager({ defaultPayerName }) {
     });
   }
 
+  function toggleInvoicePayer(participantId) {
+    setInvoicePayerIds((current) => {
+      const exists = current.includes(participantId);
+      if (exists) {
+        return current.filter((id) => id !== participantId);
+      }
+      return [...current, participantId];
+    });
+  }
+
+  function handleInvoiceChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setInvoiceFile(null);
+      setInvoicePayerIds([]);
+      return;
+    }
+    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    const isImage = file.type.startsWith("image/");
+    if (!isPdf && !isImage) {
+      setFeedback({ type: "error", text: "La factura debe ser una imagen o PDF." });
+      if (invoiceInputRef.current) {
+        invoiceInputRef.current.value = "";
+      }
+      setInvoiceFile(null);
+      setInvoicePayerIds([]);
+      return;
+    }
+    setInvoiceFile(file);
+    setInvoicePayerIds([]);
+  }
+
+  function clearInvoiceFile() {
+    setInvoiceFile(null);
+    setInvoicePayerIds([]);
+    if (invoiceInputRef.current) {
+      invoiceInputRef.current.value = "";
+    }
+  }
+
+  function openBalanceDetail(participantId) {
+    setBalanceDetailParticipantId(participantId);
+  }
+
+  function closeBalanceDetail() {
+    setBalanceDetailParticipantId("");
+  }
+
+  function updateBalanceLineSelection(lineKey, toId) {
+    setBalanceLineSelections((current) => ({ ...current, [lineKey]: toId }));
+    setBalancePartialInputs({});
+    setBalancePartialOpen({});
+    setBalancePartialEditing({});
+    setBalanceSettledLines([]);
+  }
+
+  function exportSplitItemsCsv() {
+    if (!items.length) return;
+    const header = ["Ítem", "Valor", "Participantes"];
+    const rows = items.map((item) => {
+      const amountCents = amountToCents(item.amount, currency);
+      const amountLabel = formatAmountInputFromCents(amountCents, currency);
+      const participantsLabel = getItemParticipantsLabel(item, participants);
+      const description = item.description?.trim() || "Ítem sin descripción";
+      return [description, amountLabel, participantsLabel];
+    });
+    const escapeValue = (value) => `"${String(value ?? "").replace(/\"/g, "\"\"")}"`;
+    const csvRows = [header, ...rows].map((row) => row.map(escapeValue).join(";"));
+    const csvContent = `\ufeff${csvRows.join("\n")}`;
+    const baseName = (title || "division").trim() || "division";
+    const safeName = baseName.toLowerCase().replace(/[^\w\d]+/g, "-").replace(/^-+|-+$/g, "");
+    const filename = `${safeName || "division"}-items.csv`;
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportBalanceCsv() {
+    if (!items.length) return;
+    const header = ["Participante", "Ítem", "Valor asignado", "Total ítem"];
+    const rows = [];
+    participants.forEach((person) => {
+      const breakdown = buildParticipantBreakdown({
+        participantId: person.id,
+        participants,
+        items,
+        currency,
+      });
+      if (!breakdown || breakdown.items.length === 0) {
+        rows.push([person.name, "Sin ítems", "0,00", ""]);
+        return;
+      }
+      breakdown.items.forEach((entry) => {
+        rows.push([
+          person.name,
+          entry.description,
+          formatAmountInputFromCents(entry.owedCents, currency),
+          formatAmountInputFromCents(entry.totalCents, currency),
+        ]);
+      });
+    });
+    const escapeValue = (value) => `"${String(value ?? "").replace(/\"/g, "\"\"")}"`;
+    const csvRows = [header, ...rows].map((row) => row.map(escapeValue).join(";"));
+    const csvContent = `\ufeff${csvRows.join("\n")}`;
+    const baseName = (title || "division").trim() || "division";
+    const safeName = baseName.toLowerCase().replace(/[^\w\d]+/g, "-").replace(/^-+|-+$/g, "");
+    const filename = `${safeName || "division"}-balance.csv`;
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
 
   function updateDraftItem(patch) {
     setDraftItem((current) => ({ ...current, ...patch }));
@@ -1790,14 +2219,20 @@ export default function SplitBillManager({ defaultPayerName }) {
       const nextTotalCents = amountToCents(sanitizedAmount, currency);
       let nextMap = {};
       if (participantIds.length) {
-        if (prevTotalCents > 0) {
+        const keepManual =
+          draftAllocationMode === "manual" || Object.keys(draftFrozenParticipantIds).length > 0;
+        if (!keepManual) {
+          nextMap = normalizeAllocationMap({}, participantIds, nextTotalCents);
+        } else if (prevTotalCents > 0) {
           const prevMap = getAllocationMapForItem(current, participantIds, prevTotalCents);
           participantIds.forEach((id) => {
             const percent = prevMap[id] / prevTotalCents;
             nextMap[id] = Math.round(nextTotalCents * percent);
           });
         }
-        nextMap = normalizeAllocationMap(nextMap, participantIds, nextTotalCents);
+        if (Object.keys(nextMap).length === 0) {
+          nextMap = normalizeAllocationMap(nextMap, participantIds, nextTotalCents);
+        }
       }
       const payerIds = normalizePayerIds(current, participants.map((person) => person.id));
       let nextPayerMap = {};
@@ -1876,11 +2311,13 @@ export default function SplitBillManager({ defaultPayerName }) {
         clearDraftFreeze(participantId);
         const nextParticipantIds = current.participantIds.filter((id) => id !== participantId);
         const totalCents = amountToCents(current.amount, currency);
-        const allocationMap = normalizeAllocationMap(
-          allocationsToMap(current.allocations, nextParticipantIds),
-          nextParticipantIds,
+        const allocationMap = buildAllocationMapForMode({
+          currentAllocations: current.allocations,
+          participantIds: nextParticipantIds,
           totalCents,
-        );
+          mode: "equal",
+          frozenMap: draftFrozenParticipantIds,
+        });
         return {
           ...current,
           participantIds: nextParticipantIds,
@@ -1889,13 +2326,20 @@ export default function SplitBillManager({ defaultPayerName }) {
       }
       const nextParticipantIds = [...(current.participantIds || []), participantId];
       const totalCents = amountToCents(current.amount, currency);
-      const allocationMap = normalizeAllocationMap({}, nextParticipantIds, totalCents);
+      const allocationMap = buildAllocationMapForMode({
+        currentAllocations: current.allocations,
+        participantIds: nextParticipantIds,
+        totalCents,
+        mode: "equal",
+        frozenMap: draftFrozenParticipantIds,
+      });
       return {
         ...current,
         participantIds: nextParticipantIds,
         allocations: mapToAllocations(allocationMap, nextParticipantIds),
       };
     });
+    setDraftAllocationMode("equal");
   }
 
   function assignAllParticipantsToDraft() {
@@ -1909,9 +2353,54 @@ export default function SplitBillManager({ defaultPayerName }) {
         allocations: mapToAllocations(allocationMap, nextParticipantIds),
       };
     });
+    setDraftAllocationMode("equal");
+  }
+
+  function toggleAllParticipantsInDraft() {
+    const allSelected =
+      participants.length > 0 &&
+      participants.every((person) => (draftItem.participantIds || []).includes(person.id));
+    if (allSelected) {
+      setDraftItem((current) => ({
+        ...current,
+        participantIds: [],
+        allocations: [],
+      }));
+      setAllocationInputOverrides({});
+      setPercentInputOverrides({});
+      setDraftFrozenParticipantIds({});
+      setDraftAllocationMode("equal");
+      return;
+    }
+    assignAllParticipantsToDraft();
+  }
+
+  function toggleAllParticipantsInEdit() {
+    if (!editingItem) return;
+    const allSelected =
+      participants.length > 0 &&
+      participants.every((person) => (editingItem.participantIds || []).includes(person.id));
+    if (allSelected) {
+      setEditingItem((current) =>
+        current
+          ? {
+              ...current,
+              participantIds: [],
+              allocations: [],
+            }
+          : current,
+      );
+      setEditAllocationInputOverrides({});
+      setEditPercentInputOverrides({});
+      setEditFrozenParticipantIds({});
+      setEditAllocationMode("equal");
+      return;
+    }
+    assignAllParticipantsToEdit();
   }
 
   function updateDraftAllocationValue(participantId, nextValue) {
+    setDraftAllocationMode("manual");
     setDraftItem((current) => {
       const participantIds = current.participantIds || [];
       const totalCents = amountToCents(current.amount, currency);
@@ -1979,6 +2468,7 @@ export default function SplitBillManager({ defaultPayerName }) {
   }
 
   function updateDraftAllocationPercent(participantId, index, orderedIds, nextValue) {
+    setDraftAllocationMode("manual");
     setDraftItem((current) => {
       const participantIds = orderedIds.length ? orderedIds : current.participantIds || [];
       const totalCents = amountToCents(current.amount, currency);
@@ -2003,6 +2493,10 @@ export default function SplitBillManager({ defaultPayerName }) {
   function openItemEditor(item, index) {
     if (!item) return;
     setEditFrozenParticipantIds({});
+    const participantIds = item.participantIds || [];
+    const totalCents = amountToCents(item.amount, currency);
+    const allocationMap = getAllocationMapForItem(item, participantIds, totalCents);
+    setEditAllocationMode(isEqualAllocation(allocationMap, participantIds, totalCents) ? "equal" : "manual");
     setEditingItem({
       ...item,
       participantIds: item.participantIds || [],
@@ -2021,6 +2515,7 @@ export default function SplitBillManager({ defaultPayerName }) {
     setEditingItemIndex(-1);
     setConfirmDeleteItem(false);
     setEditFrozenParticipantIds({});
+    setEditAllocationMode("equal");
     clearEditOverrides();
   }
 
@@ -2037,14 +2532,20 @@ export default function SplitBillManager({ defaultPayerName }) {
       const nextTotalCents = amountToCents(sanitizedAmount, currency);
       let nextMap = {};
       if (participantIds.length) {
-        if (prevTotalCents > 0) {
+        const keepManual =
+          editAllocationMode === "manual" || Object.keys(editFrozenParticipantIds).length > 0;
+        if (!keepManual) {
+          nextMap = normalizeAllocationMap({}, participantIds, nextTotalCents);
+        } else if (prevTotalCents > 0) {
           const prevMap = getAllocationMapForItem(current, participantIds, prevTotalCents);
           participantIds.forEach((id) => {
             const percent = prevMap[id] / prevTotalCents;
             nextMap[id] = Math.round(nextTotalCents * percent);
           });
         }
-        nextMap = normalizeAllocationMap(nextMap, participantIds, nextTotalCents);
+        if (Object.keys(nextMap).length === 0) {
+          nextMap = normalizeAllocationMap(nextMap, participantIds, nextTotalCents);
+        }
       }
       const payerIds = normalizePayerIds(current, participants.map((person) => person.id));
       let nextPayerMap = {};
@@ -2126,11 +2627,13 @@ export default function SplitBillManager({ defaultPayerName }) {
         clearEditFreeze(participantId);
         const nextParticipantIds = current.participantIds.filter((id) => id !== participantId);
         const totalCents = amountToCents(current.amount, currency);
-        const allocationMap = normalizeAllocationMap(
-          allocationsToMap(current.allocations, nextParticipantIds),
-          nextParticipantIds,
+        const allocationMap = buildAllocationMapForMode({
+          currentAllocations: current.allocations,
+          participantIds: nextParticipantIds,
           totalCents,
-        );
+          mode: "equal",
+          frozenMap: editFrozenParticipantIds,
+        });
         return {
           ...current,
           participantIds: nextParticipantIds,
@@ -2139,13 +2642,20 @@ export default function SplitBillManager({ defaultPayerName }) {
       }
       const nextParticipantIds = [...(current.participantIds || []), participantId];
       const totalCents = amountToCents(current.amount, currency);
-      const allocationMap = normalizeAllocationMap({}, nextParticipantIds, totalCents);
+      const allocationMap = buildAllocationMapForMode({
+        currentAllocations: current.allocations,
+        participantIds: nextParticipantIds,
+        totalCents,
+        mode: "equal",
+        frozenMap: editFrozenParticipantIds,
+      });
       return {
         ...current,
         participantIds: nextParticipantIds,
         allocations: mapToAllocations(allocationMap, nextParticipantIds),
       };
     });
+    setEditAllocationMode("equal");
   }
 
   function assignAllParticipantsToEdit() {
@@ -2160,9 +2670,11 @@ export default function SplitBillManager({ defaultPayerName }) {
         allocations: mapToAllocations(allocationMap, nextParticipantIds),
       };
     });
+    setEditAllocationMode("equal");
   }
 
   function updateEditingAllocationValue(participantId, nextValue) {
+    setEditAllocationMode("manual");
     setEditingItem((current) => {
       if (!current) return current;
       const participantIds = current.participantIds || [];
@@ -2186,6 +2698,7 @@ export default function SplitBillManager({ defaultPayerName }) {
   }
 
   function updateEditingAllocationPercent(participantId, index, orderedIds, nextValue) {
+    setEditAllocationMode("manual");
     setEditingItem((current) => {
       if (!current) return current;
       const participantIds = orderedIds.length ? orderedIds : current.participantIds || [];
@@ -2481,7 +2994,7 @@ export default function SplitBillManager({ defaultPayerName }) {
     if (!saved) return;
     setItems(nextItems);
     setFeedback({ type: "ok", text: "Ítem guardado correctamente." });
-    resetDraftItem(participants, getRawPayerIds(draftItem)[0] || draftItem.payerId);
+    resetDraftItemKeepingPayers(participants, getRawPayerIds(draftItem), draftItem.payerMode);
   }
 
   return (
@@ -2753,6 +3266,51 @@ export default function SplitBillManager({ defaultPayerName }) {
                     {friendsError ? <p className="message message-error">{friendsError}</p> : null}
                   </div>
 
+                  <div style={{ marginBottom: 12 }}>
+                    <p className="expense-hint" style={{ marginBottom: 6 }}>Adjuntar factura</p>
+                    <div className="expense-form-grid" style={{ marginBottom: 8 }}>
+                      <input
+                        ref={invoiceInputRef}
+                        className="input"
+                        type="file"
+                        accept="image/*,application/pdf,.pdf"
+                        onChange={handleInvoiceChange}
+                      />
+                      {invoiceFile ? (
+                        <button className="btn btn-ghost" type="button" onClick={clearInvoiceFile}>
+                          Quitar factura
+                        </button>
+                      ) : null}
+                    </div>
+                    {invoiceFile ? (
+                      <p className="movement-meta" style={{ marginTop: 4 }}>
+                        {invoiceFile.name}
+                      </p>
+                    ) : null}
+                    {invoiceFile ? (
+                      <>
+                        <p className="expense-hint" style={{ margin: "8px 0 6px" }}>
+                          Pagaron la factura
+                        </p>
+                        <div className="chip-row">
+                          {participants.map((person) => {
+                            const active = invoicePayerIds.includes(person.id);
+                            return (
+                              <button
+                                key={person.id}
+                                type="button"
+                                className={`chip ${active ? "chip-live" : ""}`}
+                                onClick={() => toggleInvoicePayer(person.id)}
+                              >
+                                {person.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+
                   <button className="btn btn-primary" type="button" onClick={continueToItems} disabled={creatingSplit}>
                     {creatingSplit ? "Creando división..." : "Agregar gastos a dividir"}
                   </button>
@@ -2791,7 +3349,23 @@ export default function SplitBillManager({ defaultPayerName }) {
                         <tbody>
                           {summary.balances.map((item) => (
                             <tr key={item.id}>
-                              <td>{item.name}</td>
+                              <td>
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  className="split-balance-name"
+                                  onClick={() => openBalanceDetail(item.id)}
+                                  onKeyDown={(event) => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                      event.preventDefault();
+                                      openBalanceDetail(item.id);
+                                    }
+                                  }}
+                                  title="Ver detalle de consumo"
+                                >
+                                  {item.name}
+                                </span>
+                              </td>
                               <td>{formatCurrencyFromCents(item.paidCents, currency)}</td>
                               <td>{formatCurrencyFromCents(item.owedCents, currency)}</td>
                               <td className={`amount-col ${item.balanceCents >= 0 ? "pos" : "neg"}`}>
@@ -2808,6 +3382,15 @@ export default function SplitBillManager({ defaultPayerName }) {
                   <article className="panel dashboard-card split-items-card">
                     <div className="dashboard-card-head">
                       <h2>Agregar ítems</h2>
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        onClick={exportSplitItemsCsv}
+                        disabled={items.length === 0}
+                        title="Exportar ítems a CSV"
+                      >
+                        Exportar CSV
+                      </button>
                     </div>
 
                     {feedback ? (
@@ -2906,6 +3489,16 @@ export default function SplitBillManager({ defaultPayerName }) {
                         draftPayerIds,
                         draftAmountCents,
                       );
+                      const draftPercentMap = buildPercentMap(
+                        allocationMap,
+                        draftParticipantIds,
+                        draftAmountCents,
+                      );
+                      const draftPayerPercentMap = buildPercentMap(
+                        payerAllocationMap,
+                        draftPayerIds,
+                        draftAmountCents,
+                      );
                       return (
                         <article className="movement-item" style={{ display: "grid", gap: 8 }}>
                           <div className="expense-form-grid">
@@ -2975,15 +3568,14 @@ export default function SplitBillManager({ defaultPayerName }) {
                                 </div>
                                 {draftPayers.map((person, index) => {
                                   const allocationCents = payerAllocationMap[person.id] || 0;
-                                  const percentValue =
-                                    draftAmountCents > 0 ? (allocationCents / draftAmountCents) * 100 : 0;
+                                  const percentValue = draftPayerPercentMap[person.id] || 0;
                                   const allocationOverride = payerAllocationInputOverrides[person.id];
                                   const percentOverride = payerPercentInputOverrides[person.id];
                                   return (
                                     <div key={person.id} className="split-allocation-row">
                                       <span>{person.name}</span>
                                       <input
-                                        className="input"
+                                        className="input split-value-input"
                                         type="text"
                                         inputMode="decimal"
                                         value={
@@ -2999,7 +3591,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                                         }}
                                       />
                                       <input
-                                        className="input"
+                                        className="input split-percent-input"
                                         type="text"
                                         inputMode="decimal"
                                         value={
@@ -3044,6 +3636,20 @@ export default function SplitBillManager({ defaultPayerName }) {
                                   </button>
                                 );
                               })}
+                              <button
+                                type="button"
+                                className={`expense-method-chip ${
+                                  participants.length > 0 &&
+                                  participants.every((person) =>
+                                    (draftItem.participantIds || []).includes(person.id),
+                                  )
+                                    ? "active"
+                                    : ""
+                                }`}
+                                onClick={toggleAllParticipantsInDraft}
+                              >
+                                Todos
+                              </button>
                             </div>
                           </div>
 
@@ -3061,8 +3667,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                               </div>
                               {draftParticipants.map((person, index) => {
                                 const allocationCents = allocationMap[person.id] || 0;
-                                const percentValue =
-                                  draftAmountCents > 0 ? (allocationCents / draftAmountCents) * 100 : 0;
+                                const percentValue = draftPercentMap[person.id] || 0;
                                 const allocationOverride = allocationInputOverrides[person.id];
                                 const percentOverride = percentInputOverrides[person.id];
                                 const isFrozen = !!draftFrozenParticipantIds[person.id];
@@ -3070,7 +3675,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                                   <div key={person.id} className="split-allocation-row split-allocation-row-freeze">
                                     <span>{person.name}</span>
                                     <input
-                                      className="input"
+                                      className="input split-value-input"
                                       type="text"
                                       inputMode="decimal"
                                       value={
@@ -3086,7 +3691,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                                       }}
                                     />
                                     <input
-                                      className="input"
+                                      className="input split-percent-input"
                                       type="text"
                                       inputMode="decimal"
                                       value={
@@ -3106,14 +3711,14 @@ export default function SplitBillManager({ defaultPayerName }) {
                                         );
                                       }}
                                     />
-                                    <label className="split-freeze-toggle">
+                                    <label className="split-freeze-toggle" aria-label="Congelar">
                                       <input
                                         type="checkbox"
                                         checked={isFrozen}
                                         onChange={() => toggleDraftFreeze(person.id)}
                                         aria-label="Congelar"
                                       />
-                                      <span className="split-freeze-pill">Congelar</span>
+                                      <span className="split-freeze-pill" aria-hidden="true">❄</span>
                                     </label>
                                   </div>
                                 );
@@ -3127,14 +3732,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                                 ? `Total del ítem: ${formatCurrencyFromCents(draftAmountCents, currency)}`
                                 : "Ingresa el valor del ítem para calcular el reparto."}
                             </p>
-                            <div style={{ display: "flex", gap: 8 }}>
-                              <button
-                                className="btn btn-ghost"
-                                type="button"
-                                onClick={assignAllParticipantsToDraft}
-                              >
-                                Todos
-                              </button>
+                            <div className="split-item-actions">
                               <button
                                 className="btn btn-primary"
                                 type="button"
@@ -3157,6 +3755,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                         <div className="movement-list">
                           {items.map((item, index) => {
                             const amountCents = amountToCents(item.amount, currency);
+                            const participantLabel = getItemParticipantsLabel(item, participants);
                             return (
                               <button
                                 key={item.id}
@@ -3164,9 +3763,14 @@ export default function SplitBillManager({ defaultPayerName }) {
                                 className="movement-item split-item-row"
                                 onClick={() => openItemEditor(item, index)}
                               >
-                                <p className="movement-name" style={{ margin: 0 }}>
-                                  {item.description || "Ítem sin descripción"}
-                                </p>
+                                <div style={{ display: "grid", gap: 2 }}>
+                                  <p className="movement-name" style={{ margin: 0 }}>
+                                    {item.description || "Ítem sin descripción"}
+                                  </p>
+                                  <p className="movement-meta" style={{ margin: 0 }}>
+                                    {participantLabel}
+                                  </p>
+                                </div>
                                 <p className="movement-amount" style={{ margin: 0 }}>
                                   {formatCurrencyFromCents(amountCents, currency)}
                                 </p>
@@ -3275,6 +3879,16 @@ export default function SplitBillManager({ defaultPayerName }) {
                     editPayerIds,
                     editAmountCents,
                   );
+                  const editPercentMap = buildPercentMap(
+                    allocationMap,
+                    editParticipantIds,
+                    editAmountCents,
+                  );
+                  const editPayerPercentMap = buildPercentMap(
+                    editPayerAllocationMap,
+                    editPayerIds,
+                    editAmountCents,
+                  );
                   return (
                     <>
                       <div className="expense-form-grid">
@@ -3344,15 +3958,14 @@ export default function SplitBillManager({ defaultPayerName }) {
                             </div>
                             {editPayers.map((person, index) => {
                               const allocationCents = editPayerAllocationMap[person.id] || 0;
-                              const percentValue =
-                                editAmountCents > 0 ? (allocationCents / editAmountCents) * 100 : 0;
+                              const percentValue = editPayerPercentMap[person.id] || 0;
                               const allocationOverride = editPayerAllocationInputOverrides[person.id];
                               const percentOverride = editPayerPercentInputOverrides[person.id];
                               return (
                                 <div key={person.id} className="split-allocation-row">
                                   <span>{person.name}</span>
                                   <input
-                                    className="input"
+                                    className="input split-value-input"
                                     type="text"
                                     inputMode="decimal"
                                     value={
@@ -3368,7 +3981,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                                     }}
                                   />
                                   <input
-                                    className="input"
+                                    className="input split-percent-input"
                                     type="text"
                                     inputMode="decimal"
                                     value={
@@ -3413,6 +4026,20 @@ export default function SplitBillManager({ defaultPayerName }) {
                               </button>
                             );
                           })}
+                          <button
+                            type="button"
+                            className={`expense-method-chip ${
+                              participants.length > 0 &&
+                              participants.every((person) =>
+                                (editingItem.participantIds || []).includes(person.id),
+                              )
+                                ? "active"
+                                : ""
+                            }`}
+                            onClick={toggleAllParticipantsInEdit}
+                          >
+                            Todos
+                          </button>
                         </div>
                       </div>
 
@@ -3430,8 +4057,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                           </div>
                           {editParticipants.map((person, index) => {
                             const allocationCents = allocationMap[person.id] || 0;
-                            const percentValue =
-                              editAmountCents > 0 ? (allocationCents / editAmountCents) * 100 : 0;
+                            const percentValue = editPercentMap[person.id] || 0;
                             const allocationOverride = editAllocationInputOverrides[person.id];
                             const percentOverride = editPercentInputOverrides[person.id];
                             const isFrozen = !!editFrozenParticipantIds[person.id];
@@ -3439,7 +4065,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                               <div key={person.id} className="split-allocation-row split-allocation-row-freeze">
                                 <span>{person.name}</span>
                                 <input
-                                  className="input"
+                                  className="input split-value-input"
                                   type="text"
                                   inputMode="decimal"
                                   value={
@@ -3455,7 +4081,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                                   }}
                                 />
                                 <input
-                                  className="input"
+                                  className="input split-percent-input"
                                   type="text"
                                   inputMode="decimal"
                                   value={
@@ -3475,14 +4101,14 @@ export default function SplitBillManager({ defaultPayerName }) {
                                     );
                                   }}
                                 />
-                                <label className="split-freeze-toggle">
+                                <label className="split-freeze-toggle" aria-label="Congelar">
                                   <input
                                     type="checkbox"
                                     checked={isFrozen}
                                     onChange={() => toggleEditFreeze(person.id)}
                                     aria-label="Congelar"
                                   />
-                                  <span className="split-freeze-pill">Congelar</span>
+                                  <span className="split-freeze-pill" aria-hidden="true">❄</span>
                                 </label>
                               </div>
                             );
@@ -3514,9 +4140,6 @@ export default function SplitBillManager({ defaultPayerName }) {
                         </div>
                       ) : (
                         <div className="item-modal-actions">
-                          <button className="btn btn-ghost" type="button" onClick={assignAllParticipantsToEdit}>
-                            Todos
-                          </button>
                           <button className="btn btn-primary" type="button" onClick={saveEditingItem}>
                             Guardar cambios
                           </button>
@@ -3550,75 +4173,54 @@ export default function SplitBillManager({ defaultPayerName }) {
                   <h2>Balance de la cuenta</h2>
                   <p>Detalle de quién debe a quién y opciones para saldar.</p>
                 </div>
-                <button type="button" className="balance-modal-close" onClick={closeBalanceModal} aria-label="Cerrar">
-                  ✕
-                </button>
+                <div className="balance-modal-actions">
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={exportBalanceCsv}
+                    disabled={items.length === 0}
+                  >
+                    Exportar CSV
+                  </button>
+                  <button
+                    type="button"
+                    className="balance-modal-close"
+                    onClick={closeBalanceModal}
+                    aria-label="Cerrar"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
               <div className="balance-modal-body">
                 {balanceError ? <p className="message message-error">{balanceError}</p> : null}
                 {(() => {
-                  const balanceLines = balanceSummary.settlements || [];
                   const balanceCurrency = balanceRecord?.currency || currency;
                   const nameMap = new Map(balanceParticipants.map((person) => [person.id, person.name]));
-                  const balancesMap = new Map(
-                    balanceSummary.balances.map((item) => [item.id, item]),
-                  );
+                  const creditors = balanceSummary.balances.filter((item) => item.balanceCents > 0);
+                  const historyLines = buildSettlementsFromStored(
+                    balanceRecord?.settlements || [],
+                    balanceParticipants,
+                  ).sort((a, b) => {
+                    const aTime = a.createdAt ? Date.parse(a.createdAt) : 0;
+                    const bTime = b.createdAt ? Date.parse(b.createdAt) : 0;
+                    return bTime - aTime;
+                  });
+                  const balanceLines = balanceSummary.settlements || [];
                   return (
                     <>
-                      <div className="balance-people">
-                        {balanceParticipants.map((person) => {
-                          const owes = balanceLines.filter((line) => line.fromId === person.id);
-                          const owedBy = balanceLines.filter((line) => line.toId === person.id);
-                          const balanceItem = balancesMap.get(person.id);
-                          return (
-                            <div key={person.id} className="balance-person">
-                              <div className="balance-person-head">
-                                <strong>{person.name}</strong>
-                                {balanceItem ? (
-                                  <span className={balanceItem.balanceCents >= 0 ? "pos" : "neg"}>
-                                    {balanceItem.balanceCents >= 0 ? "+" : "-"}
-                                    {formatCurrencyFromCents(Math.abs(balanceItem.balanceCents), balanceCurrency)}
-                                  </span>
-                                ) : null}
-                              </div>
-                              {owes.length === 0 && owedBy.length === 0 ? (
-                                <p className="movement-meta">Sin deudas pendientes.</p>
-                              ) : null}
-                              {owes.length > 0 ? (
-                                <div className="balance-person-lines">
-                                  <p className="movement-meta">Debe a:</p>
-                                  {owes.map((line) => (
-                                    <p key={`${line.fromId}-${line.toId}`} className="movement-meta">
-                                      {nameMap.get(line.toId) || "Participante"} ·{" "}
-                                      {formatCurrencyFromCents(line.amountCents, balanceCurrency)}
-                                    </p>
-                                  ))}
-                                </div>
-                              ) : null}
-                              {owedBy.length > 0 ? (
-                                <div className="balance-person-lines">
-                                  <p className="movement-meta">Le deben:</p>
-                                  {owedBy.map((line) => (
-                                    <p key={`${line.toId}-${line.fromId}`} className="movement-meta">
-                                      {nameMap.get(line.fromId) || "Participante"} ·{" "}
-                                      {formatCurrencyFromCents(line.amountCents, balanceCurrency)}
-                                    </p>
-                                  ))}
-                                </div>
-                              ) : null}
-                            </div>
-                          );
-                        })}
-                      </div>
-
                       <div className="balance-actions">
                         <h3>Liquidar deudas</h3>
                         {balanceLines.length === 0 ? (
                           <p className="movement-meta">No hay deudas pendientes.</p>
                         ) : (
                           <div className="balance-lines">
-                            {balanceLines.map((line) => {
-                              const key = `${line.fromId}-${line.toId}`;
+                            {balanceLines.map((line, index) => {
+                              const lineKey = `${line.fromId}-${line.toId}-${index}`;
+                              const selectedCreditor = balanceLineSelections[lineKey] || line.toId;
+                              const key = `${line.fromId}-${selectedCreditor}-${index}`;
+                              const lineForPayment =
+                                selectedCreditor === line.toId ? line : { ...line, toId: selectedCreditor };
                               const fromName = nameMap.get(line.fromId) || "Participante";
                               const toName = nameMap.get(line.toId) || "Participante";
                               const inputValue = balancePartialInputs[key] || "";
@@ -3626,9 +4228,26 @@ export default function SplitBillManager({ defaultPayerName }) {
                               return (
                                 <div key={key} className="balance-line">
                                   <div className="balance-line-info">
-                                    <p className="movement-name" style={{ margin: 0 }}>
-                                      {fromName} debe a {toName}
-                                    </p>
+                                    <div className="balance-line-label">
+                                      <span className="movement-name">{fromName} debe a</span>
+                                      {creditors.length > 0 ? (
+                                        <select
+                                          className="input balance-line-select"
+                                          value={selectedCreditor}
+                                          onChange={(event) =>
+                                            updateBalanceLineSelection(lineKey, event.target.value)
+                                          }
+                                        >
+                                          {creditors.map((creditor) => (
+                                            <option key={creditor.id} value={creditor.id}>
+                                              {nameMap.get(creditor.id) || creditor.name}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      ) : (
+                                        <span className="movement-name">{toName}</span>
+                                      )}
+                                    </div>
                                     <p className="movement-amount" style={{ margin: 0 }}>
                                       {formatCurrencyFromCents(line.amountCents, balanceCurrency)}
                                     </p>
@@ -3640,11 +4259,11 @@ export default function SplitBillManager({ defaultPayerName }) {
                                       onClick={() => {
                                         setBalancePartialOpen((current) => ({ ...current, [key]: false }));
                                         setBalancePartialInputs((current) => ({ ...current, [key]: "" }));
-                                        persistBalanceSettlement(line, line.amountCents);
+                                        persistBalanceSettlement(lineForPayment, line.amountCents, { markSettled: true });
                                       }}
                                       disabled={balanceSaving}
                                     >
-                                      Saldar total
+                                      Pago total
                                     </button>
                                     <button
                                       type="button"
@@ -3654,7 +4273,7 @@ export default function SplitBillManager({ defaultPayerName }) {
                                       }
                                       disabled={balanceSaving}
                                     >
-                                      Saldar parcial
+                                      Pago parcial
                                     </button>
                                   </div>
                                   {partialOpen ? (
@@ -3664,7 +4283,13 @@ export default function SplitBillManager({ defaultPayerName }) {
                                         type="text"
                                         inputMode="decimal"
                                         placeholder="Monto"
-                                        value={inputValue}
+                                        value={
+                                          balancePartialEditing[key]
+                                            ? inputValue
+                                            : formatAmountInputValue(inputValue, balanceCurrency)
+                                        }
+                                        onFocus={() => setBalancePartialEditingState(key, true)}
+                                        onBlur={() => setBalancePartialEditingState(key, false)}
                                         onChange={(event) => updateBalancePartialInput(key, event.target.value)}
                                       />
                                       <button
@@ -3683,7 +4308,9 @@ export default function SplitBillManager({ defaultPayerName }) {
                                           setBalanceError("");
                                           setBalancePartialOpen((current) => ({ ...current, [key]: false }));
                                           setBalancePartialInputs((current) => ({ ...current, [key]: "" }));
-                                          persistBalanceSettlement(line, amountCents);
+                                          persistBalanceSettlement(lineForPayment, amountCents, {
+                                            markSettled: amountCents === line.amountCents,
+                                          });
                                         }}
                                         disabled={balanceSaving}
                                       >
@@ -3694,12 +4321,120 @@ export default function SplitBillManager({ defaultPayerName }) {
                                 </div>
                               );
                             })}
+                            {balanceSettledLines.map((line) => {
+                              const fromName = nameMap.get(line.fromId) || "Participante";
+                              const toName = nameMap.get(line.toId) || "Participante";
+                              return (
+                                <div key={line.key} className="balance-line balance-line-disabled">
+                                  <div className="balance-line-info">
+                                    <div className="balance-line-label">
+                                      <span className="movement-name">{fromName} debe a {toName}</span>
+                                    </div>
+                                    <p className="movement-amount" style={{ margin: 0 }}>
+                                      {formatCurrencyFromCents(line.amountCents, balanceCurrency)}
+                                    </p>
+                                  </div>
+                                  <p className="movement-meta balance-line-status">Cuenta liquidada</p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      <div className="balance-actions">
+                        <h3>Historial de pagos</h3>
+                        {historyLines.length === 0 ? (
+                          <p className="movement-meta">Aún no hay pagos registrados.</p>
+                        ) : (
+                          <div className="balance-lines">
+                            {historyLines.map((line) => {
+                              const fromName = nameMap.get(line.fromId) || "Participante";
+                              const toName = nameMap.get(line.toId) || "Participante";
+                              return (
+                                <div key={line.id} className="balance-line">
+                                  <div className="balance-line-info">
+                                    <div className="balance-line-label">
+                                      <p className="movement-name" style={{ margin: 0 }}>
+                                        {fromName} pagó a {toName}
+                                      </p>
+                                      <button
+                                        type="button"
+                                        className="btn btn-ghost balance-undo-btn balance-undo-inline"
+                                        onClick={() => undoBalanceSettlement(line)}
+                                        disabled={balanceSaving}
+                                        title="Deshacer"
+                                        aria-label="Deshacer"
+                                      >
+                                        ↩
+                                      </button>
+                                    </div>
+                                    <p className="movement-amount" style={{ margin: 0 }}>
+                                      {formatCurrencyFromCents(line.amountCents, balanceCurrency)}
+                                    </p>
+                                  </div>
+                                  {line.createdAt ? (
+                                    <p className="movement-meta" style={{ margin: 0 }}>
+                                      {new Date(line.createdAt).toLocaleString("es-CO")}
+                                    </p>
+                                  ) : null}
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
                     </>
                   );
                 })()}
+              </div>
+            </div>
+          </>
+        ) : null}
+        {balanceDetailParticipantId && balanceDetail ? (
+          <>
+            <button
+              type="button"
+              className="balance-modal-backdrop"
+              onClick={closeBalanceDetail}
+              aria-label="Cerrar detalle de consumo"
+            />
+            <div className="balance-modal" role="dialog" aria-modal="true">
+              <div className="balance-modal-head">
+                <div>
+                  <h2>Consumo de {balanceDetail.participant.name}</h2>
+                  <p>Ítems en los que participa y su valor asignado.</p>
+                </div>
+                <button type="button" className="balance-modal-close" onClick={closeBalanceDetail} aria-label="Cerrar">
+                  ✕
+                </button>
+              </div>
+              <div className="balance-modal-body">
+                {balanceDetail.items.length === 0 ? (
+                  <p className="movement-meta">No hay ítems asociados.</p>
+                ) : (
+                  <div className="movement-list">
+                    {balanceDetail.items.map((item) => (
+                      <div key={item.id} className="movement-item split-item-row">
+                        <p className="movement-name" style={{ margin: 0 }}>
+                          {item.description}
+                        </p>
+                        <p className="movement-amount" style={{ margin: 0 }}>
+                          {formatCurrencyFromCents(item.owedCents, currency)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="split-items-total" style={{ marginTop: 12 }}>
+                  <span>Total consumo</span>
+                  <strong>
+                    {formatCurrencyFromCents(
+                      summary.balances.find((item) => item.id === balanceDetail.participant.id)?.owedCents ??
+                        balanceDetail.totalCents,
+                      currency,
+                    )}
+                  </strong>
+                </div>
               </div>
             </div>
           </>
