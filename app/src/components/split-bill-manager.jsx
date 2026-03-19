@@ -1529,11 +1529,9 @@ export default function SplitBillManager({ defaultPayerName }) {
     setBalanceError("");
 
     const ownerBal = summaryForRecord.balances.find((b) => b.id === "user");
-    const alreadyRegistered = (record.settlements || []).some(
-      (s) => Array.isArray(s.expenseIds) && s.expenseIds.length > 0,
-    );
-    if (!alreadyRegistered && ownerBal && ownerBal.balanceCents === 0) {
-      setMovementsToRegister(buildOwnerMovements(summaryForRecord, record, recordParticipants));
+    if (ownerBal && ownerBal.balanceCents === 0) {
+      const pendingMovements = buildOwnerMovements(summaryForRecord, record, recordParticipants);
+      setMovementsToRegister(pendingMovements);
       setOwnerMovementsBannerDismissed(false);
     } else {
       setMovementsToRegister([]);
@@ -1651,11 +1649,9 @@ export default function SplitBillManager({ defaultPayerName }) {
       setBalanceSummary(summaryForRecord);
 
       const ownerBal = summaryForRecord.balances.find((b) => b.id === "user");
-      const alreadyRegistered = (saved.settlements || []).some(
-        (s) => Array.isArray(s.expenseIds) && s.expenseIds.length > 0,
-      );
-      if (!alreadyRegistered && ownerBal && ownerBal.balanceCents === 0) {
-        setMovementsToRegister(buildOwnerMovements(summaryForRecord, saved, recordParticipants));
+      if (ownerBal && ownerBal.balanceCents === 0) {
+        const pendingMovements = buildOwnerMovements(summaryForRecord, saved, recordParticipants);
+        setMovementsToRegister(pendingMovements);
         setOwnerMovementsBannerDismissed(false);
       } else {
         setMovementsToRegister([]);
@@ -1788,8 +1784,20 @@ export default function SplitBillManager({ defaultPayerName }) {
     const nameMap = new Map(participants.map((p) => [p.id, p.name]));
     const movements = [];
     const splitNotes = `Registrado desde división de cuentas saldada: ${record.title}`;
-    const allSettlements = buildSettlementsFromStored(record.settlements || [], participants);
+    const storedSettlements = record.settlements || [];
+
+    const registeredSettlementIds = new Set(
+      storedSettlements
+        .filter((s) => s.id !== "__owner_consumption__" && Array.isArray(s.expenseIds) && s.expenseIds.length > 0)
+        .map((s) => s.id),
+    );
+    const consumptionRegistered = storedSettlements.some(
+      (s) => s.id === "__owner_consumption__" && Array.isArray(s.expenseIds) && s.expenseIds.length > 0,
+    );
+
+    const allSettlements = buildSettlementsFromStored(storedSettlements, participants);
     for (const settlement of allSettlements) {
+      if (registeredSettlementIds.has(settlement.id)) continue;
       if (settlement.toId === "user") {
         const fromName = nameMap.get(settlement.fromId) || "Participante";
         const label = `${fromName} te pagó`;
@@ -1832,26 +1840,28 @@ export default function SplitBillManager({ defaultPayerName }) {
         });
       }
     }
-    const ownerBal = summary.balances.find((b) => b.id === "user");
-    if (ownerBal && ownerBal.paidCents > 0 && ownerBal.owedCents > 0) {
-      const label = `Tu consumo en "${record.title}"`;
-      movements.push({
-        id: createId("mov"),
-        settlementId: null,
-        type: "expense",
-        amountCents: ownerBal.owedCents,
-        label,
-        category: "Gastos",
-        subcategory: "",
-        edge: "",
-        detail: label,
-        notes: splitNotes,
-        method: "bank_transfer",
-        card: "",
-        bank: "",
-        sourceAccountId: "",
-        currency: record.currency || "COP",
-      });
+    if (!consumptionRegistered) {
+      const ownerBal = summary.balances.find((b) => b.id === "user");
+      if (ownerBal && ownerBal.paidCents > 0 && ownerBal.owedCents > 0) {
+        const label = `Tu consumo en "${record.title}"`;
+        movements.push({
+          id: createId("mov"),
+          settlementId: null,
+          type: "expense",
+          amountCents: ownerBal.owedCents,
+          label,
+          category: "Gastos",
+          subcategory: "",
+          edge: "",
+          detail: label,
+          notes: splitNotes,
+          method: "bank_transfer",
+          card: "",
+          bank: "",
+          sourceAccountId: "",
+          currency: record.currency || "COP",
+        });
+      }
     }
     return movements;
   }
@@ -5026,13 +5036,9 @@ export default function SplitBillManager({ defaultPayerName }) {
                   <button
                     type="button"
                     className="btn btn-ghost"
-                    onClick={() => {
-                      const { line } = undoConfirmState;
-                      setUndoConfirmState(null);
-                      doUndoBalanceSettlement(line, false);
-                    }}
+                    onClick={() => setUndoConfirmState(null)}
                   >
-                    No, solo deshacer
+                    Cancelar
                   </button>
                   <button
                     type="button"
